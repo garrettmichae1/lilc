@@ -34,6 +34,11 @@ services/agent-worker/node_modules/
 vendor/conformance/harness
 vendor/probe*
 
+# Web app (source snapshot under apps/web)
+apps/web/node_modules/
+apps/web/dist/
+apps/web/.vite/
+
 # OS / editor
 .DS_Store
 .idea/

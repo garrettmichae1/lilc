@@ -1,0 +1,22 @@
+{
+  "name": "lilc-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Browser copy of the lilC iPhone C learner. PicoC in WASM. Free for students.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "wasm": "sh native/build-wasm.sh",
+    "build:pages": "npm run wasm && npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "id": "first-hour",
+  "title": "First hour",
+  "summary": "Six tiny C programs. Open one, press Run, change a number, press Run again. Optional — skip any lesson.",
+  "lessons": [
+    {
+      "id": "hello",
+      "number": 1,
+      "title": "Hello",
+      "goal": "Print a line.",
+      "fileName": "01-hello.c",
+      "expectedOutput": "hello from lilC\n",
+      "source": "#include <stdio.h>\n\n/* Lesson 1 of 6 — Hello.\n   Press RUN. Change the message, then RUN again. */\n\nint main(void) {\n    printf(\"hello from lilC\\n\");\n    return 0;\n}\n"
+    },
+    {
+      "id": "variables",
+      "number": 2,
+      "title": "Variables",
+      "goal": "Store a number and print it.",
+      "fileName": "02-variables.c",
+      "expectedOutput": "year = 2026\n",
+      "source": "#include <stdio.h>\n\n/* Lesson 2 of 6 — Variables.\n   Change year and press RUN. */\n\nint main(void) {\n    int year = 2026;\n    printf(\"year = %d\\n\", year);\n    return 0;\n}\n"
+    },
+    {
+      "id": "if",
+      "number": 3,
+      "title": "If",
+      "goal": "Choose between two prints.",
+      "fileName": "03-if.c",
+      "expectedOutput": "warm\n",
+      "source": "#include <stdio.h>\n\n/* Lesson 3 of 6 — If.\n   Change temp and press RUN. Try 15. */\n\nint main(void) {\n    int temp = 28;\n    if (temp >= 20) {\n        printf(\"warm\\n\");\n    } else {\n        printf(\"cool\\n\");\n    }\n    return 0;\n}\n"
+    },
+    {
+      "id": "loop",
+      "number": 4,
+      "title": "Loop",
+      "goal": "Repeat a print.",
+      "fileName": "04-loop.c",
+      "expectedOutput": "1\n2\n3\n4\n5\n",
+      "source": "#include <stdio.h>\n\n/* Lesson 4 of 6 — Loop.\n   Change the 5 to 3 and press RUN. */\n\nint main(void) {\n    int n;\n    for (n = 1; n <= 5; n = n + 1) {\n        printf(\"%d\\n\", n);\n    }\n    return 0;\n}\n"
+    },
+    {
+      "id": "array",
+      "number": 5,
+      "title": "Array",
+      "goal": "Add numbers in a list.",
+      "fileName": "05-array.c",
+      "expectedOutput": "20\n",
+      "source": "#include <stdio.h>\n\n/* Lesson 5 of 6 — Array.\n   Change a value in nums and press RUN. */\n\nint main(void) {\n    int nums[4];\n    int i;\n    int sum;\n    nums[0] = 2;\n    nums[1] = 4;\n    nums[2] = 6;\n    nums[3] = 8;\n    sum = 0;\n    for (i = 0; i < 4; i = i + 1) {\n        sum = sum + nums[i];\n    }\n    printf(\"%d\\n\", sum);\n    return 0;\n}\n"
+    },
+    {
+      "id": "function",
+      "number": 6,
+      "title": "Function",
+      "goal": "Give a name to a calculation.",
+      "fileName": "06-function.c",
+      "expectedOutput": "42\n",
+      "source": "#include <stdio.h>\n\n/* Lesson 6 of 6 — Function.\n   Change 21 and press RUN. */\n\nint twice(int n) {\n    return n * 2;\n}\n\nint main(void) {\n    printf(\"%d\\n\", twice(21));\n    return 0;\n}\n"
+    }
+  ]
+}
