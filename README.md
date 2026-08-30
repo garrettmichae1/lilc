@@ -1,11 +1,3 @@
-<p align="center">
-  <img src="assets/mark.png" width="128" alt="lilC mark">
-</p>
-
-<p align="center">
-  <img src="assets/hero.gif" width="880" alt="lilC, C on iPhone">
-</p>
-
 # lilC
 
 **Learn C on iPhone.**
@@ -13,6 +5,18 @@
 lilC is a free student resource. You write C in a native editor, press Run, and PicoC interprets the program on this iPhone. There is no remote Linux VM, no SSH session, and no cloud compiler.
 
 This release does not include AI.
+
+<p align="center">
+  <img src="./Docs/screenshots/01-home.png" width="165" alt="Home — Learn C on iPhone">
+  <img src="./Docs/screenshots/02-lesson-blank.png" width="165" alt="Lesson: replace ??? then press RUN">
+  <img src="./Docs/screenshots/03-hello-run.png" width="165" alt="RUN prints hello from lilC">
+  <img src="./Docs/screenshots/04-error-jump.png" width="165" alt="Syntax error you can jump to">
+  <img src="./Docs/screenshots/05-settings.png" width="165" alt="Settings — PicoC, Light or Dark">
+</p>
+
+<p align="center">
+  Home · fill <code>???</code> · Run · jump to errors · Settings
+</p>
 
 ## Try it now
 
@@ -22,19 +26,9 @@ On iPhone: tap **Open editor**, then **RUN**. `hello.c` is already there.
 
 Source is open at [github.com/garrettmichae1/lilc](https://github.com/garrettmichae1/lilc).
 
-<p align="center">
-  <img src="assets/device-wide.jpg" width="880" alt="lilC on iPhone">
-</p>
-
 ## Write. Run. See.
 
-<p align="center">
-  <img src="assets/editor.gif" width="320" alt="Typing hello.c and pressing Run">
-  &nbsp;&nbsp;
-  <img src="assets/error.gif" width="320" alt="Friendly syntax error in the output pane">
-</p>
-
-Open the editor, write a beginner C program, and press **RUN**. Output appears on the same screen. Find in file, a symbol keyboard, and jump to error are included. Files and projects stay on this iPhone. You can erase them from Home or from Settings.
+Open a First Hour lesson, replace `???`, and press **RUN**. Output appears on the same screen. Find in file, a symbol keyboard, and jump to error are included. Files and projects stay on this iPhone. You can erase them from Home or from Settings.
 
 ## PicoC, honestly
 
@@ -44,17 +38,7 @@ When a program fails, lilC shows a note written for learners. Tap **ERROR** to j
 
 ## Light and Dark
 
-<p align="center">
-  <img src="assets/themes.gif" width="360" alt="lilC in Dark and Light">
-</p>
-
-Settings stores Light or Dark in UserDefaults. The chrome is spare on purpose: black or paper, one green accent, readable type.
-
-<p align="center">
-  <img src="assets/home-dark.jpg" width="280" alt="lilC home">
-  &nbsp;&nbsp;
-  <img src="assets/editor-light.jpg" width="280" alt="lilC editor in Light">
-</p>
+Settings stores Light or Dark in UserDefaults. The chrome is spare on purpose: paper or black, one accent, readable type. The PicoC note in Settings is the same one this README uses.
 
 ## Open in Xcode
 
