@@ -133,6 +133,72 @@ private struct HomeScreen: View {
                     }
                     .buttonStyle(.plain)
 
+                    Button {
+                        workspace.openLesson(FirstHourCurriculum.first)
+                        startLocal()
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Start lesson 1")
+                                    .font(.system(size: 17, weight: .semibold))
+                                    .foregroundStyle(AppPalette.foreground)
+                                Text(FirstHourCurriculum.first.goal)
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(AppPalette.silver)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(AppPalette.silver)
+                        }
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 16)
+                        .background(AppPalette.card, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("First hour")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(AppPalette.silver)
+                            .textCase(.uppercase)
+                            .tracking(0.4)
+                        VStack(spacing: 0) {
+                            ForEach(Array(FirstHourCurriculum.lessons.enumerated()), id: \.element.id) { index, lesson in
+                                Button {
+                                    workspace.openLesson(lesson)
+                                    startLocal()
+                                } label: {
+                                    HStack {
+                                        Text("\(lesson.number)")
+                                            .font(.system(size: 15, weight: .semibold, design: .monospaced))
+                                            .foregroundStyle(AppPalette.green)
+                                            .frame(width: 28, alignment: .leading)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(lesson.title)
+                                                .font(.system(size: 17))
+                                                .foregroundStyle(AppPalette.foreground)
+                                            Text(lesson.goal)
+                                                .font(.system(size: 15))
+                                                .foregroundStyle(AppPalette.silver)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 13, weight: .semibold))
+                                            .foregroundStyle(AppPalette.silver)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 14)
+                                }
+                                .buttonStyle(.plain)
+                                if index < FirstHourCurriculum.lessons.count - 1 {
+                                    Divider().padding(.leading, 44)
+                                }
+                            }
+                        }
+                        .background(AppPalette.card, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Text("Projects")
@@ -937,7 +1003,6 @@ private struct LocalModeScreen: View {
                 }
                 .foregroundStyle(AppPalette.onAccent)
                 .background(AppPalette.green, in: RoundedRectangle(cornerRadius: 4))
-                KeyboardHideButton(action: dismissKeyboard)
             }
             .foregroundStyle(AppPalette.green)
             .padding(12)
@@ -1013,7 +1078,6 @@ private struct LocalModeScreen: View {
                         .foregroundStyle(AppPalette.silver)
                     }
                     .buttonStyle(.plain)
-                    KeyboardHideButton(action: dismissKeyboard)
                 }
                 if outputExpanded {
                     outputBody
@@ -1191,23 +1255,6 @@ private enum LocalEditorField: Hashable {
     case editor
     case stdin
     case find
-}
-
-private struct KeyboardHideButton: View {
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: "keyboard.chevron.compact.down")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(AppPalette.silver)
-                .frame(width: 34, height: 30)
-                .background(AppPalette.panel, in: RoundedRectangle(cornerRadius: 4))
-                .overlay(RoundedRectangle(cornerRadius: 4).stroke(AppPalette.line.opacity(0.75)))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Hide keyboard")
-    }
 }
 
 private struct RunStatusBadge: View {

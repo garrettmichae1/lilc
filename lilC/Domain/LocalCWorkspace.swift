@@ -367,6 +367,23 @@ final class LocalCWorkspace {
         createFile(in: "", named: nil)
     }
 
+    /// Copies a first-hour lesson into `lessons/` if needed, then selects it.
+    /// Does not overwrite a file the student already edited.
+    func openLesson(_ lesson: FirstHourLesson) {
+        let relative = lesson.relativePath
+        if let existing = files.first(where: { $0.relativePath == relative }) {
+            select(existing)
+            output = "Lesson \(lesson.number) of \(FirstHourCurriculum.lessons.count) — \(lesson.title). Press RUN."
+            return
+        }
+        let file = LocalCFile(relativePath: relative, code: lesson.source)
+        files.insert(file, at: 0)
+        selectedFileID = file.id
+        persist(file)
+        refreshFolders()
+        output = "Lesson \(lesson.number) of \(FirstHourCurriculum.lessons.count) — \(lesson.title). Press RUN."
+    }
+
     func createHeader() {
         createFile(in: browsePath, named: availableFileName(base: "module", ext: "h", in: browsePath))
     }

@@ -23,6 +23,8 @@
 		10000000000000000000013C /* Domain/CDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000027 /* Domain/CDiagnostics.swift */; };
 		10000000000000000000013E /* Presentation/CCodeEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000029 /* Presentation/CCodeEditor.swift */; };
 		10000000000000000000013D /* Domain/LegalURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000028 /* Domain/LegalURLs.swift */; };
+		10000000000000000000013F /* Domain/CIndentFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000002A /* Domain/CIndentFormatter.swift */; };
+		100000000000000000000140 /* Domain/FirstHourCurriculum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000002B /* Domain/FirstHourCurriculum.swift */; };
 		100000000000000000000220 /* Vendor/PicoC/table.c in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000120 /* Vendor/PicoC/table.c */; };
 		100000000000000000000221 /* Vendor/PicoC/lex.c in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000121 /* Vendor/PicoC/lex.c */; };
 		100000000000000000000222 /* Vendor/PicoC/parse.c in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000122 /* Vendor/PicoC/parse.c */; };
@@ -76,6 +78,8 @@
 		100000000000000000000027 /* Domain/CDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/CDiagnostics.swift; sourceTree = "<group>"; };
 		100000000000000000000029 /* Presentation/CCodeEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/CCodeEditor.swift; sourceTree = "<group>"; };
 		100000000000000000000028 /* Domain/LegalURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/LegalURLs.swift; sourceTree = "<group>"; };
+		10000000000000000000002A /* Domain/CIndentFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/CIndentFormatter.swift; sourceTree = "<group>"; };
+		10000000000000000000002B /* Domain/FirstHourCurriculum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/FirstHourCurriculum.swift; sourceTree = "<group>"; };
 		100000000000000000000019 /* lilC-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "lilC-Bridging-Header.h"; sourceTree = "<group>"; };
 		100000000000000000000120 /* Vendor/PicoC/table.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Vendor/PicoC/table.c; sourceTree = "<group>"; };
 		100000000000000000000121 /* Vendor/PicoC/lex.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Vendor/PicoC/lex.c; sourceTree = "<group>"; };
@@ -144,6 +148,8 @@
 				100000000000000000000018 /* Domain/LocalCWorkspace.swift */,
 				10000000000000000000001A /* Domain/AppAppearance.swift */,
 				100000000000000000000027 /* Domain/CDiagnostics.swift */,
+				10000000000000000000002A /* Domain/CIndentFormatter.swift */,
+				10000000000000000000002B /* Domain/FirstHourCurriculum.swift */,
 				100000000000000000000028 /* Domain/LegalURLs.swift */,
 				10000000000000000000001C /* Domain/AgentModels.swift */,
 				10000000000000000000001D /* Domain/AgentSettingsStore.swift */,
@@ -303,6 +309,8 @@
 				10000000000000000000011B /* Domain/AppAppearance.swift in Sources */,
 				10000000000000000000011C /* Presentation/SettingsScreen.swift in Sources */,
 				10000000000000000000013C /* Domain/CDiagnostics.swift in Sources */,
+				10000000000000000000013F /* Domain/CIndentFormatter.swift in Sources */,
+				100000000000000000000140 /* Domain/FirstHourCurriculum.swift in Sources */,
 				10000000000000000000013D /* Domain/LegalURLs.swift in Sources */,
 				10000000000000000000011D /* Domain/AgentModels.swift in Sources */,
 				10000000000000000000011E /* Domain/AgentSettingsStore.swift in Sources */,

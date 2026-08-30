@@ -1,5 +1,7 @@
 import Foundation
+import SwiftUI
 import Testing
+import UIKit
 @testable import lilC
 
 @Suite(.serialized)
@@ -12,8 +14,45 @@ struct lilCTests {
         #expect(LegalURLs.home.absoluteString == "https://garrettmichae1.github.io/lilc/")
         #expect(LegalURLs.privacy.absoluteString == "https://garrettmichae1.github.io/lilc/privacy.html")
         #expect(LegalURLs.terms.absoluteString == "https://garrettmichae1.github.io/lilc/terms.html")
+        #expect(LegalURLs.teachers.absoluteString == "https://garrettmichae1.github.io/lilc/teachers.html")
+        #expect(LegalURLs.webPlayground.absoluteString == "https://garrettmichae1.github.io/lilc/web/")
         #expect(LegalURLs.privacy.scheme == "https")
         #expect(LegalURLs.terms.scheme == "https")
+    }
+
+    @Test func firstHourCurriculumLoadsSixOptionalLessons() {
+        #expect(FirstHourCurriculum.lessons.count == 6)
+        #expect(FirstHourCurriculum.first.id == "hello")
+        #expect(FirstHourCurriculum.lesson(id: "function")?.number == 6)
+        #expect(Set(FirstHourCurriculum.lessons.map(\.id)).count == 6)
+        #expect(Set(FirstHourCurriculum.lessons.map(\.fileName)).count == 6)
+        for lesson in FirstHourCurriculum.lessons {
+            #expect(lesson.relativePath.hasPrefix("lessons/"))
+            #expect(lesson.source.contains("int main("))
+            #expect(lesson.expectedOutput.isEmpty == false)
+        }
+    }
+
+    @Test func firstHourLessonsRunOnPicoC() {
+        for lesson in FirstHourCurriculum.lessons {
+            let output = LocalCRunner.run(lesson.source)
+            #expect(output == lesson.expectedOutput, "\(lesson.id) produced \(output)")
+        }
+    }
+
+    @MainActor
+    @Test func openLessonCopiesStarterOnceAndDoesNotOverwriteEdits() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-tests-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let lesson = FirstHourCurriculum.first
+        workspace.openLesson(lesson)
+        #expect(workspace.currentFile.relativePath == lesson.relativePath)
+        #expect(workspace.currentFile.code == lesson.source)
+        workspace.updateCurrentCode("int main(void) { return 0; }\n")
+        workspace.openLesson(lesson)
+        #expect(workspace.currentFile.code.contains("return 0;"))
+        #expect(workspace.currentFile.code != lesson.source)
     }
 
     @Test func localCFileNamesNormalizeToCFiles() {
@@ -93,6 +132,262 @@ struct lilCTests {
         #expect(EditorSearch.nsMatches(in: text, query: "   ").isEmpty)
         #expect(EditorSearch.nsMatches(in: text, query: "").isEmpty)
         #expect(EditorSearch.nsMatches(in: text, query: "nope").isEmpty)
+    }
+
+    @Test func indentFormatterIndentsNestedBracesElseForAndSwitch() {
+        let messy = """
+        #include <stdio.h>
+        int main(void) {
+        if (x) {
+        foo();
+        } else {
+        for (i = 0; i < 3; i++) {
+        x++;
+        }
+        }
+        switch (n) {
+        case 1:
+        bar();
+        break;
+        default:
+        baz();
+        }
+        done:
+        return 0;
+        }
+        """
+        let expected = """
+        #include <stdio.h>
+        int main(void) {
+            if (x) {
+                foo();
+            } else {
+                for (i = 0; i < 3; i++) {
+                    x++;
+                }
+            }
+            switch (n) {
+            case 1:
+                bar();
+                break;
+            default:
+                baz();
+            }
+        done:
+            return 0;
+        }
+        """
+        #expect(CIndentFormatter.format(messy) == expected)
+    }
+
+    @Test func indentFormatterPreservesBracesInsideStringsAndComments() {
+        let source = """
+        int main(void) {
+        char *s = "hello { world }";
+        /* { not a block */
+        // { also not
+        return 0;
+        }
+        """
+        let formatted = CIndentFormatter.format(source)
+        #expect(formatted.contains("    char *s = \"hello { world }\";"))
+        #expect(formatted.contains("    /* { not a block */"))
+        #expect(formatted.contains("    // { also not"))
+        #expect(formatted.contains("    return 0;"))
+    }
+
+    @Test func indentFormatterLeavesAlreadyIndentedCodeStableAndEmptyFileAlone() {
+        let pretty = """
+        int main(void) {
+            return 0;
+        }
+        """
+        #expect(CIndentFormatter.format(pretty) == pretty)
+        #expect(CIndentFormatter.format("") == "")
+        #expect(CIndentFormatter.format("\n") == "\n")
+    }
+
+    @Test func indentFormatterPreservesWindowsNewlines() {
+        let source = "int main(void) {\r\nreturn 0;\r\n}\r\n"
+        let formatted = CIndentFormatter.format(source)
+        #expect(formatted == "int main(void) {\r\n    return 0;\r\n}\r\n")
+        #expect(formatted.contains("\r\n"))
+        #expect(!formatted.contains("\n") || formatted.contains("\r\n"))
+    }
+
+    @Test func indentFormatterIsIdempotent() {
+        let samples = [
+            "",
+            "int x;\n",
+            "int main(void) {\nreturn 0;\n}\n",
+            "if (a)\nfoo();\nelse\nbar();\n",
+            "do\nfoo();\nwhile (0);\n",
+            "#include <stdio.h>\nint main(void) { return 0; }\n",
+            "char *s = \"{\";\n{\nint x;\n}\n",
+            "int main(void) {\r\nfoo();\r\n}\r\n",
+            "switch (n) {\ncase 1:\nbreak;\ndefault:\nbreak;\n}\n",
+            "#define FOO \\\n1\n",
+        ]
+        for sample in samples {
+            let once = CIndentFormatter.format(sample)
+            let twice = CIndentFormatter.format(once)
+            #expect(once == twice, "not idempotent for:\n\(sample)\nfirst:\n\(once)\nsecond:\n\(twice)")
+        }
+    }
+
+    @Test func indentFormatterRestoresCaretOntoTheSameContent() {
+        let source = "int main(void) {\nreturn 0;\n}\n"
+        let caret = (source as NSString).range(of: "return").location
+        let result = CIndentFormatter.formatKeepingCaret(source, caretUTF16: caret)
+        let around = (result.text as NSString).substring(
+            with: NSRange(location: result.caretUTF16, length: min(6, (result.text as NSString).length - result.caretUTF16))
+        )
+        #expect(around.hasPrefix("return"))
+    }
+
+    @Test func indentFormatterHangsSingleLineIfForWhileAndDo() {
+        let source = """
+        int main(void) {
+        if (x)
+        foo();
+        else
+        bar();
+        for (i = 0; i < 1; i++)
+        x++;
+        while (x)
+        x--;
+        do
+        x++;
+        while (0);
+        }
+        """
+        let formatted = CIndentFormatter.format(source)
+        #expect(formatted.contains("    if (x)\n        foo();"))
+        #expect(formatted.contains("    else\n        bar();"))
+        #expect(formatted.contains("    for (i = 0; i < 3; i++)") == false)
+        #expect(formatted.contains("    for (i = 0; i < 1; i++)\n        x++;"))
+        #expect(formatted.contains("    while (x)\n        x--;"))
+        #expect(formatted.contains("    do\n        x++;"))
+    }
+
+    @Test func keyboardPolicyNeverResignsToChaseStaleFocusState() {
+        #expect(
+            CCodeEditorKeyboardPolicy.shouldResignFirstResponder(
+                swiftUIWantsFocus: false,
+                textViewIsFirstResponder: true
+            ) == false
+        )
+        #expect(
+            CCodeEditorKeyboardPolicy.shouldApplyBoundText(
+                fileChanged: false,
+                isFirstResponder: true,
+                viewText: "int x;",
+                boundText: "int y;"
+            ) == false
+        )
+        #expect(
+            CCodeEditorKeyboardPolicy.shouldApplyBoundText(
+                fileChanged: false,
+                isFirstResponder: false,
+                viewText: "int x;",
+                boundText: "int y;"
+            ) == true
+        )
+        #expect(
+            CCodeEditorKeyboardPolicy.shouldBecomeFirstResponder(
+                swiftUIWantsFocus: true,
+                textViewIsFirstResponder: false
+            ) == true
+        )
+        #expect(
+            CCodeEditorKeyboardPolicy.shouldBecomeFirstResponder(
+                swiftUIWantsFocus: true,
+                textViewIsFirstResponder: true
+            ) == false
+        )
+    }
+
+    @MainActor
+    @Test func accessoryBarHasOneDismissAndFormatBesideIt() {
+        let accessory = CSymbolAccessoryView()
+        let labels = accessory.controlAccessibilityLabels
+        #expect(labels.last == "Hide keyboard")
+        #expect(labels.dropLast().last == "Indent code")
+        #expect(labels.filter { $0 == "Hide keyboard" }.count == 1)
+        #expect(labels.contains("{"))
+        #expect(labels.contains("Indent"))
+    }
+
+    @MainActor
+    @Test func formatBufferIndentsTextViewWithoutReplacingIt() {
+        var text = "int main(void) {\nreturn 0;\n}\n"
+        let editor = CCodeEditor(
+            text: Binding(get: { text }, set: { text = $0 }),
+            fileID: "main.c",
+            isFocused: true,
+            jump: nil,
+            findVisible: false,
+            findQuery: "",
+            findIndex: 0,
+            findEpoch: 0,
+            overlayHeight: 0,
+            onBeginEditing: {},
+            onEndEditing: {}
+        )
+        let coordinator = CCodeEditor.Coordinator(parent: editor)
+        let textView = UITextView(frame: CGRect(x: 0, y: 0, width: 320, height: 200))
+        textView.text = text
+        coordinator.textView = textView
+        let identity = ObjectIdentifier(textView)
+        coordinator.formatBuffer()
+        #expect(textView.text == "int main(void) {\n    return 0;\n}\n")
+        #expect(text == textView.text)
+        #expect(ObjectIdentifier(textView) == identity)
+    }
+
+    @MainActor
+    @Test func editorHostingKeepsSameTextViewAcrossTypedCharacters() {
+        final class Box {
+            var text = "int x;"
+        }
+        let box = Box()
+        let host = UIHostingController(
+            rootView: EditorKeyboardHarness(
+                text: Binding(get: { box.text }, set: { box.text = $0 })
+            )
+        )
+        host.view.bounds = CGRect(x: 0, y: 0, width: 390, height: 800)
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        host.loadViewIfNeeded()
+        host.view.layoutIfNeeded()
+
+        let textView = firstTextView(in: host.view)
+        #expect(textView != nil)
+        guard let textView else { return }
+        let identity = ObjectIdentifier(textView)
+        let becameFirstResponder = textView.becomeFirstResponder()
+        textView.insertText("a")
+        host.view.setNeedsLayout()
+        host.view.layoutIfNeeded()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+
+        let after = firstTextView(in: host.view)
+        #expect(after.map(ObjectIdentifier.init) == identity)
+        #expect((textView.text ?? "").contains("a"))
+        if becameFirstResponder {
+            #expect(
+                textView.isFirstResponder,
+                "Typing must not resign first responder; updateUIView used to resign when FocusState lagged"
+            )
+        }
+        #expect(
+            CCodeEditorKeyboardPolicy.shouldResignFirstResponder(
+                swiftUIWantsFocus: false,
+                textViewIsFirstResponder: true
+            ) == false
+        )
     }
 
     @Test func diagnosticJumpMapsConcatenatedHelperLineOntoHelperFile() {
@@ -900,3 +1195,36 @@ private let picoCAndRunnerErrorCatalog = [
     "lilC could not run this C program.",
     "Cannot run this project: it has more than one main() function (a.c, b.c). Keep one main() and turn the others into helper functions.",
 ]
+
+private struct EditorKeyboardHarness: View {
+    @Binding var text: String
+
+    var body: some View {
+        CCodeEditor(
+            text: $text,
+            fileID: "main.c",
+            isFocused: true,
+            jump: nil,
+            findVisible: false,
+            findQuery: "",
+            findIndex: 0,
+            findEpoch: 0,
+            overlayHeight: 0,
+            onBeginEditing: {},
+            onEndEditing: {}
+        )
+        .frame(width: 390, height: 500)
+    }
+}
+
+private func firstTextView(in view: UIView) -> UITextView? {
+    if let textView = view as? UITextView {
+        return textView
+    }
+    for child in view.subviews {
+        if let found = firstTextView(in: child) {
+            return found
+        }
+    }
+    return nil
+}

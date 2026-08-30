@@ -253,6 +253,14 @@ struct SettingsScreen: View {
 
     private var legalSection: some View {
         Section {
+            Link(destination: LegalURLs.teachers) {
+                settingsLinkLabel("For teachers")
+            }
+            .listRowBackground(AppPalette.card)
+            Link(destination: LegalURLs.webPlayground) {
+                settingsLinkLabel("Web playground")
+            }
+            .listRowBackground(AppPalette.card)
             Link(destination: LegalURLs.privacy) {
                 settingsLinkLabel("Privacy Policy")
             }

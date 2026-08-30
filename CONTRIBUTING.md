@@ -18,8 +18,8 @@ Thanks for wanting to improve lilC. This is an on-device PicoC learner for iPhon
 4. Build and run.
 
 ```bash
-xcodebuild -scheme lilC -destination 'platform=iOS Simulator,name=iPhone 16' build
-xcodebuild -scheme lilC -destination 'platform=iOS Simulator,name=iPhone 16' test
+xcodebuild -scheme lilC -destination 'platform=iOS Simulator,name=iPhone 17' build
+xcodebuild -scheme lilC -destination 'platform=iOS Simulator,name=iPhone 17' test
 ```
 
 ## How to add a PicoC library

@@ -14,6 +14,14 @@ lilC is a free student resource. You write C in a native editor, press Run, and 
 
 This release does not include AI.
 
+## Try it now
+
+**[Run C in your browser](https://garrettmichae1.github.io/lilc/web/)** — free, no install, no account. PicoC in WASM, not GCC.
+
+On iPhone: tap **Open editor**, then **RUN**. `hello.c` is already there.
+
+Source is open at [github.com/garrettmichae1/lilc](https://github.com/garrettmichae1/lilc).
+
 <p align="center">
   <img src="assets/device-wide.jpg" width="880" alt="lilC on iPhone">
 </p>
@@ -56,7 +64,7 @@ Settings stores Light or Dark in UserDefaults. The chrome is spare on purpose: b
 4. Build and run.
 
 ```bash
-xcodebuild -scheme lilC -destination 'platform=iOS Simulator,name=iPhone 16' build
+xcodebuild -scheme lilC -destination 'platform=iOS Simulator,name=iPhone 17' build
 ```
 
 ## What ships
@@ -67,6 +75,7 @@ xcodebuild -scheme lilC -destination 'platform=iOS Simulator,name=iPhone 16' bui
 | Run | Run, Stop, stdin while a program waits |
 | Files | Projects on this iPhone, including erase all |
 | Settings | Light, Dark, an honest PicoC note, legal links |
+| Web | Same learner in the browser at `/web/` |
 | Agent | Compiled in, hidden |
 
 Agent chat is compiled into the app but hidden (`AgentRuntimeConfig.surfacesVisibleInThisRelease = false`). Do not turn that flag on in a pull request unless maintainers ask for it.
@@ -78,6 +87,8 @@ Privacy and Terms are live on GitHub Pages. Settings and App Store review use th
 | Page | URL |
 | --- | --- |
 | Home | https://garrettmichae1.github.io/lilc/ |
+| Web app | https://garrettmichae1.github.io/lilc/web/ |
+| Teachers | https://garrettmichae1.github.io/lilc/teachers.html |
 | Privacy | https://garrettmichae1.github.io/lilc/privacy.html |
 | Terms | https://garrettmichae1.github.io/lilc/terms.html |
 

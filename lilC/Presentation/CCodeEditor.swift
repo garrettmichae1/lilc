@@ -32,6 +32,29 @@ enum EditorSearch {
     }
 }
 
+enum CCodeEditorKeyboardPolicy {
+    /// SwiftUI `FocusState` lags behind `UITextView` on each keystroke. Resigning
+    /// to "match" that stale flag is what collapsed the keyboard while typing.
+    static func shouldResignFirstResponder(swiftUIWantsFocus: Bool, textViewIsFirstResponder: Bool) -> Bool {
+        false
+    }
+
+    static func shouldBecomeFirstResponder(swiftUIWantsFocus: Bool, textViewIsFirstResponder: Bool) -> Bool {
+        swiftUIWantsFocus && !textViewIsFirstResponder
+    }
+
+    static func shouldApplyBoundText(
+        fileChanged: Bool,
+        isFirstResponder: Bool,
+        viewText: String,
+        boundText: String
+    ) -> Bool {
+        if fileChanged { return viewText != boundText }
+        if isFirstResponder { return false }
+        return viewText != boundText
+    }
+}
+
 struct CCodeEditor: UIViewRepresentable {
     @Binding var text: String
     var fileID: String
@@ -81,25 +104,32 @@ struct CCodeEditor: UIViewRepresentable {
         context.coordinator.textView = textView
         applyChrome(textView, context: context)
 
-        if context.coordinator.fileID != fileID {
+        let fileChanged = context.coordinator.fileID != fileID
+        if fileChanged {
             context.coordinator.fileID = fileID
-            if textView.text != text {
-                textView.text = text
-            }
-            if jump == nil {
-                let location = min(textView.selectedRange.location, (textView.text as NSString).length)
-                textView.selectedRange = NSRange(location: location, length: 0)
-            }
-        } else if textView.text != text {
+        }
+        let viewText = textView.text ?? ""
+        if CCodeEditorKeyboardPolicy.shouldApplyBoundText(
+            fileChanged: fileChanged,
+            isFirstResponder: textView.isFirstResponder,
+            viewText: viewText,
+            boundText: text
+        ) {
             let selected = textView.selectedRange
             textView.text = text
-            let maxLength = (text as NSString).length
-            let location = min(selected.location, maxLength)
-            let length = min(selected.length, max(0, maxLength - location))
-            textView.selectedRange = NSRange(location: location, length: length)
+            if fileChanged, jump == nil {
+                let location = min(textView.selectedRange.location, (textView.text as NSString).length)
+                textView.selectedRange = NSRange(location: location, length: 0)
+            } else if !fileChanged {
+                let maxLength = (text as NSString).length
+                let location = min(selected.location, maxLength)
+                let length = min(selected.length, max(0, maxLength - location))
+                textView.selectedRange = NSRange(location: location, length: length)
+            }
         }
 
-        applyHighlights(textView)
+        applyHighlights(textView, previouslyFinding: context.coordinator.findWasVisible)
+        context.coordinator.findWasVisible = findVisible
 
         if let jump, context.coordinator.appliedJumpID != jump.id {
             context.coordinator.appliedJumpID = jump.id
@@ -120,15 +150,14 @@ struct CCodeEditor: UIViewRepresentable {
             }
         }
 
-        if isFocused != textView.isFirstResponder {
-            let shouldFocus = isFocused
+        if CCodeEditorKeyboardPolicy.shouldBecomeFirstResponder(
+            swiftUIWantsFocus: isFocused,
+            textViewIsFirstResponder: textView.isFirstResponder
+        ) {
             DispatchQueue.main.async {
                 guard textView.window != nil else { return }
-                if shouldFocus {
-                    textView.becomeFirstResponder()
-                } else if textView.isFirstResponder {
-                    textView.resignFirstResponder()
-                }
+                guard context.coordinator.parent.isFocused, !textView.isFirstResponder else { return }
+                textView.becomeFirstResponder()
             }
         }
     }
@@ -139,7 +168,10 @@ struct CCodeEditor: UIViewRepresentable {
         textView.backgroundColor = UIColor(AppPalette.editor)
         textView.textColor = foreground
         textView.tintColor = accent
-        textView.keyboardAppearance = AppearanceStore.shared.colorWay == .dark ? .dark : .default
+        let appearance: UIKeyboardAppearance = AppearanceStore.shared.colorWay == .dark ? .dark : .default
+        if textView.keyboardAppearance != appearance {
+            textView.keyboardAppearance = appearance
+        }
         textView.textContainerInset = UIEdgeInsets(top: 8 + overlayHeight, left: 10, bottom: 8, right: 10)
         textView.typingAttributes = [
             .font: Self.editorFont,
@@ -148,7 +180,8 @@ struct CCodeEditor: UIViewRepresentable {
         context.coordinator.accessory?.applyPalette()
     }
 
-    private func applyHighlights(_ textView: UITextView) {
+    private func applyHighlights(_ textView: UITextView, previouslyFinding: Bool) {
+        if !findVisible && !previouslyFinding { return }
         let storage = textView.textStorage
         let full = NSRange(location: 0, length: storage.length)
         guard full.length > 0 else { return }
@@ -217,6 +250,7 @@ struct CCodeEditor: UIViewRepresentable {
         var fileID = ""
         var appliedJumpID: UUID?
         var appliedFindEpoch = -1
+        var findWasVisible = false
 
         init(parent: CCodeEditor) {
             self.parent = parent
@@ -232,6 +266,31 @@ struct CCodeEditor: UIViewRepresentable {
 
         func textViewDidEndEditing(_ textView: UITextView) {
             parent.onEndEditing()
+        }
+
+        func hideKeyboard() {
+            textView?.resignFirstResponder()
+        }
+
+        func formatBuffer() {
+            guard let textView else { return }
+            let original = textView.text ?? ""
+            let selected = textView.selectedRange
+            let output = CIndentFormatter.formatKeepingCaret(original, caretUTF16: selected.location)
+            guard output.text != original else { return }
+            let keepFocus = textView.isFirstResponder
+            if let end = textView.position(from: textView.beginningOfDocument, offset: (original as NSString).length),
+               let range = textView.textRange(from: textView.beginningOfDocument, to: end) {
+                textView.replace(range, withText: output.text)
+            } else {
+                textView.text = output.text
+            }
+            let maxLength = (textView.text as NSString).length
+            textView.selectedRange = NSRange(location: min(output.caretUTF16, maxLength), length: 0)
+            parent.text = textView.text ?? ""
+            if keepFocus, !textView.isFirstResponder {
+                textView.becomeFirstResponder()
+            }
         }
 
         func insertSymbol(_ value: String) {
@@ -310,6 +369,12 @@ final class CSymbolAccessoryView: UIInputView {
     private var symbolButtons: [UIButton] = []
     private var indentButton: UIButton?
     private var outdentButton: UIButton?
+    private var formatButton: UIButton?
+    private var dismissButton: UIButton?
+
+    var controlAccessibilityLabels: [String] {
+        stack.arrangedSubviews.compactMap { ($0 as? UIButton)?.accessibilityLabel }
+    }
 
     init() {
         super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 40), inputViewStyle: .keyboard)
@@ -352,6 +417,20 @@ final class CSymbolAccessoryView: UIInputView {
         indentButton = indent
         stack.addArrangedSubview(indent)
 
+        let format = makeButton(systemName: "curlybraces", label: "Indent code")
+        format.addAction(UIAction { [weak self] _ in
+            self?.coordinator?.formatBuffer()
+        }, for: .touchUpInside)
+        formatButton = format
+        stack.addArrangedSubview(format)
+
+        let dismiss = makeButton(systemName: "keyboard.chevron.compact.down", label: "Hide keyboard")
+        dismiss.addAction(UIAction { [weak self] _ in
+            self?.coordinator?.hideKeyboard()
+        }, for: .touchUpInside)
+        dismissButton = dismiss
+        stack.addArrangedSubview(dismiss)
+
         applyPalette()
     }
 
@@ -373,6 +452,8 @@ final class CSymbolAccessoryView: UIInputView {
         }
         indentButton?.tintColor = accent
         outdentButton?.tintColor = accent
+        formatButton?.tintColor = accent
+        dismissButton?.tintColor = UIColor(AppPalette.silver)
     }
 
     private func makeButton(title: String? = nil, systemName: String? = nil, label: String) -> UIButton {
