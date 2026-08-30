@@ -1,5 +1,7 @@
+import { firstHourCurriculum } from "../../domain/curriculum";
 import { fileName } from "../../domain/files";
 import { formatC, indentSelection } from "../../domain/indent";
+import { encodeShareHash, playgroundURL, type SharePayload } from "../../domain/share";
 import { findMatches, offsetOfLine } from "../../domain/search";
 import type { LocalCWorkspace } from "../../domain/workspace";
 import { el, icons, svgIcon } from "../dom";
@@ -18,9 +20,12 @@ export function renderEditor(
       autocapitalize: "off",
       autocomplete: "off",
       autocorrect: "off",
+      enterkeyhint: "enter",
       "aria-label": "C source",
     },
   });
+  editor.readOnly = false;
+  editor.disabled = false;
   editor.value = workspace.currentFile.code;
 
   let draftName = fileName(workspace.currentFile);
@@ -39,14 +44,11 @@ export function renderEditor(
     workspace.updateCurrentCode(editor.value);
   });
   editor.addEventListener("focus", () => {
-    editorFocused = true;
-    paint();
+    setEditorFocused(true);
   });
   editor.addEventListener("blur", () => {
-    editorFocused = document.activeElement === editor;
     queueMicrotask(() => {
-      editorFocused = document.activeElement === editor;
-      paint();
+      setEditorFocused(document.activeElement === editor);
     });
   });
   editor.addEventListener("keydown", (event) => {
@@ -126,7 +128,24 @@ export function renderEditor(
   });
 
   const chrome = el("div", { className: "screen", attrs: { style: "min-height:0;flex:1" } });
+  const topSlot = el("div");
+  const tabsSlot = el("div");
+  const nameSlot = el("div");
+  const editorHost = el("div", { className: "editor-wrap" });
+  const findSlot = el("div");
+  const outputSlot = el("div");
+  const symbolSlot = el("div");
+  editorHost.append(findSlot, editor);
+  chrome.append(topSlot, tabsSlot, nameSlot, editorHost, outputSlot, symbolSlot);
   screen.append(chrome);
+
+  const setEditorFocused = (focused: boolean): void => {
+    editorFocused = focused;
+    const bar = symbolSlot.firstElementChild;
+    if (bar) {
+      bar.classList.toggle("visible", focused);
+    }
+  };
 
   const paint = (): void => {
     if (workspace.selectedFileID !== lastFileID) {
@@ -134,7 +153,7 @@ export function renderEditor(
       draftName = fileName(workspace.currentFile);
       editor.value = workspace.currentFile.code;
       findIndex = 0;
-    } else if (!editorFocused && editor.value !== workspace.currentFile.code) {
+    } else if (document.activeElement !== editor && editor.value !== workspace.currentFile.code) {
       applyingBoundText = true;
       editor.value = workspace.currentFile.code;
       applyingBoundText = false;
@@ -149,14 +168,12 @@ export function renderEditor(
     const matches = findMatches(editor.value, findQuery);
     const matchLabel = matches.length === 0 ? "0/0" : `${Math.min(findIndex + 1, matches.length)}/${matches.length}`;
 
-    chrome.replaceChildren(
-      topBar(),
-      fileTabs(),
-      nameRow(),
-      editorWrap(matchLabel),
-      outputPane(),
-      symbolBar(),
-    );
+    topSlot.replaceChildren(topBar());
+    tabsSlot.replaceChildren(fileTabs());
+    nameSlot.replaceChildren(nameRow());
+    paintFindBar(matchLabel);
+    outputSlot.replaceChildren(outputPane());
+    symbolSlot.replaceChildren(symbolBar());
     if (workspace.isWaitingForInput) {
       outputExpanded = true;
       queueMicrotask(() => stdinField.focus());
@@ -251,39 +268,38 @@ export function renderEditor(
       ],
     });
 
-  const editorWrap = (matchLabel: string): HTMLElement => {
-    const wrap = el("div", { className: "editor-wrap" });
-    if (findVisible) {
-      wrap.append(
-        el("div", {
-          className: "find-bar",
-          children: [
-            findInput,
-            el("span", { className: "muted mono", attrs: { style: "font-size:11px" }, text: matchLabel }),
-            el("button", {
-              className: "icon-btn",
-              attrs: { type: "button", "aria-label": "Previous match" },
-              text: "↑",
-              on: { click: () => stepFind(-1) },
-            }),
-            el("button", {
-              className: "icon-btn",
-              attrs: { type: "button", "aria-label": "Next match" },
-              text: "↓",
-              on: { click: () => stepFind(1) },
-            }),
-            el("button", {
-              className: "icon-btn",
-              attrs: { type: "button", "aria-label": "Close find" },
-              on: { click: closeFind },
-              children: [svgIcon(icons.x, 14)],
-            }),
-          ],
-        }),
-      );
+  const paintFindBar = (matchLabel: string): void => {
+    if (!findVisible) {
+      findSlot.replaceChildren();
+      return;
     }
-    wrap.append(editor);
-    return wrap;
+    findSlot.replaceChildren(
+      el("div", {
+        className: "find-bar",
+        children: [
+          findInput,
+          el("span", { className: "muted mono", attrs: { style: "font-size:11px" }, text: matchLabel }),
+          el("button", {
+            className: "icon-btn",
+            attrs: { type: "button", "aria-label": "Previous match" },
+            text: "↑",
+            on: { click: () => stepFind(-1) },
+          }),
+          el("button", {
+            className: "icon-btn",
+            attrs: { type: "button", "aria-label": "Next match" },
+            text: "↓",
+            on: { click: () => stepFind(1) },
+          }),
+          el("button", {
+            className: "icon-btn",
+            attrs: { type: "button", "aria-label": "Close find" },
+            on: { click: closeFind },
+            children: [svgIcon(icons.x, 14)],
+          }),
+        ],
+      }),
+    );
   };
 
   const outputPane = (): HTMLElement => {
@@ -545,29 +561,56 @@ export function renderEditor(
   }
 
   async function shareFile(): Promise<void> {
-    const file = workspace.currentFile;
-    const body = file.code;
+    const payload = sharePayload();
+    const url = playgroundURL(payload, `${location.origin}${location.pathname}`);
+    try {
+      history.replaceState(null, "", encodeShareHash(payload));
+    } catch {
+      location.hash = encodeShareHash(payload);
+    }
     try {
       if (navigator.share) {
-        await navigator.share({ title: fileName(file), text: body });
+        await navigator.share({
+          title: "lilC",
+          text: "Run this C program in the browser. No account.",
+          url,
+        });
         return;
       }
     } catch {
-      /* user cancelled */
+      /* user cancelled or share failed; copy instead */
     }
     try {
-      await navigator.clipboard.writeText(body);
-      workspace.output = "Copied this file to the clipboard.";
+      await navigator.clipboard.writeText(url);
+      workspace.output = "Copied a playground link. Anyone can open it — no account.";
       paint();
     } catch {
-      workspace.output = "Could not share this file.";
+      workspace.output = url;
       paint();
     }
+  }
+
+  function sharePayload(): SharePayload {
+    const file = workspace.currentFile;
+    const lesson = firstHourCurriculum.lessons.find(
+      (item) => file.relativePath === `lessons/${item.fileName}` && file.code === item.source,
+    );
+    if (lesson) {
+      return { kind: "lesson", id: lesson.id };
+    }
+    return { kind: "source", fileName: fileName(file), code: file.code };
   }
 
   const unsubscribe = workspace.subscribe(() => {
     if (!screen.isConnected) {
       unsubscribe();
+      return;
+    }
+    if (
+      document.activeElement === editor &&
+      !workspace.isRunning &&
+      !workspace.isWaitingForInput
+    ) {
       return;
     }
     paint();

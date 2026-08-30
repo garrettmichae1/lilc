@@ -98,6 +98,7 @@ export function renderSettings(
           section(
             "Legal",
             [
+              linkRow("For teachers", LegalURLs.teachers),
               linkRow("Privacy Policy", LegalURLs.privacy),
               linkRow("Terms of Use", LegalURLs.terms),
               el("button", {

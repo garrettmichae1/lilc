@@ -8,6 +8,11 @@ if (!(root instanceof HTMLElement)) {
 }
 
 const workspace = new LocalCWorkspace();
-void workspace.load().then(() => {
-  new App(root, workspace);
-});
+void workspace.load().then(
+  () => {
+    new App(root, workspace);
+  },
+  () => {
+    new App(root, workspace);
+  },
+);
