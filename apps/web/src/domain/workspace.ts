@@ -25,8 +25,24 @@ import {
 } from "./files";
 import { foldersFromFiles, loadPersistedWorkspace, savePersistedWorkspace } from "./storage";
 import { PicoCRunner } from "../pico/runner";
-import { firstHourCurriculum, type FirstHourLesson } from "./curriculum";
+import {
+  firstHourCurriculum,
+  lessonById,
+  lessonForPath,
+  nextLesson,
+  type FirstHourLesson,
+} from "./curriculum";
+import { markLessonComplete, setCurrentLesson } from "./progress";
 import { runFirstHourSubset } from "./subset";
+import { appendNotYet, checkLessonWin } from "./win";
+
+export interface LessonOutcome {
+  token: number;
+  lessonId: string;
+  status: "passed" | "missed";
+  nextId: string | undefined;
+  celebrate: boolean;
+}
 
 export { codePreview, fileName, folderName, folderPath, sizeText };
 export type { LocalBrowserEntry, LocalCFile, LocalCFolder };
@@ -48,8 +64,10 @@ export class LocalCWorkspace {
   lastErrorJump: CErrorJump | undefined;
   stdinLine = "";
   engineNote = "";
+  lessonOutcome: LessonOutcome | undefined;
 
   private liveRunID = 0;
+  private lessonToken = 0;
   private persistTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly listeners = new Set<WorkspaceListener>();
   private readonly runner = new PicoCRunner();
@@ -281,6 +299,8 @@ export class LocalCWorkspace {
   }
 
   openLesson(lesson: FirstHourLesson): void {
+    setCurrentLesson(lesson.id);
+    this.lessonOutcome = undefined;
     const relative = `lessons/${lesson.fileName}`;
     const existing = this.files.find((file) => file.relativePath === relative);
     if (existing) {
@@ -295,6 +315,40 @@ export class LocalCWorkspace {
     this.output = `Lesson ${lesson.number} of ${firstHourCurriculum.lessons.length} — ${lesson.title}. Press RUN.`;
     this.refreshFolders();
     this.persistSoon();
+    this.notify();
+  }
+
+  advanceAfterPass(): "celebrate" | FirstHourLesson | undefined {
+    const outcome = this.lessonOutcome;
+    this.lessonOutcome = undefined;
+    if (!outcome || outcome.status !== "passed") {
+      return undefined;
+    }
+    if (outcome.celebrate) {
+      return "celebrate";
+    }
+    if (!outcome.nextId) {
+      return undefined;
+    }
+    const next = lessonById(outcome.nextId);
+    if (!next) {
+      return undefined;
+    }
+    this.openLesson(next);
+    return next;
+  }
+
+  openFreePlay(): void {
+    this.lessonOutcome = undefined;
+    const existing = this.files.find((file) => file.relativePath === "hello.c");
+    if (existing) {
+      this.select(existing);
+      this.output = "Write any C program. Press RUN.";
+      this.notify();
+      return;
+    }
+    this.createStandaloneFile();
+    this.output = "Write any C program. Press RUN.";
     this.notify();
   }
 
@@ -464,6 +518,9 @@ export class LocalCWorkspace {
 
   private fileToCompile(): LocalCFile {
     const current = this.currentFile;
+    if (lessonForPath(current.relativePath)) {
+      return current;
+    }
     if (
       fileName(current).endsWith(".c") &&
       (containsMainFunction(current.code) || this.currentProjectPath === "")
@@ -482,10 +539,11 @@ export class LocalCWorkspace {
     if (this.isRunning) {
       this.runner.requestStop();
     }
+    const runningLesson = lessonForPath(this.currentFile.relativePath);
     const projectMains = this.projectFiles.filter(
       (file) => fileName(file).endsWith(".c") && containsMainFunction(file.code),
     );
-    if (this.currentProjectPath !== "" && projectMains.length > 1) {
+    if (!runningLesson && this.currentProjectPath !== "" && projectMains.length > 1) {
       this.liveRunID += 1;
       this.isRunning = false;
       this.isWaitingForInput = false;
@@ -499,7 +557,7 @@ export class LocalCWorkspace {
     }
 
     const runFile = this.fileToCompile();
-    const extras = this.extraSourcesToLink(runFile);
+    const extras = runningLesson ? [] : this.extraSourcesToLink(runFile);
     const projectSnapshot = [...this.projectFiles];
     const extraCode = extras.map((file) => file.code).join("\n");
     const code = extraCode.length === 0 ? runFile.code : `${extraCode}\n${runFile.code}`;
@@ -587,7 +645,38 @@ export class LocalCWorkspace {
     }
     this.isRunning = false;
     this.isWaitingForInput = false;
+    this.applyLessonOutcome(runFile, formatted.failed);
     this.notify();
+  }
+
+  private applyLessonOutcome(runFile: LocalCFile, runFailed: boolean): void {
+    const lesson = lessonForPath(runFile.relativePath);
+    if (!lesson) {
+      this.lessonOutcome = undefined;
+      return;
+    }
+    this.lessonToken += 1;
+    const passed = !runFailed && checkLessonWin(lesson, this.output, runFile.code);
+    if (!passed) {
+      this.output = appendNotYet(this.output, lesson);
+      this.lessonOutcome = {
+        token: this.lessonToken,
+        lessonId: lesson.id,
+        status: "missed",
+        nextId: undefined,
+        celebrate: false,
+      };
+      return;
+    }
+    markLessonComplete(lesson.id);
+    const next = nextLesson(lesson);
+    this.lessonOutcome = {
+      token: this.lessonToken,
+      lessonId: lesson.id,
+      status: "passed",
+      nextId: next?.id,
+      celebrate: next === undefined,
+    };
   }
 
   private touchCurrentFile(): void {

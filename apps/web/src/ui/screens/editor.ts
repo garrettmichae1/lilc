@@ -1,12 +1,16 @@
-import { firstHourCurriculum } from "../../domain/curriculum";
+import { firstHourCurriculum, lessonForPath } from "../../domain/curriculum";
 import { fileName } from "../../domain/files";
 import { formatC, indentSelection } from "../../domain/indent";
+import { isLessonComplete, loadProgress } from "../../domain/progress";
 import { encodeShareHash, playgroundURL, type SharePayload } from "../../domain/share";
 import { findMatches, offsetOfLine } from "../../domain/search";
 import type { LocalCWorkspace } from "../../domain/workspace";
+import { hourMeter } from "../components/chrome";
 import { el, icons, svgIcon } from "../dom";
 
 const SYMBOLS = ["{", "}", "(", ")", "[", "]", ";", "=", "&", "*"] as const;
+
+export const NICE_DELAY_MS = 900;
 
 export function renderEditor(
   workspace: LocalCWorkspace,
@@ -36,6 +40,10 @@ export function renderEditor(
   let outputExpanded = true;
   let lastFileID = workspace.selectedFileID;
   let applyingBoundText = false;
+  let niceVisible = false;
+  let celebrating = false;
+  let handledToken = 0;
+  let advanceTimer: ReturnType<typeof setTimeout> | undefined;
 
   editor.addEventListener("input", () => {
     if (applyingBoundText) {
@@ -131,12 +139,13 @@ export function renderEditor(
   const topSlot = el("div");
   const tabsSlot = el("div");
   const nameSlot = el("div");
-  const editorHost = el("div", { className: "editor-wrap" });
+  const lessonSlot = el("div");
+  const editorHost = el("div", { className: "editor-wrap", attrs: { "data-editor-host": "" } });
   const findSlot = el("div");
   const outputSlot = el("div");
   const symbolSlot = el("div");
   editorHost.append(findSlot, editor);
-  chrome.append(topSlot, tabsSlot, nameSlot, editorHost, outputSlot, symbolSlot);
+  chrome.append(topSlot, tabsSlot, nameSlot, lessonSlot, editorHost, outputSlot, symbolSlot);
   screen.append(chrome);
 
   const setEditorFocused = (focused: boolean): void => {
@@ -171,9 +180,16 @@ export function renderEditor(
     topSlot.replaceChildren(topBar());
     tabsSlot.replaceChildren(fileTabs());
     nameSlot.replaceChildren(nameRow());
+    const rail = lessonRail();
+    if (rail) {
+      lessonSlot.replaceChildren(rail);
+    } else {
+      lessonSlot.replaceChildren();
+    }
     paintFindBar(matchLabel);
     outputSlot.replaceChildren(outputPane());
     symbolSlot.replaceChildren(symbolBar());
+    paintCelebration();
     if (workspace.isWaitingForInput) {
       outputExpanded = true;
       queueMicrotask(() => stdinField.focus());
@@ -296,6 +312,93 @@ export function renderEditor(
             attrs: { type: "button", "aria-label": "Close find" },
             on: { click: closeFind },
             children: [svgIcon(icons.x, 14)],
+          }),
+        ],
+      }),
+    );
+  };
+
+  const lessonRail = (): HTMLElement | undefined => {
+    const lesson = lessonForPath(workspace.currentFile.relativePath);
+    if (!lesson) {
+      return undefined;
+    }
+    const progress = loadProgress();
+    const passed = isLessonComplete(lesson.id);
+    return el("div", {
+      className: "lesson-rail",
+      children: [
+        el("div", {
+          className: "lesson-rail-top",
+          children: [
+            hourMeter(progress, lesson.id),
+            niceVisible
+              ? el("span", {
+                  className: "lesson-nice",
+                  attrs: { "aria-live": "polite" },
+                  text: "Nice.",
+                })
+              : passed
+                ? el("span", {
+                    className: "lesson-star",
+                    attrs: { "aria-label": "Lesson complete" },
+                    text: "★",
+                  })
+                : undefined,
+          ],
+        }),
+        el("div", {
+          className: "lesson-kicker mono",
+          text: `Lesson ${lesson.number} of ${firstHourCurriculum.lessons.length}`,
+        }),
+        el("div", { className: "lesson-title", text: lesson.title }),
+        el("div", { className: "lesson-goal", text: lesson.goal }),
+      ],
+    });
+  };
+
+  const paintCelebration = (): void => {
+    const existing = screen.querySelector("[data-celebrate]");
+    if (!celebrating) {
+      existing?.remove();
+      return;
+    }
+    if (existing) {
+      return;
+    }
+    screen.append(
+      el("div", {
+        className: "dialog-backdrop",
+        attrs: { role: "dialog", "aria-modal": "true", "data-celebrate": "" },
+        children: [
+          el("div", {
+            className: "dialog",
+            children: [
+              el("div", {
+                className: "celebrate-star",
+                attrs: { "aria-hidden": "true" },
+                text: "★",
+              }),
+              el("h2", { text: "First hour done." }),
+              el("p", { text: "Six tiny programs. The editor is yours." }),
+              el("div", {
+                className: "dialog-actions",
+                children: [
+                  el("button", {
+                    className: "run-btn",
+                    attrs: { type: "button" },
+                    text: "Open editor",
+                    on: {
+                      click: () => {
+                        celebrating = false;
+                        workspace.openFreePlay();
+                        paint();
+                      },
+                    },
+                  }),
+                ],
+              }),
+            ],
           }),
         ],
       }),
@@ -603,13 +706,40 @@ export function renderEditor(
 
   const unsubscribe = workspace.subscribe(() => {
     if (!screen.isConnected) {
+      if (advanceTimer !== undefined) {
+        clearTimeout(advanceTimer);
+        advanceTimer = undefined;
+      }
       unsubscribe();
       return;
+    }
+    const outcome = workspace.lessonOutcome;
+    if (outcome && outcome.token !== handledToken) {
+      handledToken = outcome.token;
+      if (advanceTimer !== undefined) {
+        clearTimeout(advanceTimer);
+        advanceTimer = undefined;
+      }
+      niceVisible = outcome.status === "passed";
+      if (outcome.status === "passed") {
+        advanceTimer = setTimeout(() => {
+          advanceTimer = undefined;
+          niceVisible = false;
+          const result = workspace.advanceAfterPass();
+          if (result === "celebrate") {
+            celebrating = true;
+          }
+          paint();
+        }, NICE_DELAY_MS);
+      }
     }
     if (
       document.activeElement === editor &&
       !workspace.isRunning &&
-      !workspace.isWaitingForInput
+      !workspace.isWaitingForInput &&
+      workspace.selectedFileID === lastFileID &&
+      !niceVisible &&
+      !celebrating
     ) {
       return;
     }

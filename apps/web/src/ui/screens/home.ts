@@ -1,8 +1,14 @@
-import { firstHourCurriculum, firstLesson, type FirstHourLesson } from "../../domain/curriculum";
+import {
+  continueLesson,
+  firstHourCurriculum,
+  firstLesson,
+  type FirstHourLesson,
+} from "../../domain/curriculum";
 import { fileName, type LocalCFolder } from "../../domain/files";
+import { hourComplete, isLessonComplete, loadProgress } from "../../domain/progress";
 import type { LocalCWorkspace } from "../../domain/workspace";
-import { chevron, folderMark, homeTabIcon, logoImg } from "../components/chrome";
-import { el } from "../dom";
+import { chevron, folderMark, homeTabIcon, hourMeter, logoImg } from "../components/chrome";
+import { el, icons, svgIcon } from "../dom";
 
 export function renderHome(
   workspace: LocalCWorkspace,
@@ -65,20 +71,29 @@ export function renderHome(
 }
 
 function startLessonButton(workspace: LocalCWorkspace, openEditor: () => void): HTMLElement {
+  const progress = loadProgress();
+  const done = hourComplete(progress);
+  const next = continueLesson(progress.completedIds);
+  const title = done
+    ? "Replay lesson 1"
+    : progress.completedIds.length === 0
+      ? "Start lesson 1"
+      : `Continue · Lesson ${next.number}`;
+  const lesson = done ? firstLesson() : next;
   return el("button", {
     className: "action-row",
     attrs: { type: "button", style: "background:var(--card);border-radius:14px" },
     on: {
       click: () => {
-        workspace.openLesson(firstLesson());
+        workspace.openLesson(lesson);
         openEditor();
       },
     },
     children: [
       el("div", {
         children: [
-          el("div", { className: "title-17", attrs: { style: "font-weight:600" }, text: "Start lesson 1" }),
-          el("div", { className: "detail", text: firstLesson().goal }),
+          el("div", { className: "title-17", attrs: { style: "font-weight:600" }, text: title }),
+          el("div", { className: "detail", text: lesson.goal }),
         ],
       }),
       el("span", { attrs: { style: "margin-left:auto;color:var(--silver)" }, children: [chevron()] }),
@@ -87,9 +102,25 @@ function startLessonButton(workspace: LocalCWorkspace, openEditor: () => void): 
 }
 
 function firstHour(workspace: LocalCWorkspace, openEditor: () => void): HTMLElement {
+  const progress = loadProgress();
+  const current = firstHourCurriculum.lessons[progress.currentIndex];
   return el("div", {
     children: [
-      el("div", { className: "section-label", text: "First hour" }),
+      el("div", {
+        className: "row-between",
+        attrs: { style: "align-items:flex-end;margin-bottom:8px" },
+        children: [
+          el("div", { className: "section-label", attrs: { style: "margin:0" }, text: "First hour" }),
+          hourMeter(progress, current?.id),
+        ],
+      }),
+      progress.streak > 1
+        ? el("div", {
+            className: "muted",
+            attrs: { style: "font-size:13px;margin-bottom:8px" },
+            text: `${progress.streak}-day streak`,
+          })
+        : undefined,
       el("div", {
         className: "card",
         children: firstHourCurriculum.lessons.flatMap((lesson, index, list) => {
@@ -109,6 +140,7 @@ function lessonRow(
   lesson: FirstHourLesson,
   openEditor: () => void,
 ): HTMLButtonElement {
+  const complete = isLessonComplete(lesson.id);
   return el("button", {
     className: "action-row",
     attrs: { type: "button" },
@@ -119,18 +151,25 @@ function lessonRow(
       },
     },
     children: [
+      complete
+        ? el("div", {
+            className: "lesson-check",
+            attrs: { "aria-label": "Complete" },
+            children: [svgIcon(icons.check, 16)],
+          })
+        : el("div", {
+            className: "mono",
+            attrs: { style: "width:28px;color:var(--accent);font-weight:600;font-size:15px" },
+            text: String(lesson.number),
+          }),
       el("div", {
-        className: "mono",
-        attrs: { style: "width:28px;color:var(--accent);font-weight:600;font-size:15px" },
-        text: String(lesson.number),
-      }),
-      el("div", {
+        attrs: { style: "min-width:0" },
         children: [
           el("div", { className: "title-17", text: lesson.title }),
           el("div", { className: "detail", text: lesson.goal }),
         ],
       }),
-      el("span", { attrs: { style: "margin-left:auto;color:var(--silver)" }, children: [chevron()] }),
+      el("span", { attrs: { style: "margin-left:auto;color:var(--silver);flex-shrink:0" }, children: [chevron()] }),
     ],
   });
 }

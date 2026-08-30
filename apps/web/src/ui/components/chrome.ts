@@ -8,7 +8,45 @@ import {
   type LocalCFile,
   type LocalCFolder,
 } from "../../domain/files";
+import { firstHourCurriculum } from "../../domain/curriculum";
+import type { FirstHourProgress } from "../../domain/progress";
 import { el, icons, svgIcon } from "../dom";
+
+export function hourMeter(progress: FirstHourProgress, currentId: string | undefined): HTMLElement {
+  const total = firstHourCurriculum.lessons.length;
+  const done = progress.completedIds.length;
+  return el("div", {
+    className: "hour-meter",
+    attrs: {
+      role: "progressbar",
+      "aria-label": "First hour",
+      "aria-valuemin": "0",
+      "aria-valuemax": String(total),
+      "aria-valuenow": String(done),
+    },
+    children: [
+      el("div", {
+        className: "lesson-pips",
+        children: firstHourCurriculum.lessons.map((lesson) => {
+          const complete = progress.completedIds.includes(lesson.id);
+          const current = currentId !== undefined && lesson.id === currentId;
+          return el("span", {
+            className: complete ? "pip done" : current ? "pip current" : "pip",
+            attrs: { title: lesson.title },
+          });
+        }),
+      }),
+      el("span", { className: "hour-count mono", text: `${done}/${total}` }),
+      progress.stars > 0
+        ? el("span", {
+            className: "hour-stars",
+            attrs: { "aria-label": `${progress.stars} stars` },
+            text: "★",
+          })
+        : undefined,
+    ],
+  });
+}
 
 export function logoImg(): HTMLImageElement {
   return el("img", {

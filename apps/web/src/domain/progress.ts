@@ -1,0 +1,162 @@
+import { continueLesson, firstHourCurriculum } from "./curriculum";
+
+export const PROGRESS_KEY = "lilc.firstHour.progress";
+
+export interface FirstHourProgress {
+  version: 1;
+  completedIds: string[];
+  currentIndex: number;
+  stars: number;
+  streak: number;
+  lastCompletedDay: string;
+}
+
+const VERSION = 1 as const;
+
+let memoryStore = new Map<string, string>();
+
+function storage(): { getItem(key: string): string | null; setItem(key: string, value: string): void } {
+  try {
+    if (typeof localStorage !== "undefined") {
+      return localStorage;
+    }
+  } catch {
+    /* private mode */
+  }
+  return {
+    getItem: (key) => memoryStore.get(key) ?? null,
+    setItem: (key, value) => {
+      memoryStore.set(key, value);
+    },
+  };
+}
+
+export function emptyProgress(): FirstHourProgress {
+  return {
+    version: VERSION,
+    completedIds: [],
+    currentIndex: 0,
+    stars: 0,
+    streak: 0,
+    lastCompletedDay: "",
+  };
+}
+
+export function resetProgressForTests(): void {
+  memoryStore = new Map();
+  try {
+    localStorage.removeItem(PROGRESS_KEY);
+  } catch {
+    /* node / private mode */
+  }
+}
+
+export function writeRawProgressForTests(raw: string): void {
+  try {
+    storage().setItem(PROGRESS_KEY, raw);
+  } catch {
+    /* private mode */
+  }
+}
+
+export function loadProgress(): FirstHourProgress {
+  try {
+    const raw = storage().getItem(PROGRESS_KEY);
+    if (!raw) {
+      return emptyProgress();
+    }
+    const parsed = JSON.parse(raw) as Partial<FirstHourProgress>;
+    if (parsed.version !== VERSION || !Array.isArray(parsed.completedIds)) {
+      return emptyProgress();
+    }
+    const completedIds = parsed.completedIds.filter((id): id is string => typeof id === "string");
+    const lastIndex = Math.max(0, firstHourCurriculum.lessons.length - 1);
+    const currentIndex =
+      typeof parsed.currentIndex === "number"
+        ? Math.min(Math.max(0, parsed.currentIndex), lastIndex)
+        : 0;
+    return {
+      version: VERSION,
+      completedIds,
+      currentIndex,
+      stars: typeof parsed.stars === "number" ? Math.max(0, parsed.stars) : completedIds.length,
+      streak: typeof parsed.streak === "number" ? Math.max(0, parsed.streak) : 0,
+      lastCompletedDay: typeof parsed.lastCompletedDay === "string" ? parsed.lastCompletedDay : "",
+    };
+  } catch {
+    return emptyProgress();
+  }
+}
+
+export function saveProgress(progress: FirstHourProgress): void {
+  try {
+    storage().setItem(PROGRESS_KEY, JSON.stringify(progress));
+  } catch {
+    /* quota / private mode */
+  }
+}
+
+export function setCurrentLesson(id: string): FirstHourProgress {
+  const progress = loadProgress();
+  const index = firstHourCurriculum.lessons.findIndex((lesson) => lesson.id === id);
+  if (index >= 0) {
+    progress.currentIndex = index;
+    saveProgress(progress);
+  }
+  return progress;
+}
+
+export function markLessonComplete(id: string, now = new Date()): FirstHourProgress {
+  const progress = loadProgress();
+  const known = firstHourCurriculum.lessons.some((lesson) => lesson.id === id);
+  if (!known) {
+    return progress;
+  }
+  if (!progress.completedIds.includes(id)) {
+    progress.completedIds = [...progress.completedIds, id];
+    progress.stars += 1;
+    const today = dayKey(now);
+    if (progress.lastCompletedDay === today) {
+      if (progress.streak === 0) {
+        progress.streak = 1;
+      }
+    } else if (progress.lastCompletedDay === dayKey(addDays(now, -1))) {
+      progress.streak += 1;
+    } else {
+      progress.streak = 1;
+    }
+    progress.lastCompletedDay = today;
+  }
+  if (hourComplete(progress)) {
+    progress.currentIndex = Math.max(0, firstHourCurriculum.lessons.length - 1);
+  } else {
+    const next = continueLesson(progress.completedIds);
+    const nextIndex = firstHourCurriculum.lessons.findIndex((lesson) => lesson.id === next.id);
+    if (nextIndex >= 0) {
+      progress.currentIndex = nextIndex;
+    }
+  }
+  saveProgress(progress);
+  return progress;
+}
+
+export function isLessonComplete(id: string): boolean {
+  return loadProgress().completedIds.includes(id);
+}
+
+export function hourComplete(progress: FirstHourProgress = loadProgress()): boolean {
+  return firstHourCurriculum.lessons.every((lesson) => progress.completedIds.includes(lesson.id));
+}
+
+export function dayKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function addDays(date: Date, amount: number): Date {
+  const next = new Date(date.getTime());
+  next.setDate(next.getDate() + amount);
+  return next;
+}

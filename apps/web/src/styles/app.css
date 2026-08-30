@@ -153,6 +153,104 @@ a:focus-visible {
   letter-spacing: 0.4px;
 }
 
+.hour-meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lesson-pips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.pip.done,
+.pip.current {
+  background: var(--accent);
+}
+
+.pip.current {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.hour-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--silver);
+}
+
+.hour-stars,
+.lesson-star,
+.celebrate-star {
+  color: var(--accent);
+}
+
+.hour-stars,
+.lesson-star {
+  font-size: 13px;
+}
+
+.lesson-check {
+  width: 28px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.lesson-rail {
+  padding: 10px 12px 12px;
+  background: var(--panel);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  flex-shrink: 0;
+}
+
+.lesson-rail-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lesson-nice {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.lesson-kicker {
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--silver);
+}
+
+.lesson-title {
+  margin-top: 2px;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.lesson-goal {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--silver);
+}
+
+.celebrate-star {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
 .row-between {
   display: flex;
   align-items: center;

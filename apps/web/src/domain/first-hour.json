@@ -1,61 +1,85 @@
 {
   "id": "first-hour",
   "title": "First hour",
-  "summary": "Six tiny C programs. Open one, press Run, change a number, press Run again. Optional — skip any lesson.",
+  "summary": "Six tiny C tasks. Fill in the placeholder, press Run, and keep going.",
   "lessons": [
     {
       "id": "hello",
       "number": 1,
       "title": "Hello",
-      "goal": "Print a line.",
+      "goal": "Print Hello, world on its own line. Replace the placeholder in printf, then press RUN.",
       "fileName": "01-hello.c",
-      "expectedOutput": "hello from lilC\n",
-      "source": "#include <stdio.h>\n\n/* Lesson 1 of 6 — Hello.\n   Press RUN. Change the message, then RUN again. */\n\nint main(void) {\n    printf(\"hello from lilC\\n\");\n    return 0;\n}\n"
+      "printHint": "Hello, world",
+      "requireSource": [],
+      "requireAnySource": [],
+      "win": { "kind": "contains", "text": "Hello, world", "ignoreCase": true },
+      "source": "#include <stdio.h>\n\n/* Lesson 1 of 6 — Hello.\n   TODO: print Hello, world */\n\nint main(void) {\n    printf(\"???\\n\");\n    return 0;\n}\n",
+      "solution": "#include <stdio.h>\n\n/* Lesson 1 of 6 — Hello.\n   TODO: print Hello, world */\n\nint main(void) {\n    printf(\"Hello, world\\n\");\n    return 0;\n}\n"
     },
     {
       "id": "variables",
       "number": 2,
       "title": "Variables",
-      "goal": "Store a number and print it.",
+      "goal": "A variable holds a number. Replace the placeholder with any integer so the program prints that number.",
       "fileName": "02-variables.c",
-      "expectedOutput": "year = 2026\n",
-      "source": "#include <stdio.h>\n\n/* Lesson 2 of 6 — Variables.\n   Change year and press RUN. */\n\nint main(void) {\n    int year = 2026;\n    printf(\"year = %d\\n\", year);\n    return 0;\n}\n"
+      "printHint": "a number",
+      "requireSource": [],
+      "requireAnySource": [],
+      "win": { "kind": "printsNumber" },
+      "source": "#include <stdio.h>\n\n/* Lesson 2 of 6 — Variables.\n   TODO: store a number in n */\n\nint main(void) {\n    int n = ???;\n    printf(\"%d\\n\", n);\n    return 0;\n}\n",
+      "solution": "#include <stdio.h>\n\n/* Lesson 2 of 6 — Variables.\n   TODO: store a number in n */\n\nint main(void) {\n    int n = 7;\n    printf(\"%d\\n\", n);\n    return 0;\n}\n"
     },
     {
       "id": "if",
       "number": 3,
       "title": "If",
-      "goal": "Choose between two prints.",
+      "goal": "C can choose. If score is 60 or more, print pass. Otherwise print fail. Fill in the condition, then RUN.",
       "fileName": "03-if.c",
-      "expectedOutput": "warm\n",
-      "source": "#include <stdio.h>\n\n/* Lesson 3 of 6 — If.\n   Change temp and press RUN. Try 15. */\n\nint main(void) {\n    int temp = 28;\n    if (temp >= 20) {\n        printf(\"warm\\n\");\n    } else {\n        printf(\"cool\\n\");\n    }\n    return 0;\n}\n"
+      "printHint": "pass",
+      "requireSource": ["if", "else"],
+      "requireAnySource": [],
+      "win": { "kind": "exact", "text": "pass\n" },
+      "source": "#include <stdio.h>\n\n/* Lesson 3 of 6 — If.\n   TODO: print pass when score is 60 or more */\n\nint main(void) {\n    int score = 72;\n    if (???) {\n        printf(\"pass\\n\");\n    } else {\n        printf(\"fail\\n\");\n    }\n    return 0;\n}\n",
+      "solution": "#include <stdio.h>\n\n/* Lesson 3 of 6 — If.\n   TODO: print pass when score is 60 or more */\n\nint main(void) {\n    int score = 72;\n    if (score >= 60) {\n        printf(\"pass\\n\");\n    } else {\n        printf(\"fail\\n\");\n    }\n    return 0;\n}\n"
     },
     {
       "id": "loop",
       "number": 4,
       "title": "Loop",
-      "goal": "Repeat a print.",
+      "goal": "Loops repeat work. Print 1 through 5, one number per line. Fill in the loop bound, then RUN.",
       "fileName": "04-loop.c",
-      "expectedOutput": "1\n2\n3\n4\n5\n",
-      "source": "#include <stdio.h>\n\n/* Lesson 4 of 6 — Loop.\n   Change the 5 to 3 and press RUN. */\n\nint main(void) {\n    int n;\n    for (n = 1; n <= 5; n = n + 1) {\n        printf(\"%d\\n\", n);\n    }\n    return 0;\n}\n"
+      "printHint": "1 through 5",
+      "requireSource": [],
+      "requireAnySource": ["for", "while"],
+      "win": { "kind": "lines", "lines": ["1", "2", "3", "4", "5"] },
+      "source": "#include <stdio.h>\n\n/* Lesson 4 of 6 — Loop.\n   TODO: print 1 through 5 */\n\nint main(void) {\n    int n;\n    for (n = 1; n <= ???; n = n + 1) {\n        printf(\"%d\\n\", n);\n    }\n    return 0;\n}\n",
+      "solution": "#include <stdio.h>\n\n/* Lesson 4 of 6 — Loop.\n   TODO: print 1 through 5 */\n\nint main(void) {\n    int n;\n    for (n = 1; n <= 5; n = n + 1) {\n        printf(\"%d\\n\", n);\n    }\n    return 0;\n}\n"
     },
     {
       "id": "array",
       "number": 5,
       "title": "Array",
-      "goal": "Add numbers in a list.",
+      "goal": "An array is a list of numbers. Add them up so the program prints 20. Replace the placeholder in the loop.",
       "fileName": "05-array.c",
-      "expectedOutput": "20\n",
-      "source": "#include <stdio.h>\n\n/* Lesson 5 of 6 — Array.\n   Change a value in nums and press RUN. */\n\nint main(void) {\n    int nums[4];\n    int i;\n    int sum;\n    nums[0] = 2;\n    nums[1] = 4;\n    nums[2] = 6;\n    nums[3] = 8;\n    sum = 0;\n    for (i = 0; i < 4; i = i + 1) {\n        sum = sum + nums[i];\n    }\n    printf(\"%d\\n\", sum);\n    return 0;\n}\n"
+      "printHint": "20",
+      "requireSource": [],
+      "requireAnySource": ["for", "while"],
+      "win": { "kind": "exact", "text": "20\n" },
+      "source": "#include <stdio.h>\n\n/* Lesson 5 of 6 — Array.\n   TODO: add nums[i] into sum */\n\nint main(void) {\n    int nums[4];\n    int i;\n    int sum;\n    nums[0] = 2;\n    nums[1] = 4;\n    nums[2] = 6;\n    nums[3] = 8;\n    sum = 0;\n    for (i = 0; i < 4; i = i + 1) {\n        sum = ???;\n    }\n    printf(\"%d\\n\", sum);\n    return 0;\n}\n",
+      "solution": "#include <stdio.h>\n\n/* Lesson 5 of 6 — Array.\n   TODO: add nums[i] into sum */\n\nint main(void) {\n    int nums[4];\n    int i;\n    int sum;\n    nums[0] = 2;\n    nums[1] = 4;\n    nums[2] = 6;\n    nums[3] = 8;\n    sum = 0;\n    for (i = 0; i < 4; i = i + 1) {\n        sum = sum + nums[i];\n    }\n    printf(\"%d\\n\", sum);\n    return 0;\n}\n"
     },
     {
       "id": "function",
       "number": 6,
       "title": "Function",
-      "goal": "Give a name to a calculation.",
+      "goal": "A function names a calculation. Make twice return n times 2. Replace the placeholder, then RUN.",
       "fileName": "06-function.c",
-      "expectedOutput": "42\n",
-      "source": "#include <stdio.h>\n\n/* Lesson 6 of 6 — Function.\n   Change 21 and press RUN. */\n\nint twice(int n) {\n    return n * 2;\n}\n\nint main(void) {\n    printf(\"%d\\n\", twice(21));\n    return 0;\n}\n"
+      "printHint": "42",
+      "requireSource": ["twice"],
+      "requireAnySource": [],
+      "win": { "kind": "exact", "text": "42\n" },
+      "source": "#include <stdio.h>\n\n/* Lesson 6 of 6 — Function.\n   TODO: return n times 2 */\n\nint twice(int n) {\n    return ???;\n}\n\nint main(void) {\n    printf(\"%d\\n\", twice(21));\n    return 0;\n}\n",
+      "solution": "#include <stdio.h>\n\n/* Lesson 6 of 6 — Function.\n   TODO: return n times 2 */\n\nint twice(int n) {\n    return n * 2;\n}\n\nint main(void) {\n    printf(\"%d\\n\", twice(21));\n    return 0;\n}\n"
     }
   ]
 }

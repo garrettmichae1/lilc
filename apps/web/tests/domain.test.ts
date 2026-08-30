@@ -5,6 +5,8 @@ import { formatC, indentSelection } from "../src/domain/indent";
 import { normalizedName, normalizedFolderName, starterFile, STARTER_CODE } from "../src/domain/files";
 import { LegalURLs } from "../src/domain/legal";
 import { LocalCWorkspace } from "../src/domain/workspace";
+import { firstHourCurriculum, firstLesson, lessonById, lessonRelativePath } from "../src/domain/curriculum";
+import { loadProgress, resetProgressForTests } from "../src/domain/progress";
 
 describe("legal URLs", () => {
   it("points at public GitHub Pages over HTTPS", () => {
@@ -156,5 +158,64 @@ describe("workspace", () => {
     workspace.deleteAllFiles();
     expect(workspace.files).toHaveLength(1);
     expect(workspace.files[0]?.relativePath).toBe("hello.c");
+  });
+
+  it("checks first-hour output and advances to the next starter", async () => {
+    resetProgressForTests();
+    const hello = firstLesson();
+    const variables = lessonById("variables");
+    expect(variables).toBeDefined();
+    const workspace = new LocalCWorkspace();
+    workspace.files = [
+      { relativePath: lessonRelativePath(hello), code: hello.solution, updatedAt: 1 },
+    ];
+    workspace.selectedFileID = lessonRelativePath(hello);
+    await workspace.runCurrentFile();
+    expect(workspace.lastRunFailed).toBe(false);
+    expect(workspace.lessonOutcome?.status).toBe("passed");
+    expect(workspace.lessonOutcome?.nextId).toBe("variables");
+    expect(loadProgress().completedIds).toEqual(["hello"]);
+    const next = workspace.advanceAfterPass();
+    expect(next === "celebrate" ? undefined : next?.id).toBe("variables");
+    expect(workspace.currentFile.code).toBe(variables?.source);
+  });
+
+  it("keeps PicoC-style failure text and adds a not-yet line", async () => {
+    resetProgressForTests();
+    const hello = firstLesson();
+    const workspace = new LocalCWorkspace();
+    workspace.files = [{ relativePath: lessonRelativePath(hello), code: hello.source, updatedAt: 1 }];
+    workspace.selectedFileID = lessonRelativePath(hello);
+    await workspace.runCurrentFile();
+    expect(workspace.lessonOutcome?.status).toBe("missed");
+    expect(workspace.output).toContain("Not yet. The program must print Hello, world.");
+  });
+
+  it("runs one lesson even when other lesson files also have main()", async () => {
+    resetProgressForTests();
+    const hello = firstLesson();
+    const loop = lessonById("loop");
+    expect(loop).toBeDefined();
+    const workspace = new LocalCWorkspace();
+    workspace.files = [
+      { relativePath: lessonRelativePath(hello), code: hello.solution, updatedAt: 1 },
+      { relativePath: lessonRelativePath(loop!), code: loop!.solution, updatedAt: 1 },
+    ];
+    workspace.selectedFileID = lessonRelativePath(hello);
+    await workspace.runCurrentFile();
+    expect(workspace.output).not.toContain("more than one main");
+    expect(workspace.lessonOutcome?.status).toBe("passed");
+  });
+
+  it("celebrates after the last lesson", async () => {
+    resetProgressForTests();
+    const last = firstHourCurriculum.lessons[firstHourCurriculum.lessons.length - 1];
+    expect(last).toBeDefined();
+    const workspace = new LocalCWorkspace();
+    workspace.files = [{ relativePath: lessonRelativePath(last!), code: last!.solution, updatedAt: 1 }];
+    workspace.selectedFileID = lessonRelativePath(last!);
+    await workspace.runCurrentFile();
+    expect(workspace.lessonOutcome?.celebrate).toBe(true);
+    expect(workspace.advanceAfterPass()).toBe("celebrate");
   });
 });

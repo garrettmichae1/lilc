@@ -127,6 +127,7 @@ export class App {
         if (!this.editor) {
           this.editor = new EditorScreen(this.workspace, () => {
             this.screen = "home";
+            this.editor = undefined;
             this.render();
           });
         }
@@ -136,12 +137,11 @@ export class App {
 
   private openEditor(): void {
     this.screen = "editor";
-    if (!this.editor) {
-      this.editor = new EditorScreen(this.workspace, () => {
-        this.screen = "home";
-        this.render();
-      });
-    }
+    this.editor = new EditorScreen(this.workspace, () => {
+      this.screen = "home";
+      this.editor = undefined;
+      this.render();
+    });
     this.render();
   }
 
