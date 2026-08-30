@@ -1,0 +1,14 @@
+lilC
+Copyright 2026 Garrett Woodside
+
+This product includes software developed by others.
+
+PicoC
+Copyright (c) 2009-2011, Zik Saleeba
+Copyright (c) 2015, Joseph Poirier
+
+PicoC is vendored under the BSD 3-Clause License.
+See lilC/Vendor/PicoC/LICENSE.
+
+The lilC name, icon, and App Store listing are reserved. See TRADEMARKS.md.
+The source code (other than vendored PicoC) is licensed under the Apache License, Version 2.0. See LICENSE.

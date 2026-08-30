@@ -1,0 +1,40 @@
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+DerivedData/
+build/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Secrets — never commit
+**/.dev.vars
+**/.env
+**/.env.*
+!.env.example
+spiritualJeffy-lilC-accounts.txt
+**/secrets.txt
+*.pem
+*.p12
+*.mobileprovision
+
+# Agent worker
+services/agent-worker/.wrangler/
+services/agent-worker/node_modules/
+
+# Local build artifacts
+vendor/conformance/harness
+vendor/probe*
+
+# OS / editor
+.DS_Store
+.idea/
+*.swp

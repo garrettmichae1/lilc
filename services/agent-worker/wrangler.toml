@@ -1,0 +1,17 @@
+name = "lilc-agent"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+workers_dev = true
+
+[vars]
+APPLE_BUNDLE_ID = "lilC"
+PRODUCT_ID = "lilc.agent.monthly"
+OPENAI_MODEL = "gpt-4o-mini"
+OPENAI_BASE_URL = "https://api.openai.com/v1"
+MAX_BODY_BYTES = "524288"
+RATE_LIMIT_PER_MINUTE = "40"
+EXPECTED_USERS = "10000"
+GLOBAL_REQUESTS_PER_DAY = "18000"
+WINDOW_HOURS = "12"
+TOKENS_PER_WINDOW = "4000"
+GITHUB_MODEL = "openai/gpt-4o-mini"
