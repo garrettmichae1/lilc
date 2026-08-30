@@ -151,3 +151,91 @@ footer {
 footer p {
   margin: 0 0 0.4rem;
 }
+
+body.home {
+  color-scheme: light;
+  --bg: #f5f5f7;
+  --ink: #1c1c1e;
+  --muted: #3a3a3c;
+  --line: #d8d8dc;
+  --link: #007aff;
+  text-align: center;
+}
+
+body.home .wrap {
+  width: min(38rem, calc(100% - 2.5rem));
+  padding: 1.75rem 0 3.5rem;
+}
+
+body.home header {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 3.25rem;
+  text-align: left;
+}
+
+body.home .mark {
+  font-weight: 700;
+}
+
+body.home h1 {
+  font-size: 2.15rem;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.18;
+  margin: 0 0 1rem;
+}
+
+body.home .lede {
+  color: var(--ink);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  margin: 0 auto 2.35rem;
+  max-width: 34rem;
+}
+
+body.home hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 0;
+}
+
+body.home .block {
+  padding: 2.15rem 0 0.35rem;
+}
+
+body.home .block + .block {
+  padding-top: 1.85rem;
+  padding-bottom: 2.15rem;
+}
+
+body.home .icon {
+  display: block;
+  margin: 0 auto 0.85rem;
+  color: var(--link);
+}
+
+body.home .block p {
+  margin: 0 auto;
+  max-width: 34rem;
+}
+
+body.home .status {
+  margin: 2.1rem auto;
+  max-width: 36rem;
+}
+
+body.home .links {
+  justify-content: center;
+  gap: 0.85rem 1.65rem;
+  margin: 0.35rem 0 2.6rem;
+  font-weight: 400;
+}
+
+body.home footer {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+  color: var(--ink);
+  font-size: 0.82rem;
+}
