@@ -1,0 +1,4207 @@
+{
+  "schemaVersion": 1,
+  "id": "lilc-c-programming-quizzes-v1",
+  "title": "lilC C Programming Quizzes",
+  "description": "Ten Swift-friendly C programming quizzes progressing from easy to hard, focused on undergraduate and job-ready syntax, semantics, debugging, and practical C reasoning.",
+  "language": "c",
+  "answerIndexBase": 0,
+  "quizzes": [
+    {
+      "id": "c-quiz-01",
+      "title": "C Foundations: Declarations, Types, and Expressions",
+      "difficulty": "easy",
+      "topicTags": [
+        "declarations",
+        "types",
+        "operators",
+        "basics"
+      ],
+      "questions": [
+        {
+          "title": "Minimal hosted program",
+          "difficulty": "easy",
+          "topicTags": [
+            "main",
+            "syntax",
+            "functions"
+          ],
+          "prompt": "Which definition is the standard hosted entry point for a simple C program?",
+          "codeSnippet": null,
+          "choices": [
+            "main() { return 0; }",
+            "void main() { }",
+            "int main(void) { return 0; }",
+            "int start(void) { return 0; }"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "A hosted C program starts at main, and int main(void) is a clear standard-conforming form.",
+          "learningObjective": "Recognize the conventional, portable shape of main.",
+          "id": "c-quiz-01-q01"
+        },
+        {
+          "title": "Declaration grammar",
+          "difficulty": "easy",
+          "topicTags": [
+            "declarations",
+            "syntax"
+          ],
+          "prompt": "Which line declares an integer variable named count and initializes it to 10?",
+          "codeSnippet": null,
+          "choices": [
+            "count int = 10;",
+            "integer count = 10;",
+            "int = count 10;",
+            "int count = 10;"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "C declarations put the base type before the declarator, followed by an optional initializer.",
+          "learningObjective": "Read and write basic variable declarations.",
+          "id": "c-quiz-01-q02"
+        },
+        {
+          "title": "Header for printf",
+          "difficulty": "easy",
+          "topicTags": [
+            "headers",
+            "printf",
+            "preprocessor"
+          ],
+          "prompt": "Which header should be included before calling printf in portable C?",
+          "codeSnippet": null,
+          "choices": [
+            "#include <stdio.h>",
+            "#include <stdlib.h>",
+            "#include <string.h>",
+            "#include <printf.h>"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "printf is declared by stdio.h. Including it lets the compiler check the call.",
+          "learningObjective": "Know which standard header declares common I/O functions.",
+          "id": "c-quiz-01-q03"
+        },
+        {
+          "title": "Integer division",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "types",
+            "arithmetic"
+          ],
+          "prompt": "What value is stored in x?",
+          "codeSnippet": "int x = 5 / 2;",
+          "choices": [
+            "2.5",
+            "2",
+            "3",
+            "The code is invalid C"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Both operands are int, so / performs integer division and discards the fractional part.",
+          "learningObjective": "Understand how operand types affect arithmetic.",
+          "id": "c-quiz-01-q04"
+        },
+        {
+          "title": "Forgetting initialization",
+          "difficulty": "easy",
+          "topicTags": [
+            "initialization",
+            "undefined-behavior",
+            "storage-duration"
+          ],
+          "prompt": "What is true about reading n here?",
+          "codeSnippet": "void f(void) {\n    int n;\n    printf(\"%d\\n\", n);\n}",
+          "choices": [
+            "It is automatically initialized to 0.",
+            "It contains the previous value assigned to any variable named n.",
+            "It has an indeterminate value; reading it is undefined behavior.",
+            "The compiler must reject the program."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Automatic local variables are not initialized unless you initialize them. Reading an uninitialized int has undefined behavior.",
+          "learningObjective": "Avoid assuming local variables start with a useful value.",
+          "id": "c-quiz-01-q05"
+        },
+        {
+          "title": "Pointer declarator binding",
+          "difficulty": "easy",
+          "topicTags": [
+            "declarations",
+            "pointers"
+          ],
+          "prompt": "What does this declaration create?",
+          "codeSnippet": "int *p, q;",
+          "choices": [
+            "Both p and q are pointers to int.",
+            "p is an int, and q is a pointer to int.",
+            "The declaration is invalid.",
+            "p is a pointer to int, and q is an int."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "The * belongs to the declarator p, not to the base type shared by q.",
+          "learningObjective": "Read C declarators accurately.",
+          "id": "c-quiz-01-q06"
+        },
+        {
+          "title": "Character versus string literal",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "chars",
+            "types"
+          ],
+          "prompt": "Which expression has type int in C, even though it represents a character value?",
+          "codeSnippet": null,
+          "choices": [
+            "'A'",
+            "\"A\"",
+            "char",
+            "A"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A character constant such as 'A' has type int in C. A string literal such as \"A\" is an array of char.",
+          "learningObjective": "Distinguish character constants from string literals.",
+          "id": "c-quiz-01-q07"
+        },
+        {
+          "title": "sizeof an array",
+          "difficulty": "easy",
+          "topicTags": [
+            "arrays",
+            "sizeof"
+          ],
+          "prompt": "On a system where int is 4 bytes, what is sizeof a?",
+          "codeSnippet": "int a[5];",
+          "choices": [
+            "5",
+            "20",
+            "4",
+            "It depends on the values stored in a."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "sizeof applied to an actual array gives the total byte size: 5 elements times 4 bytes.",
+          "learningObjective": "Use sizeof correctly on objects with known type.",
+          "id": "c-quiz-01-q08"
+        },
+        {
+          "title": "Assignment inside condition",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "control-flow"
+          ],
+          "prompt": "What happens when this if statement runs?",
+          "codeSnippet": "int x = 0;\nif (x = 3) {\n    puts(\"yes\");\n}",
+          "choices": [
+            "x is compared with 3, and the body executes only if x was already 3.",
+            "The compiler must reject assignment in an if condition.",
+            "x becomes 3, and the body executes.",
+            "x becomes 0, and the body is skipped."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "The expression x = 3 assigns 3 and evaluates to 3, which is true in C.",
+          "learningObjective": "Recognize assignment expressions and avoid confusing them with comparison.",
+          "id": "c-quiz-01-q09"
+        },
+        {
+          "title": "Equality operator",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "control-flow"
+          ],
+          "prompt": "Which operator tests whether two scalar values are equal?",
+          "codeSnippet": null,
+          "choices": [
+            "=",
+            "===",
+            "<=>",
+            "=="
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "== compares values. = assigns a value.",
+          "learningObjective": "Choose comparison syntax correctly.",
+          "id": "c-quiz-01-q10"
+        },
+        {
+          "title": "Prefix increment",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "side-effects"
+          ],
+          "prompt": "After these statements, what are a and b?",
+          "codeSnippet": "int a = 5;\nint b = ++a;",
+          "choices": [
+            "a is 6 and b is 6.",
+            "a is 6 and b is 5.",
+            "a is 5 and b is 6.",
+            "The behavior is undefined."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "++a increments first and then yields the new value.",
+          "learningObjective": "Understand prefix increment without introducing undefined behavior.",
+          "id": "c-quiz-01-q11"
+        },
+        {
+          "title": "Postfix increment",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "side-effects"
+          ],
+          "prompt": "After these statements, what are a and b?",
+          "codeSnippet": "int a = 5;\nint b = a++;",
+          "choices": [
+            "a is 6 and b is 6.",
+            "a is 6 and b is 5.",
+            "a is 5 and b is 6.",
+            "The code is invalid."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "a++ yields the old value, then increments a.",
+          "learningObjective": "Understand postfix increment in simple expressions.",
+          "id": "c-quiz-01-q12"
+        },
+        {
+          "title": "Floating result",
+          "difficulty": "easy",
+          "topicTags": [
+            "casts",
+            "arithmetic",
+            "types"
+          ],
+          "prompt": "Which expression computes 2.5 as a double?",
+          "codeSnippet": null,
+          "choices": [
+            "5 / 2",
+            "(int)5.0 / 2",
+            "(double)5 / 2",
+            "5 % 2.0"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Casting one operand to double causes floating-point division.",
+          "learningObjective": "Use casts to control arithmetic conversions.",
+          "id": "c-quiz-01-q13"
+        },
+        {
+          "title": "Remainder operator",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "arithmetic"
+          ],
+          "prompt": "What is printed?",
+          "codeSnippet": "printf(\"%d\\n\", 10 % 3);",
+          "choices": [
+            "2",
+            "3",
+            "The code is invalid because % only works on unsigned integers.",
+            "1"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "% gives the integer remainder. 10 divided by 3 leaves remainder 1.",
+          "learningObjective": "Use the remainder operator with integer operands.",
+          "id": "c-quiz-01-q14"
+        },
+        {
+          "title": "String terminator",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "arrays",
+            "chars"
+          ],
+          "prompt": "How many char elements are needed to store the string \"cat\" as a C string?",
+          "codeSnippet": null,
+          "choices": [
+            "4",
+            "3",
+            "2",
+            "It depends on the compiler."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A C string needs one extra null character, '\\0', after the visible characters.",
+          "learningObjective": "Remember that C strings are null-terminated arrays of char.",
+          "id": "c-quiz-01-q15"
+        },
+        {
+          "title": "Valid identifier",
+          "difficulty": "easy",
+          "topicTags": [
+            "identifiers",
+            "syntax"
+          ],
+          "prompt": "Which is a valid ordinary C identifier?",
+          "codeSnippet": null,
+          "choices": [
+            "2total",
+            "total_count2",
+            "total-count",
+            "float"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Identifiers can contain letters, digits, and underscores, but cannot start with a digit or be a keyword.",
+          "learningObjective": "Apply C identifier naming rules.",
+          "id": "c-quiz-01-q16"
+        },
+        {
+          "title": "Block scope",
+          "difficulty": "easy",
+          "topicTags": [
+            "scope",
+            "control-flow"
+          ],
+          "prompt": "Which statement about x is correct?",
+          "codeSnippet": "void f(void) {\n    int x = 1;\n    {\n        int x = 2;\n    }\n}",
+          "choices": [
+            "The code is invalid because x is declared twice anywhere in a function.",
+            "The outer x changes to 2.",
+            "The inner x hides the outer x only inside the braces.",
+            "Both variables are visible everywhere in f."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "A declaration in an inner block can hide an outer declaration until that block ends.",
+          "learningObjective": "Understand block scope and name hiding.",
+          "id": "c-quiz-01-q17"
+        },
+        {
+          "title": "Escape sequence",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "chars",
+            "io"
+          ],
+          "prompt": "Which escape sequence represents a newline character in a C string literal?",
+          "codeSnippet": null,
+          "choices": [
+            "\\t",
+            "\\0",
+            "\\r\\n only",
+            "\\n"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "\\n is the newline escape sequence used in C string and character literals.",
+          "learningObjective": "Recognize common escape sequences.",
+          "id": "c-quiz-01-q18"
+        },
+        {
+          "title": "Boolean conditions in C",
+          "difficulty": "easy",
+          "topicTags": [
+            "control-flow",
+            "operators"
+          ],
+          "prompt": "In an if condition, which value is considered false?",
+          "codeSnippet": null,
+          "choices": [
+            "0",
+            "-1",
+            "42",
+            "Any nonzero value"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "In C, zero is false and any nonzero scalar value is true.",
+          "learningObjective": "Understand truth values in C control flow.",
+          "id": "c-quiz-01-q19"
+        },
+        {
+          "title": "Compilation unit basics",
+          "difficulty": "easy",
+          "topicTags": [
+            "translation-units",
+            "headers"
+          ],
+          "prompt": "What is a translation unit in C?",
+          "codeSnippet": null,
+          "choices": [
+            "Only a header file.",
+            "A source file after preprocessing, compiled as one unit.",
+            "Only the main function.",
+            "The final executable after linking."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "The compiler compiles each preprocessed source file as a translation unit.",
+          "learningObjective": "Connect source files, preprocessing, and compilation.",
+          "id": "c-quiz-01-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-02",
+      "title": "Control Flow and Expression Semantics",
+      "difficulty": "easy",
+      "topicTags": [
+        "control-flow",
+        "operators",
+        "loops",
+        "switch"
+      ],
+      "questions": [
+        {
+          "title": "Short-circuit AND",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "control-flow",
+            "short-circuit"
+          ],
+          "prompt": "Why is this condition safe when p may be NULL?",
+          "codeSnippet": "if (p != NULL && *p > 0) {\n    puts(\"positive\");\n}",
+          "choices": [
+            "&& evaluates both operands in random order.",
+            "*p is never evaluated in C conditions.",
+            "NULL can be dereferenced safely in conditions.",
+            "p is checked before *p is evaluated."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "&& evaluates left to right and skips the right operand if the left operand is false.",
+          "learningObjective": "Use short-circuit operators to guard risky expressions.",
+          "id": "c-quiz-02-q01"
+        },
+        {
+          "title": "Short-circuit OR",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "control-flow",
+            "short-circuit"
+          ],
+          "prompt": "If ready is nonzero, what happens to start()? ",
+          "codeSnippet": "if (ready || start()) {\n    puts(\"go\");\n}",
+          "choices": [
+            "start() is not called.",
+            "start() is called exactly once.",
+            "start() may or may not be called.",
+            "The expression is invalid unless ready is _Bool."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "|| skips the right operand when the left operand is true.",
+          "learningObjective": "Predict evaluation of logical OR.",
+          "id": "c-quiz-02-q02"
+        },
+        {
+          "title": "Dangling else",
+          "difficulty": "easy",
+          "topicTags": [
+            "control-flow",
+            "syntax"
+          ],
+          "prompt": "Which if does the else bind to?",
+          "codeSnippet": "if (a)\n    if (b)\n        puts(\"x\");\n    else\n        puts(\"y\");",
+          "choices": [
+            "The outer if (a).",
+            "The nearest unmatched if, which is if (b).",
+            "Both if statements.",
+            "Neither; braces are required."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "In C, else associates with the nearest previous if that does not already have an else.",
+          "learningObjective": "Avoid ambiguity by understanding else binding.",
+          "id": "c-quiz-02-q03"
+        },
+        {
+          "title": "Switch fallthrough",
+          "difficulty": "easy",
+          "topicTags": [
+            "switch",
+            "control-flow"
+          ],
+          "prompt": "What is printed when n is 1?",
+          "codeSnippet": "switch (n) {\ncase 1: printf(\"A\");\ncase 2: printf(\"B\"); break;\ndefault: printf(\"C\");\n}",
+          "choices": [
+            "A",
+            "B",
+            "AB",
+            "Nothing"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Without break, execution falls through from case 1 into case 2.",
+          "learningObjective": "Recognize switch fallthrough and when break is needed.",
+          "id": "c-quiz-02-q04"
+        },
+        {
+          "title": "Continue in a for loop",
+          "difficulty": "easy",
+          "topicTags": [
+            "loops",
+            "control-flow"
+          ],
+          "prompt": "What does continue do in this loop?",
+          "codeSnippet": null,
+          "choices": [
+            "Exits the loop immediately.",
+            "Restarts the entire program.",
+            "Skips i++ and repeats with the same i.",
+            "Skips the rest of the loop body, then performs i++ and tests the condition."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "In a for loop, continue proceeds to the iteration expression before testing the loop condition again.",
+          "learningObjective": "Understand continue behavior in for loops.",
+          "id": "c-quiz-02-q05"
+        },
+        {
+          "title": "break target",
+          "difficulty": "easy",
+          "topicTags": [
+            "loops",
+            "switch",
+            "control-flow"
+          ],
+          "prompt": "Inside nested loops, what does break exit?",
+          "codeSnippet": null,
+          "choices": [
+            "Only the nearest enclosing loop or switch.",
+            "All loops in the function.",
+            "The whole function.",
+            "Only an if statement."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "break exits the closest enclosing loop or switch statement.",
+          "learningObjective": "Know the scope of break.",
+          "id": "c-quiz-02-q06"
+        },
+        {
+          "title": "do while timing",
+          "difficulty": "easy",
+          "topicTags": [
+            "loops",
+            "control-flow"
+          ],
+          "prompt": "How many times is the body guaranteed to run in a do while loop?",
+          "codeSnippet": null,
+          "choices": [
+            "Zero or more times.",
+            "At least once.",
+            "Exactly once.",
+            "Only if the condition is initially true."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "The condition is tested after the body, so the body runs before the first test.",
+          "learningObjective": "Choose the right loop form for post-test logic.",
+          "id": "c-quiz-02-q07"
+        },
+        {
+          "title": "for loop parts",
+          "difficulty": "easy",
+          "topicTags": [
+            "loops",
+            "syntax"
+          ],
+          "prompt": "Which part of a for loop executes after each completed iteration body?",
+          "codeSnippet": null,
+          "choices": [
+            "The initializer, such as int i = 0.",
+            "The condition before the body finishes.",
+            "The iteration expression, such as i++.",
+            "The function return type."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "A for loop runs initializer once, then checks condition, body, and iteration expression repeatedly.",
+          "learningObjective": "Understand for-loop execution order.",
+          "id": "c-quiz-02-q08"
+        },
+        {
+          "title": "Operator precedence",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "precedence"
+          ],
+          "prompt": "What is the value of x?",
+          "codeSnippet": "int x = 1 + 2 * 3;",
+          "choices": [
+            "9",
+            "10",
+            "12",
+            "7"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Multiplication has higher precedence than addition, so 1 + (2 * 3) is 7.",
+          "learningObjective": "Apply basic operator precedence.",
+          "id": "c-quiz-02-q09"
+        },
+        {
+          "title": "Parentheses and intent",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "precedence",
+            "readability"
+          ],
+          "prompt": "What is the value of x?",
+          "codeSnippet": "int x = (1 + 2) * 3;",
+          "choices": [
+            "9",
+            "7",
+            "6",
+            "The behavior is undefined."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Parentheses force addition before multiplication: (1 + 2) * 3.",
+          "learningObjective": "Use parentheses to express intended grouping.",
+          "id": "c-quiz-02-q10"
+        },
+        {
+          "title": "Logical NOT",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "booleans"
+          ],
+          "prompt": "What value does !x produce when x is 0?",
+          "codeSnippet": null,
+          "choices": [
+            "0",
+            "1",
+            "-1",
+            "The original value of x"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "! yields 1 when its operand compares equal to zero, otherwise 0.",
+          "learningObjective": "Understand the result of logical negation.",
+          "id": "c-quiz-02-q11"
+        },
+        {
+          "title": "Relational result",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "booleans"
+          ],
+          "prompt": "What is stored in b?",
+          "codeSnippet": "int b = 5 < 10;",
+          "choices": [
+            "0",
+            "5",
+            "1",
+            "10"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Relational operators produce int value 1 for true and 0 for false.",
+          "learningObjective": "Understand that comparisons produce integer truth values.",
+          "id": "c-quiz-02-q12"
+        },
+        {
+          "title": "Comma operator",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "expressions"
+          ],
+          "prompt": "What is the value of x?",
+          "codeSnippet": "int x = (1, 2, 3);",
+          "choices": [
+            "1",
+            "2",
+            "The code is invalid.",
+            "3"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "The comma operator evaluates the left expression, discards it, then yields the right expression.",
+          "learningObjective": "Recognize the comma operator and avoid confusing it with argument separators.",
+          "id": "c-quiz-02-q13"
+        },
+        {
+          "title": "Conditional operator",
+          "difficulty": "easy",
+          "topicTags": [
+            "operators",
+            "control-flow"
+          ],
+          "prompt": "What is assigned to max?",
+          "codeSnippet": "int max = (a > b) ? a : b;",
+          "choices": [
+            "The larger of a and b.",
+            "Always a.",
+            "Always b.",
+            "The smaller of a and b."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "The ?: operator selects the second expression when the condition is true, otherwise the third.",
+          "learningObjective": "Use the conditional operator for simple selection.",
+          "id": "c-quiz-02-q14"
+        },
+        {
+          "title": "Loop off by one",
+          "difficulty": "easy",
+          "topicTags": [
+            "loops",
+            "arrays",
+            "debugging"
+          ],
+          "prompt": "For an array of length len, which loop visits valid indexes from 0 through len - 1?",
+          "codeSnippet": null,
+          "choices": [
+            "for (size_t i = 0; i <= len; i++)",
+            "for (size_t i = 0; i < len; i++)",
+            "for (size_t i = 1; i <= len; i++)",
+            "for (size_t i = len; i >= 0; i--)"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "The valid indexes are less than len. Using <= len visits one past the end.",
+          "learningObjective": "Write correct bounds for array loops.",
+          "id": "c-quiz-02-q15"
+        },
+        {
+          "title": "Empty statement trap",
+          "difficulty": "easy",
+          "topicTags": [
+            "loops",
+            "syntax",
+            "debugging"
+          ],
+          "prompt": "What is the bug in this code?",
+          "codeSnippet": "for (int i = 0; i < 3; i++);\n{\n    printf(\"hi\\n\");\n}",
+          "choices": [
+            "The loop condition is missing.",
+            "The braces are illegal after a for loop.",
+            "The semicolon makes the for loop body empty.",
+            "printf cannot be called inside braces."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "The semicolon immediately after the for statement is an empty loop body. The block runs once after the loop.",
+          "learningObjective": "Spot accidental empty statements after control headers.",
+          "id": "c-quiz-02-q16"
+        },
+        {
+          "title": "switch expression type",
+          "difficulty": "easy",
+          "topicTags": [
+            "switch",
+            "types"
+          ],
+          "prompt": "Which kind of expression can be used as a switch controlling expression?",
+          "codeSnippet": null,
+          "choices": [
+            "Any struct expression.",
+            "Any string literal.",
+            "Any function pointer.",
+            "An integer type expression."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "switch works with integer types, including char and enum values.",
+          "learningObjective": "Know the type restrictions of switch.",
+          "id": "c-quiz-02-q17"
+        },
+        {
+          "title": "case label requirement",
+          "difficulty": "easy",
+          "topicTags": [
+            "switch",
+            "constants"
+          ],
+          "prompt": "What must a case label be?",
+          "codeSnippet": null,
+          "choices": [
+            "An integer constant expression.",
+            "Any variable that currently has an integer value.",
+            "A string literal.",
+            "A floating-point expression."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "case labels are compile-time integer constant expressions.",
+          "learningObjective": "Distinguish compile-time case labels from runtime values.",
+          "id": "c-quiz-02-q18"
+        },
+        {
+          "title": "while versus if",
+          "difficulty": "easy",
+          "topicTags": [
+            "loops",
+            "control-flow"
+          ],
+          "prompt": "What is the key difference between while (condition) and if (condition)?",
+          "codeSnippet": null,
+          "choices": [
+            "if can repeat the body; while cannot.",
+            "while can repeat the body; if executes it at most once.",
+            "while requires braces; if does not.",
+            "They are identical in C."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "while rechecks the condition after each body execution, allowing repetition.",
+          "learningObjective": "Choose appropriate control-flow statements.",
+          "id": "c-quiz-02-q19"
+        },
+        {
+          "title": "Return from non-void function",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "control-flow",
+            "warnings"
+          ],
+          "prompt": "What should a non-void function normally do on every reachable path?",
+          "codeSnippet": null,
+          "choices": [
+            "Call printf at least once.",
+            "Declare at least one local variable.",
+            "Return a value of a compatible type.",
+            "End with break."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "A non-void function is expected to return a value. Falling off the end can lead to undefined behavior when the caller uses the result.",
+          "learningObjective": "Understand return requirements for functions.",
+          "id": "c-quiz-02-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-03",
+      "title": "Arrays, Strings, and Function Basics",
+      "difficulty": "easy",
+      "topicTags": [
+        "arrays",
+        "strings",
+        "functions",
+        "scope"
+      ],
+      "questions": [
+        {
+          "title": "Array first index",
+          "difficulty": "easy",
+          "topicTags": [
+            "arrays",
+            "syntax"
+          ],
+          "prompt": "What is the index of the first element in a C array?",
+          "codeSnippet": null,
+          "choices": [
+            "0",
+            "1",
+            "-1",
+            "It depends on the array length."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "C arrays use zero-based indexing.",
+          "learningObjective": "Use correct array indexes.",
+          "id": "c-quiz-03-q01"
+        },
+        {
+          "title": "Array initializer size",
+          "difficulty": "easy",
+          "topicTags": [
+            "arrays",
+            "initialization"
+          ],
+          "prompt": "How many elements does a have?",
+          "codeSnippet": "int a[] = {10, 20, 30};",
+          "choices": [
+            "2",
+            "3",
+            "4",
+            "The declaration is invalid without an explicit size."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "When the size is omitted, the initializer determines the number of elements.",
+          "learningObjective": "Infer array sizes from initializers.",
+          "id": "c-quiz-03-q02"
+        },
+        {
+          "title": "Partially initialized array",
+          "difficulty": "easy",
+          "topicTags": [
+            "arrays",
+            "initialization"
+          ],
+          "prompt": "What is a[3] after this initialization?",
+          "codeSnippet": "int a[5] = {1, 2};",
+          "choices": [
+            "3",
+            "An indeterminate value",
+            "0",
+            "The code is invalid"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Missing elements in an aggregate initializer are initialized to zero.",
+          "learningObjective": "Understand partial aggregate initialization.",
+          "id": "c-quiz-03-q03"
+        },
+        {
+          "title": "Array bounds",
+          "difficulty": "easy",
+          "topicTags": [
+            "arrays",
+            "undefined-behavior"
+          ],
+          "prompt": "For int a[3], which index is one past the last valid element?",
+          "codeSnippet": null,
+          "choices": [
+            "2",
+            "1",
+            "0",
+            "3"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Valid indexes are 0, 1, and 2. Index 3 is one past the array and must not be dereferenced.",
+          "learningObjective": "Avoid off-by-one array access.",
+          "id": "c-quiz-03-q04"
+        },
+        {
+          "title": "String literal storage",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "const",
+            "undefined-behavior"
+          ],
+          "prompt": "What is wrong with this code?",
+          "codeSnippet": "char *s = \"hi\";\ns[0] = 'H';",
+          "choices": [
+            "It attempts to modify a string literal, which has undefined behavior.",
+            "char * cannot point to a string literal.",
+            "The string has no null terminator.",
+            "Only the second character can be modified."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "String literals should be treated as read-only; modifying one has undefined behavior.",
+          "learningObjective": "Avoid writing through pointers to string literals.",
+          "id": "c-quiz-03-q05"
+        },
+        {
+          "title": "Modifiable string array",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "arrays"
+          ],
+          "prompt": "Which declaration creates a modifiable array containing the characters h, i, and '\\0'?",
+          "codeSnippet": null,
+          "choices": [
+            "char *s = \"hi\";",
+            "char s[] = \"hi\";",
+            "const char *s = \"hi\";",
+            "char s = \"hi\";"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "char s[] initializes an array object with a copy of the string literal's characters.",
+          "learningObjective": "Choose between string arrays and string-literal pointers.",
+          "id": "c-quiz-03-q06"
+        },
+        {
+          "title": "strlen result",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "headers"
+          ],
+          "prompt": "What does strlen(\"abc\") return?",
+          "codeSnippet": null,
+          "choices": [
+            "4",
+            "2",
+            "3",
+            "The number of bytes allocated by the compiler for the literal."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "strlen counts characters before the terminating null character, not the terminator itself.",
+          "learningObjective": "Understand C string length.",
+          "id": "c-quiz-03-q07"
+        },
+        {
+          "title": "Header for strlen",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "headers"
+          ],
+          "prompt": "Which header declares strlen?",
+          "codeSnippet": null,
+          "choices": [
+            "#include <stdio.h>",
+            "#include <stdlib.h>",
+            "#include <ctype.h>",
+            "#include <string.h>"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "strlen and many other string functions are declared in string.h.",
+          "learningObjective": "Know standard headers for string functions.",
+          "id": "c-quiz-03-q08"
+        },
+        {
+          "title": "Function prototype",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "declarations"
+          ],
+          "prompt": "Which is a valid prototype for a function that takes two ints and returns int?",
+          "codeSnippet": null,
+          "choices": [
+            "int add(int a, int b);",
+            "add(int a, int b) -> int;",
+            "function int add(int, int);",
+            "int add(a, b);"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A prototype specifies the return type, function name, and parameter types.",
+          "learningObjective": "Write function declarations that enable call checking.",
+          "id": "c-quiz-03-q09"
+        },
+        {
+          "title": "Pass by value",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "parameters"
+          ],
+          "prompt": "What is printed?",
+          "codeSnippet": "void bump(int x) { x = 9; }\nint main(void) {\n    int n = 5;\n    bump(n);\n    printf(\"%d\\n\", n);\n}",
+          "choices": [
+            "9",
+            "5",
+            "An indeterminate value",
+            "The code is invalid."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "C passes int arguments by value. Changing x inside bump does not change n in main.",
+          "learningObjective": "Understand pass-by-value for scalar parameters.",
+          "id": "c-quiz-03-q10"
+        },
+        {
+          "title": "Changing caller variable",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "pointers"
+          ],
+          "prompt": "Which function can change the caller's int variable?",
+          "codeSnippet": null,
+          "choices": [
+            "void set(int p) { p = 7; }",
+            "void set(const int p) { p = 7; }",
+            "void set(int *p) { *p = 7; }",
+            "int set(void) { int p = 7; }"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Passing a pointer lets the function write to the caller's object through indirection.",
+          "learningObjective": "Use pointers when a function must update a caller-owned object.",
+          "id": "c-quiz-03-q11"
+        },
+        {
+          "title": "Array parameter adjustment",
+          "difficulty": "easy",
+          "topicTags": [
+            "arrays",
+            "functions",
+            "pointers"
+          ],
+          "prompt": "Inside f, what is the type of a after parameter adjustment?",
+          "codeSnippet": "void f(int a[10]) {\n    a[0] = 1;\n}",
+          "choices": [
+            "int[10]",
+            "int **",
+            "size_t",
+            "int *"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Array parameters are adjusted to pointer parameters. The 10 is not preserved as part of the parameter type.",
+          "learningObjective": "Understand array-to-pointer adjustment in function parameters.",
+          "id": "c-quiz-03-q12"
+        },
+        {
+          "title": "Need length with array parameter",
+          "difficulty": "easy",
+          "topicTags": [
+            "arrays",
+            "functions"
+          ],
+          "prompt": "Why should this function also receive the array length?",
+          "codeSnippet": "void print_all(int a[]) {\n    printf(\"%zu\\n\", sizeof a);\n}",
+          "choices": [
+            "sizeof a gives the size of a pointer, not the original array.",
+            "C arrays always store their length at index -1.",
+            "The compiler forbids loops over array parameters.",
+            "The length can be recovered with strlen for any array."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "In a function parameter, a is a pointer, so sizeof a cannot tell how many elements the caller's array had.",
+          "learningObjective": "Pass array lengths explicitly when needed.",
+          "id": "c-quiz-03-q13"
+        },
+        {
+          "title": "Return local address",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "pointers",
+            "lifetime"
+          ],
+          "prompt": "What is wrong with this function?",
+          "codeSnippet": "int *bad(void) {\n    int x = 42;\n    return &x;\n}",
+          "choices": [
+            "It returns an int instead of a pointer.",
+            "It returns the address of a local variable whose lifetime ends when the function returns.",
+            "Local variables cannot be initialized.",
+            "The & operator cannot be used on int variables."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "The local variable x stops existing after bad returns, so the returned pointer is dangling.",
+          "learningObjective": "Avoid returning pointers to automatic local objects.",
+          "id": "c-quiz-03-q14"
+        },
+        {
+          "title": "static local lifetime",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "storage-duration"
+          ],
+          "prompt": "What is true about count?",
+          "codeSnippet": "void tick(void) {\n    static int count;\n    count++;\n}",
+          "choices": [
+            "It is recreated and uninitialized on every call.",
+            "It has file scope.",
+            "It is initialized once and retains its value between calls.",
+            "It can only store constant values."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "A static local variable has block scope but static storage duration.",
+          "learningObjective": "Distinguish scope from storage duration.",
+          "id": "c-quiz-03-q15"
+        },
+        {
+          "title": "void parameter list",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "syntax"
+          ],
+          "prompt": "In a function declaration, what does int f(void); mean?",
+          "codeSnippet": null,
+          "choices": [
+            "f takes one void argument.",
+            "f takes an unspecified number of arguments.",
+            "f returns no value.",
+            "f takes no arguments."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "void in the parameter list explicitly means no parameters.",
+          "learningObjective": "Write no-argument function prototypes correctly.",
+          "id": "c-quiz-03-q16"
+        },
+        {
+          "title": "Return type void",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "syntax"
+          ],
+          "prompt": "Which statement is valid inside a void function?",
+          "codeSnippet": null,
+          "choices": [
+            "return;",
+            "return 0;",
+            "return void;",
+            "return NULL;"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A void function may use return; to exit without producing a value.",
+          "learningObjective": "Use return correctly in void functions.",
+          "id": "c-quiz-03-q17"
+        },
+        {
+          "title": "Prototype mismatch",
+          "difficulty": "easy",
+          "topicTags": [
+            "functions",
+            "compiler-errors"
+          ],
+          "prompt": "Why is a visible prototype helpful before a function call?",
+          "codeSnippet": null,
+          "choices": [
+            "It causes the function to run faster automatically.",
+            "It lets the compiler check argument count and types.",
+            "It stores the function body in the header.",
+            "It prevents recursion."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "A prototype tells the compiler the function interface before calls are compiled.",
+          "learningObjective": "Use prototypes to catch call mistakes early.",
+          "id": "c-quiz-03-q18"
+        },
+        {
+          "title": "String copy destination",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "arrays",
+            "undefined-behavior"
+          ],
+          "prompt": "What must be true before strcpy(dst, src) is safe?",
+          "codeSnippet": null,
+          "choices": [
+            "src must be shorter than 5 characters.",
+            "dst may be a string literal.",
+            "dst must point to enough writable storage for src and its null terminator.",
+            "The two pointers must have the same address."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "strcpy does not allocate space or check the destination size.",
+          "learningObjective": "Respect storage requirements for C string operations.",
+          "id": "c-quiz-03-q19"
+        },
+        {
+          "title": "Null character in strings",
+          "difficulty": "easy",
+          "topicTags": [
+            "strings",
+            "chars"
+          ],
+          "prompt": "What does '\\0' usually mark in a C string?",
+          "codeSnippet": null,
+          "choices": [
+            "A newline.",
+            "A tab.",
+            "A character that prints as zero.",
+            "The end of the string."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "C string functions stop at the first null character.",
+          "learningObjective": "Understand null termination.",
+          "id": "c-quiz-03-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-04",
+      "title": "Pointer Fundamentals and Memory Addresses",
+      "difficulty": "medium",
+      "topicTags": [
+        "pointers",
+        "arrays",
+        "memory",
+        "undefined-behavior"
+      ],
+      "questions": [
+        {
+          "title": "Address operator",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "operators"
+          ],
+          "prompt": "What does &x produce?",
+          "codeSnippet": null,
+          "choices": [
+            "The value stored in x.",
+            "The address of x.",
+            "A copy of x as a string.",
+            "The size of x."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "The unary & operator yields a pointer to its operand.",
+          "learningObjective": "Use the address-of operator correctly.",
+          "id": "c-quiz-04-q01"
+        },
+        {
+          "title": "Indirection operator",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "operators"
+          ],
+          "prompt": "What does *p mean when p is an int * pointing at a valid int?",
+          "codeSnippet": null,
+          "choices": [
+            "The address stored in p as an integer.",
+            "The number of bytes in p.",
+            "The int object that p points to.",
+            "A declaration only, never an expression."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "In an expression, *p dereferences the pointer and accesses the pointed-to int.",
+          "learningObjective": "Understand pointer indirection in expressions.",
+          "id": "c-quiz-04-q02"
+        },
+        {
+          "title": "Pointer initialization",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "undefined-behavior"
+          ],
+          "prompt": "What is wrong here?",
+          "codeSnippet": "int *p;\n*p = 10;",
+          "choices": [
+            "All int pointers automatically point to zero.",
+            "The * operator allocates memory.",
+            "Pointers cannot point to ints.",
+            "p is uninitialized, so dereferencing it has undefined behavior."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "A pointer must hold a valid address before you use *p to read or write.",
+          "learningObjective": "Initialize pointers before dereferencing them.",
+          "id": "c-quiz-04-q03"
+        },
+        {
+          "title": "NULL check",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "null"
+          ],
+          "prompt": "What is the purpose of checking p != NULL before *p?",
+          "codeSnippet": null,
+          "choices": [
+            "To avoid dereferencing a null pointer.",
+            "To convert p to an int.",
+            "To allocate memory for p.",
+            "To make p point to zero."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Dereferencing a null pointer has undefined behavior.",
+          "learningObjective": "Guard pointer dereferences.",
+          "id": "c-quiz-04-q04"
+        },
+        {
+          "title": "Pointer arithmetic scale",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "arrays",
+            "arithmetic"
+          ],
+          "prompt": "If p points to a[0], what does p + 2 point to?",
+          "codeSnippet": "int a[5];\nint *p = a;",
+          "choices": [
+            "The address two bytes after a[0]",
+            "a[2]",
+            "a[1]",
+            "The value a[0] plus 2"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Pointer arithmetic is scaled by the size of the pointed-to type.",
+          "learningObjective": "Understand how pointer arithmetic relates to array elements.",
+          "id": "c-quiz-04-q05"
+        },
+        {
+          "title": "Array decay",
+          "difficulty": "medium",
+          "topicTags": [
+            "arrays",
+            "pointers"
+          ],
+          "prompt": "In most expressions, what does the array name a convert to?",
+          "codeSnippet": null,
+          "choices": [
+            "A pointer to the whole array object.",
+            "The size of the array.",
+            "A pointer to its first element.",
+            "A copy of every element."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Except in contexts such as sizeof, unary &, and string literal initialization, an array expression converts to a pointer to its first element.",
+          "learningObjective": "Recognize array-to-pointer conversion.",
+          "id": "c-quiz-04-q06"
+        },
+        {
+          "title": "Pointer to whole array",
+          "difficulty": "medium",
+          "topicTags": [
+            "arrays",
+            "pointers",
+            "declarations"
+          ],
+          "prompt": "What is the type of p?",
+          "codeSnippet": "int a[5];\nint (*p)[5] = &a;",
+          "choices": [
+            "Array of 5 pointers to int.",
+            "Pointer to int.",
+            "Function returning an array.",
+            "Pointer to an array of 5 int."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Parentheses make p a pointer to the whole array type int[5].",
+          "learningObjective": "Read pointer-to-array declarations.",
+          "id": "c-quiz-04-q07"
+        },
+        {
+          "title": "Array of pointers",
+          "difficulty": "medium",
+          "topicTags": [
+            "arrays",
+            "pointers",
+            "declarations"
+          ],
+          "prompt": "What does this declaration create?",
+          "codeSnippet": "int *p[3];",
+          "choices": [
+            "An array of 3 pointers to int.",
+            "A pointer to an array of 3 int.",
+            "An array of 3 int values.",
+            "A pointer to a function returning int."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "The brackets bind to p, so p is an array; each element is int *.",
+          "learningObjective": "Distinguish arrays of pointers from pointers to arrays.",
+          "id": "c-quiz-04-q08"
+        },
+        {
+          "title": "const pointer target",
+          "difficulty": "medium",
+          "topicTags": [
+            "const",
+            "pointers"
+          ],
+          "prompt": "What does const int *p mean?",
+          "codeSnippet": null,
+          "choices": [
+            "p itself cannot be changed to point elsewhere.",
+            "p points to an int that should not be modified through p.",
+            "p is always NULL.",
+            "p points to a const pointer."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "const applies to the pointed-to int. The pointer variable p may still be assigned another address.",
+          "learningObjective": "Read const-qualified pointer declarations.",
+          "id": "c-quiz-04-q09"
+        },
+        {
+          "title": "const pointer variable",
+          "difficulty": "medium",
+          "topicTags": [
+            "const",
+            "pointers"
+          ],
+          "prompt": "What does int * const p mean?",
+          "codeSnippet": null,
+          "choices": [
+            "p points to a constant int.",
+            "p is a pointer to a pointer.",
+            "p is a constant pointer to int.",
+            "p is an array of const int."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "const after * qualifies the pointer object itself, so p cannot be reassigned after initialization.",
+          "learningObjective": "Distinguish pointer constness from pointed-to constness.",
+          "id": "c-quiz-04-q10"
+        },
+        {
+          "title": "Double pointer use",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "functions"
+          ],
+          "prompt": "Why might a function take int **out?",
+          "codeSnippet": null,
+          "choices": [
+            "To modify only a local int value.",
+            "To return two int values automatically.",
+            "To make pointer arithmetic twice as fast.",
+            "To modify the caller's int * variable."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "A pointer to pointer lets the function write a new pointer value into the caller's pointer variable.",
+          "learningObjective": "Understand when pointer-to-pointer parameters are useful.",
+          "id": "c-quiz-04-q11"
+        },
+        {
+          "title": "Dangling pointer after scope",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "lifetime",
+            "undefined-behavior"
+          ],
+          "prompt": "What is p after the block ends?",
+          "codeSnippet": "int *p;\n{\n    int x = 3;\n    p = &x;\n}\nprintf(\"%d\\n\", *p);",
+          "choices": [
+            "A dangling pointer; using *p is undefined behavior.",
+            "A valid pointer to x forever.",
+            "A null pointer.",
+            "A pointer automatically redirected to a copy of x."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "x has automatic storage duration and stops existing when the block exits.",
+          "learningObjective": "Avoid pointers to expired local objects.",
+          "id": "c-quiz-04-q12"
+        },
+        {
+          "title": "Pointer comparison",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "arrays"
+          ],
+          "prompt": "Which comparison is well-defined?",
+          "codeSnippet": null,
+          "choices": [
+            "Comparing unrelated object pointers with <.",
+            "Comparing two pointers into the same array with <.",
+            "Comparing any two function pointers with <.",
+            "Comparing a pointer with an integer using < to sort addresses portably."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Relational pointer comparisons are defined for pointers into the same array object or one past it.",
+          "learningObjective": "Know the limits of pointer ordering comparisons.",
+          "id": "c-quiz-04-q13"
+        },
+        {
+          "title": "One-past pointer",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "arrays",
+            "undefined-behavior"
+          ],
+          "prompt": "What can you do with a one-past-the-end pointer?",
+          "codeSnippet": null,
+          "choices": [
+            "Dereference it to get the last element.",
+            "Use it as a valid place to write one extra element.",
+            "Compare it or subtract it within the same array, but not dereference it.",
+            "Pass it to free."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "C permits forming one-past pointers for array traversal, but dereferencing them is undefined behavior.",
+          "learningObjective": "Use sentinel pointers safely.",
+          "id": "c-quiz-04-q14"
+        },
+        {
+          "title": "Pointer subtraction",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "arrays"
+          ],
+          "prompt": "When is p - q defined?",
+          "codeSnippet": null,
+          "choices": [
+            "For any two int pointers.",
+            "Only when p and q point to equal values.",
+            "Never in C.",
+            "When p and q point into the same array object or one past it."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Pointer subtraction is defined only within one array object and yields an element count.",
+          "learningObjective": "Apply pointer arithmetic rules correctly.",
+          "id": "c-quiz-04-q15"
+        },
+        {
+          "title": "void pointer",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "void"
+          ],
+          "prompt": "What is a common use of void *?",
+          "codeSnippet": null,
+          "choices": [
+            "Holding a generic object pointer that must be converted before dereference.",
+            "Holding any function pointer portably.",
+            "Storing an int value without memory.",
+            "Dereferencing objects without knowing their type."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "void * can hold object pointers, but you need an object type to access the pointed-to storage.",
+          "learningObjective": "Use generic object pointers safely.",
+          "id": "c-quiz-04-q16"
+        },
+        {
+          "title": "Pointer format",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "printf",
+            "debugging"
+          ],
+          "prompt": "Which printf conversion should be used for a pointer value after casting to void *?",
+          "codeSnippet": null,
+          "choices": [
+            "%d",
+            "%p",
+            "%u",
+            "%s"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "%p prints a pointer value; the argument should be converted to void *.",
+          "learningObjective": "Print pointer values correctly for debugging.",
+          "id": "c-quiz-04-q17"
+        },
+        {
+          "title": "Out parameter pattern",
+          "difficulty": "medium",
+          "topicTags": [
+            "functions",
+            "pointers"
+          ],
+          "prompt": "Which call matches void read_value(int *out)?",
+          "codeSnippet": null,
+          "choices": [
+            "read_value(x);",
+            "read_value(*x);",
+            "read_value(&x);",
+            "read_value(NULL) is always correct."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "The function expects the address of an int it can write through.",
+          "learningObjective": "Pass addresses to pointer parameters intentionally.",
+          "id": "c-quiz-04-q18"
+        },
+        {
+          "title": "Pointer and array notation",
+          "difficulty": "medium",
+          "topicTags": [
+            "arrays",
+            "pointers",
+            "syntax"
+          ],
+          "prompt": "For a valid pointer p, what is p[i] equivalent to?",
+          "codeSnippet": null,
+          "choices": [
+            "*p + i",
+            "&p + i",
+            "*(p) + *(i)",
+            "*(p + i)"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "The subscript operator is defined in terms of pointer addition and indirection.",
+          "learningObjective": "Connect array indexing to pointer arithmetic.",
+          "id": "c-quiz-04-q19"
+        },
+        {
+          "title": "Dereference before assignment",
+          "difficulty": "medium",
+          "topicTags": [
+            "pointers",
+            "syntax"
+          ],
+          "prompt": "Which statement changes the int object pointed to by p?",
+          "codeSnippet": null,
+          "choices": [
+            "*p = 4;",
+            "p = 4;",
+            "&p = 4;",
+            "int p = 4;"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "*p designates the pointed-to int. Assigning to p itself would change the pointer value.",
+          "learningObjective": "Distinguish changing a pointer from changing the object it points to.",
+          "id": "c-quiz-04-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-05",
+      "title": "Scope, Storage Duration, and Multi-File Interfaces",
+      "difficulty": "medium",
+      "topicTags": [
+        "scope",
+        "storage-duration",
+        "headers",
+        "linker",
+        "multi-file"
+      ],
+      "questions": [
+        {
+          "title": "File-scope static",
+          "difficulty": "medium",
+          "topicTags": [
+            "scope",
+            "static",
+            "linkage"
+          ],
+          "prompt": "What does static mean at file scope?",
+          "codeSnippet": null,
+          "choices": [
+            "The variable is stored on the stack.",
+            "The variable cannot change.",
+            "The name has internal linkage and is visible only within that translation unit.",
+            "The variable is initialized every time a function is called."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "At file scope, static gives a name internal linkage, hiding it from other translation units.",
+          "learningObjective": "Use static to limit file-scope visibility.",
+          "id": "c-quiz-05-q01"
+        },
+        {
+          "title": "extern declaration",
+          "difficulty": "medium",
+          "topicTags": [
+            "extern",
+            "linkage",
+            "multi-file"
+          ],
+          "prompt": "What does this declaration usually mean in a header?",
+          "codeSnippet": "extern int counter;",
+          "choices": [
+            "counter is defined separately in every file that includes the header.",
+            "counter is local to each function.",
+            "counter is a macro.",
+            "counter is defined in exactly one source file elsewhere."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "extern declares an object with external linkage without defining storage for it.",
+          "learningObjective": "Separate declarations from definitions across files.",
+          "id": "c-quiz-05-q02"
+        },
+        {
+          "title": "Header variable mistake",
+          "difficulty": "medium",
+          "topicTags": [
+            "headers",
+            "linker",
+            "multi-file"
+          ],
+          "prompt": "Why is defining int counter; in a header risky?",
+          "codeSnippet": null,
+          "choices": [
+            "Each including source file may define its own counter, causing multiple-definition link errors.",
+            "Headers cannot contain declarations.",
+            "The variable becomes automatic storage.",
+            "The preprocessor deletes the line."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A header included by several .c files can produce several definitions of the same external object.",
+          "learningObjective": "Avoid defining external objects in headers.",
+          "id": "c-quiz-05-q03"
+        },
+        {
+          "title": "Include guard purpose",
+          "difficulty": "medium",
+          "topicTags": [
+            "headers",
+            "preprocessor"
+          ],
+          "prompt": "What problem do include guards prevent?",
+          "codeSnippet": null,
+          "choices": [
+            "Linker errors from missing object files.",
+            "Repeated inclusion of the same header's contents in one translation unit.",
+            "Runtime memory leaks.",
+            "Incorrect printf format strings."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Include guards use macros to make a header's declarations appear only once per translation unit.",
+          "learningObjective": "Use include guards to protect headers.",
+          "id": "c-quiz-05-q04"
+        },
+        {
+          "title": "Function declaration versus definition",
+          "difficulty": "medium",
+          "topicTags": [
+            "functions",
+            "headers"
+          ],
+          "prompt": "Which line is a function declaration but not a definition?",
+          "codeSnippet": null,
+          "choices": [
+            "int sum(int a, int b) { return a + b; }",
+            "int x = 0;",
+            "int sum(int a, int b);",
+            "#define sum(a,b) ((a)+(b))"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "The semicolon form declares the interface without providing a function body.",
+          "learningObjective": "Distinguish prototypes from function bodies.",
+          "id": "c-quiz-05-q05"
+        },
+        {
+          "title": "Global initialization",
+          "difficulty": "medium",
+          "topicTags": [
+            "initialization",
+            "storage-duration"
+          ],
+          "prompt": "What is the initial value of file-scope int total if no initializer is provided?",
+          "codeSnippet": "int total;",
+          "choices": [
+            "An indeterminate value",
+            "1",
+            "The compiler must reject it.",
+            "0"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Objects with static storage duration are initialized to zero before program startup.",
+          "learningObjective": "Know default initialization for static storage duration.",
+          "id": "c-quiz-05-q06"
+        },
+        {
+          "title": "Automatic initialization",
+          "difficulty": "medium",
+          "topicTags": [
+            "initialization",
+            "storage-duration"
+          ],
+          "prompt": "What is the initial value of block-scope int total without an initializer?",
+          "codeSnippet": "void f(void) {\n    int total;\n}",
+          "choices": [
+            "Indeterminate.",
+            "0",
+            "1",
+            "The previous global total."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Automatic local variables are not zero-initialized by default.",
+          "learningObjective": "Do not rely on default values for automatic locals.",
+          "id": "c-quiz-05-q07"
+        },
+        {
+          "title": "Lifetime of static local",
+          "difficulty": "medium",
+          "topicTags": [
+            "storage-duration",
+            "static"
+          ],
+          "prompt": "How long does a static local variable exist?",
+          "codeSnippet": null,
+          "choices": [
+            "Only until the block ends.",
+            "For the entire execution of the program.",
+            "Only until the function returns the first time.",
+            "Only during preprocessing."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "A static local has static storage duration even though its name has block scope.",
+          "learningObjective": "Separate lifetime from name visibility.",
+          "id": "c-quiz-05-q08"
+        },
+        {
+          "title": "Prototype in header",
+          "difficulty": "medium",
+          "topicTags": [
+            "headers",
+            "functions",
+            "multi-file"
+          ],
+          "prompt": "What should usually go in a header for a function used by multiple .c files?",
+          "codeSnippet": null,
+          "choices": [
+            "The same non-static function definition copied into every source file.",
+            "All local variables used by the function.",
+            "A prototype such as int parse(const char *s);",
+            "The compiled object code."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Headers should expose declarations needed by users of the module.",
+          "learningObjective": "Design clean C interfaces.",
+          "id": "c-quiz-05-q09"
+        },
+        {
+          "title": "static function",
+          "difficulty": "medium",
+          "topicTags": [
+            "functions",
+            "static",
+            "linkage"
+          ],
+          "prompt": "Why declare a helper function static in a .c file?",
+          "codeSnippet": null,
+          "choices": [
+            "To make it remember local variables automatically.",
+            "To force it to inline.",
+            "To prevent it from being called recursively.",
+            "To give it internal linkage so it cannot conflict with functions in other files."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "static at file scope limits the function name to one translation unit.",
+          "learningObjective": "Use internal linkage for private helpers.",
+          "id": "c-quiz-05-q10"
+        },
+        {
+          "title": "Name hiding",
+          "difficulty": "medium",
+          "topicTags": [
+            "scope",
+            "debugging"
+          ],
+          "prompt": "What does this function print?",
+          "codeSnippet": "int x = 1;\nvoid f(void) {\n    int x = 2;\n    printf(\"%d\\n\", x);\n}",
+          "choices": [
+            "2",
+            "1",
+            "3",
+            "The code is invalid."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "The block-scope x hides the file-scope x inside f.",
+          "learningObjective": "Track which declaration a name refers to.",
+          "id": "c-quiz-05-q11"
+        },
+        {
+          "title": "Register keyword reality",
+          "difficulty": "medium",
+          "topicTags": [
+            "storage-class",
+            "debugging"
+          ],
+          "prompt": "What is a practical modern view of register?",
+          "codeSnippet": null,
+          "choices": [
+            "It guarantees the variable is stored in a CPU register.",
+            "It is mostly obsolete; compilers usually choose register allocation themselves.",
+            "It gives the name external linkage.",
+            "It allocates heap memory."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "register is a hint with restrictions, not a guarantee, and modern optimizers rarely need it.",
+          "learningObjective": "Understand storage-class specifiers without overtrusting them.",
+          "id": "c-quiz-05-q12"
+        },
+        {
+          "title": "Linker unresolved symbol",
+          "difficulty": "medium",
+          "topicTags": [
+            "linker",
+            "multi-file",
+            "debugging"
+          ],
+          "prompt": "A compiler accepts a call to helper(), but the linker reports an undefined reference to helper. What is the likely issue?",
+          "codeSnippet": null,
+          "choices": [
+            "The function has too many local variables.",
+            "The function returned the wrong value at runtime.",
+            "No linked object file provides the function definition.",
+            "The preprocessor expanded helper incorrectly in every case."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "The compiler can compile a call from a declaration, but the linker must find exactly one external definition.",
+          "learningObjective": "Distinguish compile-time declarations from link-time definitions.",
+          "id": "c-quiz-05-q13"
+        },
+        {
+          "title": "Multiple definition",
+          "difficulty": "medium",
+          "topicTags": [
+            "linker",
+            "multi-file"
+          ],
+          "prompt": "What commonly causes a multiple definition linker error?",
+          "codeSnippet": null,
+          "choices": [
+            "Declaring a function prototype in a header.",
+            "Calling malloc without checking NULL.",
+            "Using too many comments.",
+            "Defining the same external function or object in more than one translation unit."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "External names must have compatible declarations and normally one definition across the linked program.",
+          "learningObjective": "Diagnose common linker errors.",
+          "id": "c-quiz-05-q14"
+        },
+        {
+          "title": "Header self-sufficiency",
+          "difficulty": "medium",
+          "topicTags": [
+            "headers",
+            "interfaces"
+          ],
+          "prompt": "What does it mean for a header to be self-sufficient?",
+          "codeSnippet": null,
+          "choices": [
+            "It can be included by itself because it includes or forward-declares what it needs.",
+            "It contains every function body in the program.",
+            "It never uses include guards.",
+            "It only works when included last."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A good header should not require users to include some other header first by accident.",
+          "learningObjective": "Design robust C headers.",
+          "id": "c-quiz-05-q15"
+        },
+        {
+          "title": "Forward declaration of struct",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "headers",
+            "declarations"
+          ],
+          "prompt": "Which declaration can hide the fields of struct Node while allowing pointers to it?",
+          "codeSnippet": null,
+          "choices": [
+            "typedef Node;",
+            "struct Node;",
+            "extern struct Node { int value; };",
+            "#include Node"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "An incomplete struct declaration allows pointer declarations without exposing the definition.",
+          "learningObjective": "Use opaque structs in interfaces.",
+          "id": "c-quiz-05-q16"
+        },
+        {
+          "title": "Inline in headers",
+          "difficulty": "medium",
+          "topicTags": [
+            "headers",
+            "linkage",
+            "functions"
+          ],
+          "prompt": "Why can non-static function definitions in headers be a problem?",
+          "codeSnippet": null,
+          "choices": [
+            "The compiler ignores them.",
+            "They cannot return values.",
+            "Every including source file may define the same external function.",
+            "They prevent include guards from working."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Include guards prevent repeated inclusion within one translation unit, not definitions across several translation units.",
+          "learningObjective": "Understand why headers usually contain declarations, not external definitions.",
+          "id": "c-quiz-05-q17"
+        },
+        {
+          "title": "Local static initialization",
+          "difficulty": "medium",
+          "topicTags": [
+            "static",
+            "initialization"
+          ],
+          "prompt": "When is this static local initialized?",
+          "codeSnippet": "void f(void) {\n    static int calls = 0;\n    calls++;\n}",
+          "choices": [
+            "Every time f is called.",
+            "Only if f is declared in a header.",
+            "After main returns.",
+            "Before program startup or before first use, according to C initialization rules for static storage duration."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "A static local has static storage duration and is not reinitialized on each call.",
+          "learningObjective": "Predict initialization behavior for static locals.",
+          "id": "c-quiz-05-q18"
+        },
+        {
+          "title": "extern function default",
+          "difficulty": "medium",
+          "topicTags": [
+            "functions",
+            "linkage"
+          ],
+          "prompt": "What linkage do non-static file-scope function definitions have by default?",
+          "codeSnippet": null,
+          "choices": [
+            "External linkage.",
+            "No linkage.",
+            "Internal linkage.",
+            "Block linkage."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A normal file-scope function definition is externally visible unless declared static.",
+          "learningObjective": "Know default linkage for functions.",
+          "id": "c-quiz-05-q19"
+        },
+        {
+          "title": "Header includes implementation header",
+          "difficulty": "medium",
+          "topicTags": [
+            "headers",
+            "debugging"
+          ],
+          "prompt": "What is the best reason not to put private implementation details in a public header?",
+          "codeSnippet": null,
+          "choices": [
+            "The preprocessor cannot process private names.",
+            "It exposes internals and forces users to recompile when private details change.",
+            "Public headers cannot include standard headers.",
+            "It makes local variables global."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Keeping public headers small reduces coupling and makes modules easier to maintain.",
+          "learningObjective": "Separate public interfaces from implementation details.",
+          "id": "c-quiz-05-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-06",
+      "title": "Structs, Unions, Enums, and Typedefs",
+      "difficulty": "medium",
+      "topicTags": [
+        "structs",
+        "unions",
+        "enums",
+        "typedef"
+      ],
+      "questions": [
+        {
+          "title": "Struct member access",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "syntax"
+          ],
+          "prompt": "Which expression accesses member x of a struct Point variable p?",
+          "codeSnippet": null,
+          "choices": [
+            "p->x",
+            "*p.x",
+            "p::x",
+            "p.x"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "The . operator accesses a member through a struct object.",
+          "learningObjective": "Use struct member access syntax.",
+          "id": "c-quiz-06-q01"
+        },
+        {
+          "title": "Pointer member access",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "pointers",
+            "syntax"
+          ],
+          "prompt": "Which expression accesses member x through a struct Point *p?",
+          "codeSnippet": null,
+          "choices": [
+            "p->x",
+            "p.x",
+            "&p.x",
+            "p=>x"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "p->x is shorthand for (*p).x.",
+          "learningObjective": "Use arrow syntax for pointers to structs.",
+          "id": "c-quiz-06-q02"
+        },
+        {
+          "title": "Struct assignment",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "semantics"
+          ],
+          "prompt": "What does b = a do for two variables of the same struct type?",
+          "codeSnippet": null,
+          "choices": [
+            "Copies only the first member.",
+            "Copies the whole struct object member-by-member.",
+            "Copies only pointer members deeply.",
+            "Is invalid in C."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "C supports assignment between compatible struct objects; pointer members are copied as pointer values.",
+          "learningObjective": "Understand struct assignment behavior.",
+          "id": "c-quiz-06-q03"
+        },
+        {
+          "title": "Designated initializer",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "initialization"
+          ],
+          "prompt": "What is the main advantage of this initializer?",
+          "codeSnippet": "struct Point p = { .y = 2, .x = 1 };",
+          "choices": [
+            "It initializes fields in random order at runtime.",
+            "It creates a pointer automatically.",
+            "It names the fields being initialized.",
+            "It prevents zero-initialization of missing fields."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Designators make initialization clearer and less dependent on member order.",
+          "learningObjective": "Use designated initializers for readable aggregate setup.",
+          "id": "c-quiz-06-q04"
+        },
+        {
+          "title": "Missing struct initializer fields",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "initialization"
+          ],
+          "prompt": "What happens to omitted members in an aggregate initializer?",
+          "codeSnippet": null,
+          "choices": [
+            "They are left indeterminate.",
+            "The compiler must reject the initializer.",
+            "They copy values from the previous struct object.",
+            "They are initialized as if they had static zero initialization."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Omitted aggregate members are initialized to zero/null-equivalent values.",
+          "learningObjective": "Predict aggregate initialization results.",
+          "id": "c-quiz-06-q05"
+        },
+        {
+          "title": "Typedef alias",
+          "difficulty": "medium",
+          "topicTags": [
+            "typedef",
+            "declarations"
+          ],
+          "prompt": "What does this typedef create?",
+          "codeSnippet": "typedef struct Point Point;",
+          "choices": [
+            "Point as an alias for struct Point.",
+            "A global variable named Point.",
+            "A macro named Point.",
+            "A function named Point."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "typedef introduces an alias name for an existing type.",
+          "learningObjective": "Use typedefs to name struct types conveniently.",
+          "id": "c-quiz-06-q06"
+        },
+        {
+          "title": "Anonymous struct typedef",
+          "difficulty": "medium",
+          "topicTags": [
+            "typedef",
+            "structs"
+          ],
+          "prompt": "After this declaration, which type name can you use?",
+          "codeSnippet": "typedef struct {\n    int x;\n    int y;\n} Point;",
+          "choices": [
+            "struct Point",
+            "Point",
+            "Both Point and struct Point",
+            "Neither; the declaration is incomplete."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "The struct has no tag, but the typedef name Point can name the type.",
+          "learningObjective": "Recognize typedef names versus struct tags.",
+          "id": "c-quiz-06-q07"
+        },
+        {
+          "title": "Enum default values",
+          "difficulty": "medium",
+          "topicTags": [
+            "enums",
+            "constants"
+          ],
+          "prompt": "What are the values of RED, GREEN, and BLUE?",
+          "codeSnippet": "enum Color { RED, GREEN, BLUE };",
+          "choices": [
+            "1, 2, 3",
+            "All 0",
+            "0, 1, 2",
+            "Implementation-defined random values"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Unassigned enum constants start at 0 and increase by 1.",
+          "learningObjective": "Use enum constants predictably.",
+          "id": "c-quiz-06-q08"
+        },
+        {
+          "title": "Enum explicit values",
+          "difficulty": "medium",
+          "topicTags": [
+            "enums",
+            "constants"
+          ],
+          "prompt": "What is the value of C?",
+          "codeSnippet": "enum E { A = 2, B = 5, C };",
+          "choices": [
+            "5",
+            "2",
+            "The code is invalid.",
+            "6"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "After B is explicitly 5, the next enumerator C becomes 6.",
+          "learningObjective": "Track enum value assignment.",
+          "id": "c-quiz-06-q09"
+        },
+        {
+          "title": "Union storage",
+          "difficulty": "medium",
+          "topicTags": [
+            "unions",
+            "memory"
+          ],
+          "prompt": "What is the key property of a union?",
+          "codeSnippet": null,
+          "choices": [
+            "All members share the same storage.",
+            "All members are stored independently like a struct.",
+            "It can contain only integers.",
+            "It cannot be passed to functions."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A union overlays its members in one storage area, so only one member value is intended to be active at a time.",
+          "learningObjective": "Understand union memory layout at a practical level.",
+          "id": "c-quiz-06-q10"
+        },
+        {
+          "title": "Union overwrite",
+          "difficulty": "medium",
+          "topicTags": [
+            "unions",
+            "semantics"
+          ],
+          "prompt": "What happens conceptually after assigning u.i and then u.f?",
+          "codeSnippet": "union U { int i; float f; } u;\nu.i = 10;\nu.f = 3.5f;",
+          "choices": [
+            "Both values are preserved independently.",
+            "The shared storage now holds the f member's representation.",
+            "The assignment to f is ignored.",
+            "The code must fail to compile."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Union members share storage, so writing one member overwrites the bytes used by the other.",
+          "learningObjective": "Avoid assuming unions store all members simultaneously.",
+          "id": "c-quiz-06-q11"
+        },
+        {
+          "title": "Struct padding",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "sizeof",
+            "memory-layout"
+          ],
+          "prompt": "Why might sizeof(struct S) be larger than sizeof(char) + sizeof(int)?",
+          "codeSnippet": "struct S { char c; int x; };",
+          "choices": [
+            "sizeof always doubles struct sizes.",
+            "char members are stored as int.",
+            "The compiler may add padding for alignment.",
+            "structs include hidden length fields."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Compilers insert padding so members meet alignment requirements.",
+          "learningObjective": "Account for padding when reasoning about struct size.",
+          "id": "c-quiz-06-q12"
+        },
+        {
+          "title": "Nested struct access",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "syntax"
+          ],
+          "prompt": "Which expression accesses rect.origin.x when rect is a struct object?",
+          "codeSnippet": null,
+          "choices": [
+            "rect->origin->x",
+            "rect.origin->x",
+            "rect::origin.x",
+            "rect.origin.x"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Use . at each level when each intermediate value is a struct object.",
+          "learningObjective": "Access nested struct members correctly.",
+          "id": "c-quiz-06-q13"
+        },
+        {
+          "title": "Struct pointer parameter",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "functions",
+            "pointers"
+          ],
+          "prompt": "Why pass a large struct as const struct Config *cfg?",
+          "codeSnippet": null,
+          "choices": [
+            "To avoid copying it while promising not to modify it through cfg.",
+            "To force it onto the heap.",
+            "To make all members compile-time constants.",
+            "To allow cfg to be used after the caller returns."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A pointer avoids copying, and const documents/enforces read-only access through that pointer.",
+          "learningObjective": "Choose efficient and clear struct function parameters.",
+          "id": "c-quiz-06-q14"
+        },
+        {
+          "title": "Self-referential struct",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "pointers",
+            "declarations"
+          ],
+          "prompt": "Which member can be used for a linked-list node pointing to the next node?",
+          "codeSnippet": null,
+          "choices": [
+            "struct Node next;",
+            "struct Node *next;",
+            "Node next[];",
+            "int Node;"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "A struct cannot contain a complete instance of itself, but it can contain a pointer to the same struct type.",
+          "learningObjective": "Declare self-referential structures correctly.",
+          "id": "c-quiz-06-q15"
+        },
+        {
+          "title": "Flexible array member",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "arrays",
+            "dynamic-memory"
+          ],
+          "prompt": "What is true about a flexible array member such as char data[] at the end of a struct?",
+          "codeSnippet": null,
+          "choices": [
+            "It always has length 1.",
+            "It can appear as the first member.",
+            "Extra storage can be allocated after the struct object for the array elements.",
+            "sizeof includes space for 100 elements by default."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "A flexible array member has no fixed size in sizeof the struct and is used with dynamically allocated extra storage.",
+          "learningObjective": "Recognize the purpose and placement of flexible array members.",
+          "id": "c-quiz-06-q16"
+        },
+        {
+          "title": "Typedef pointer trap",
+          "difficulty": "medium",
+          "topicTags": [
+            "typedef",
+            "pointers",
+            "declarations"
+          ],
+          "prompt": "Given typedef int *IntPtr; what does this declare?",
+          "codeSnippet": "typedef int *IntPtr;\nIntPtr a, b;",
+          "choices": [
+            "a is a pointer, b is an int.",
+            "a is an int, b is a pointer.",
+            "The typedef is ignored in declarations.",
+            "Both a and b are pointers to int."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "The typedef name IntPtr already includes the pointer declarator, so each declared object has that alias type.",
+          "learningObjective": "Read typedef-based pointer declarations carefully.",
+          "id": "c-quiz-06-q17"
+        },
+        {
+          "title": "Struct tag namespace",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "typedef",
+            "names"
+          ],
+          "prompt": "In C, what is true about struct tags and ordinary identifiers?",
+          "codeSnippet": null,
+          "choices": [
+            "They are in different name spaces.",
+            "They must always have different spelling.",
+            "A struct tag automatically creates a typedef.",
+            "Tags can only be used inside functions."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "C keeps tags such as struct Point separate from ordinary identifiers and typedef names.",
+          "learningObjective": "Understand C's distinct name spaces.",
+          "id": "c-quiz-06-q18"
+        },
+        {
+          "title": "Passing struct by value",
+          "difficulty": "medium",
+          "topicTags": [
+            "structs",
+            "functions"
+          ],
+          "prompt": "If a function receives struct Point p by value and changes p.x, what happens to the caller's struct?",
+          "codeSnippet": null,
+          "choices": [
+            "Its x member changes.",
+            "It is unchanged.",
+            "The behavior is undefined.",
+            "The caller's struct is freed."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "The parameter is a copy of the caller's struct object.",
+          "learningObjective": "Understand value semantics for struct parameters.",
+          "id": "c-quiz-06-q19"
+        },
+        {
+          "title": "Enum use case",
+          "difficulty": "medium",
+          "topicTags": [
+            "enums",
+            "readability"
+          ],
+          "prompt": "Why use an enum for states such as TOKEN_INT, TOKEN_NAME, TOKEN_END?",
+          "codeSnippet": null,
+          "choices": [
+            "It stores strings automatically.",
+            "It prevents all invalid values at runtime.",
+            "It gives readable named integer constants for a closed set of states.",
+            "It creates separate variables for every state."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Enums make related integer constants clearer, though C may still allow out-of-range values in enum objects.",
+          "learningObjective": "Use enums for readable state sets.",
+          "id": "c-quiz-06-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-07",
+      "title": "Dynamic Memory and File I/O",
+      "difficulty": "medium",
+      "topicTags": [
+        "dynamic-memory",
+        "malloc",
+        "free",
+        "file-io",
+        "strings"
+      ],
+      "questions": [
+        {
+          "title": "malloc header",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "headers"
+          ],
+          "prompt": "Which header declares malloc, calloc, realloc, and free?",
+          "codeSnippet": null,
+          "choices": [
+            "#include <stdlib.h>",
+            "#include <stdio.h>",
+            "#include <string.h>",
+            "#include <stdint.h>"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "The standard memory allocation functions are declared in stdlib.h.",
+          "learningObjective": "Include the correct header for allocation functions.",
+          "id": "c-quiz-07-q01"
+        },
+        {
+          "title": "malloc failure",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "error-handling"
+          ],
+          "prompt": "What can malloc return when allocation fails?",
+          "codeSnippet": null,
+          "choices": [
+            "A pointer to zero-filled memory",
+            "NULL",
+            "The previous allocation",
+            "A pointer that should still be freed twice"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "malloc returns a null pointer on failure.",
+          "learningObjective": "Handle allocation failure safely.",
+          "id": "c-quiz-07-q02"
+        },
+        {
+          "title": "Correct allocation size",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "sizeof"
+          ],
+          "prompt": "Which allocation is usually safest for an array of n int objects?",
+          "codeSnippet": null,
+          "choices": [
+            "int *a = malloc(n);",
+            "int *a = malloc(sizeof a);",
+            "int *a = malloc(n * sizeof *a);",
+            "int *a = malloc(n * sizeof a);"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "sizeof *a follows the pointed-to type and avoids accidentally using the pointer size.",
+          "learningObjective": "Allocate the right number of bytes for arrays.",
+          "id": "c-quiz-07-q03"
+        },
+        {
+          "title": "calloc behavior",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "initialization"
+          ],
+          "prompt": "What does calloc(n, sizeof *p) do that malloc(n * sizeof *p) does not?",
+          "codeSnippet": null,
+          "choices": [
+            "Guarantees allocation can never fail.",
+            "Allocates on the stack.",
+            "Automatically frees the memory.",
+            "Initializes all bytes of the allocated storage to zero."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "calloc zero-initializes the allocated storage if allocation succeeds.",
+          "learningObjective": "Know the difference between malloc and calloc.",
+          "id": "c-quiz-07-q04"
+        },
+        {
+          "title": "free null",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "free"
+          ],
+          "prompt": "What happens when free(NULL) is called?",
+          "codeSnippet": null,
+          "choices": [
+            "Nothing; it is defined to be safe.",
+            "It always crashes.",
+            "It frees all allocated memory.",
+            "It causes a compile-time error."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "The C standard defines free(NULL) as a no-op.",
+          "learningObjective": "Use cleanup code without unnecessary NULL special cases.",
+          "id": "c-quiz-07-q05"
+        },
+        {
+          "title": "Double free",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "undefined-behavior"
+          ],
+          "prompt": "What is wrong with freeing the same allocated pointer twice?",
+          "codeSnippet": null,
+          "choices": [
+            "It is required to be ignored.",
+            "It has undefined behavior.",
+            "It only leaks memory.",
+            "It resets the pointer to NULL automatically."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "After free(p), the allocation is no longer owned; freeing it again is undefined behavior.",
+          "learningObjective": "Avoid double-free bugs.",
+          "id": "c-quiz-07-q06"
+        },
+        {
+          "title": "Use after free",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "undefined-behavior"
+          ],
+          "prompt": "What is wrong here?",
+          "codeSnippet": "int *p = malloc(sizeof *p);\n*p = 1;\nfree(p);\n*p = 2;",
+          "choices": [
+            "free requires the size as a second argument.",
+            "The first assignment must use memcpy.",
+            "The code writes through p after its allocation has been freed.",
+            "malloc returns initialized memory only for int."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Accessing storage after it has been freed is undefined behavior.",
+          "learningObjective": "Avoid use-after-free bugs.",
+          "id": "c-quiz-07-q07"
+        },
+        {
+          "title": "realloc failure pattern",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "realloc",
+            "error-handling"
+          ],
+          "prompt": "Why is assigning realloc directly to p risky?",
+          "codeSnippet": "p = realloc(p, new_count * sizeof *p);",
+          "choices": [
+            "realloc always frees p before trying to allocate.",
+            "realloc cannot resize arrays.",
+            "realloc returns an int, not a pointer.",
+            "If realloc fails, the original allocation is still allocated but p is overwritten with NULL."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Use a temporary pointer so you do not lose the only reference to the original allocation on failure.",
+          "learningObjective": "Handle realloc failures without leaking memory.",
+          "id": "c-quiz-07-q08"
+        },
+        {
+          "title": "String allocation length",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "strings"
+          ],
+          "prompt": "How many bytes should be allocated to copy a string of length len?",
+          "codeSnippet": null,
+          "choices": [
+            "len + 1",
+            "len",
+            "len - 1",
+            "sizeof(char *) * len"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "You need one extra byte for the terminating null character.",
+          "learningObjective": "Allocate room for null terminators.",
+          "id": "c-quiz-07-q09"
+        },
+        {
+          "title": "fopen header",
+          "difficulty": "medium",
+          "topicTags": [
+            "file-io",
+            "headers"
+          ],
+          "prompt": "Which header declares FILE and fopen?",
+          "codeSnippet": null,
+          "choices": [
+            "#include <stdlib.h>",
+            "#include <stdio.h>",
+            "#include <string.h>",
+            "#include <errno.h>"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "FILE and standard file I/O functions are declared in stdio.h.",
+          "learningObjective": "Include the correct header for file I/O.",
+          "id": "c-quiz-07-q10"
+        },
+        {
+          "title": "fopen failure",
+          "difficulty": "medium",
+          "topicTags": [
+            "file-io",
+            "error-handling"
+          ],
+          "prompt": "What should you check after fopen?",
+          "codeSnippet": null,
+          "choices": [
+            "Whether the returned FILE object has length zero.",
+            "Whether fclose has already been called.",
+            "Whether the returned FILE * is NULL.",
+            "Whether the filename string changed."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "fopen returns NULL when it cannot open the file.",
+          "learningObjective": "Handle file open errors.",
+          "id": "c-quiz-07-q11"
+        },
+        {
+          "title": "fclose responsibility",
+          "difficulty": "medium",
+          "topicTags": [
+            "file-io",
+            "resources"
+          ],
+          "prompt": "Why should fclose be called on a successfully opened FILE *?",
+          "codeSnippet": null,
+          "choices": [
+            "To free every malloc allocation.",
+            "To delete the file from disk.",
+            "To reset errno to zero.",
+            "To release the file resource and flush pending output."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Closing files releases resources and ensures buffered output is written.",
+          "learningObjective": "Manage FILE resources correctly.",
+          "id": "c-quiz-07-q12"
+        },
+        {
+          "title": "fgets behavior",
+          "difficulty": "medium",
+          "topicTags": [
+            "file-io",
+            "strings"
+          ],
+          "prompt": "What is true about fgets(buf, sizeof buf, fp)?",
+          "codeSnippet": null,
+          "choices": [
+            "It reads at most sizeof buf - 1 characters and null-terminates on success.",
+            "It always removes the newline.",
+            "It ignores the buffer size.",
+            "It returns the number of characters read as an int."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "fgets leaves room for '\\0' and may keep the newline if there is space.",
+          "learningObjective": "Read lines safely with bounded input.",
+          "id": "c-quiz-07-q13"
+        },
+        {
+          "title": "scanf width",
+          "difficulty": "medium",
+          "topicTags": [
+            "file-io",
+            "strings",
+            "security"
+          ],
+          "prompt": "Why is %9s safer than %s for char name[10]?",
+          "codeSnippet": null,
+          "choices": [
+            "It reads exactly 9 characters including spaces.",
+            "It limits input to 9 non-whitespace characters plus the null terminator.",
+            "It allocates more memory automatically.",
+            "It validates that input is alphabetic."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "A field width prevents writing past the fixed buffer.",
+          "learningObjective": "Use scanf widths for fixed-size string buffers.",
+          "id": "c-quiz-07-q14"
+        },
+        {
+          "title": "fread return value",
+          "difficulty": "medium",
+          "topicTags": [
+            "file-io",
+            "binary-io"
+          ],
+          "prompt": "What does fread return?",
+          "codeSnippet": null,
+          "choices": [
+            "The number of bytes requested.",
+            "A FILE pointer.",
+            "The number of complete items read.",
+            "0 only on success."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "fread returns how many items, not bytes, were successfully read.",
+          "learningObjective": "Check binary I/O correctly.",
+          "id": "c-quiz-07-q15"
+        },
+        {
+          "title": "Binary versus text mode",
+          "difficulty": "medium",
+          "topicTags": [
+            "file-io",
+            "portability"
+          ],
+          "prompt": "Why use \"rb\" when reading binary files portably?",
+          "codeSnippet": null,
+          "choices": [
+            "Binary mode makes the file encrypted.",
+            "Binary mode prevents EOF.",
+            "Text mode cannot read characters.",
+            "Text mode may translate bytes such as newlines on some systems."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "On some platforms, text mode performs translations; binary mode requests raw bytes.",
+          "learningObjective": "Choose file modes intentionally.",
+          "id": "c-quiz-07-q16"
+        },
+        {
+          "title": "Ownership after malloc",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "ownership"
+          ],
+          "prompt": "What does it mean when a function returns a malloc-allocated pointer to the caller?",
+          "codeSnippet": null,
+          "choices": [
+            "The caller usually becomes responsible for freeing it.",
+            "The pointer is automatically freed at the next semicolon.",
+            "The memory belongs to the compiler only.",
+            "The pointer can never be NULL."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "C has manual ownership conventions; returned allocated storage needs a clear owner.",
+          "learningObjective": "Track ownership responsibilities.",
+          "id": "c-quiz-07-q17"
+        },
+        {
+          "title": "Leak scenario",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "debugging"
+          ],
+          "prompt": "What is the bug here if no other pointer stores the allocation?",
+          "codeSnippet": "char *p = malloc(20);\np = malloc(40);",
+          "choices": [
+            "The second malloc appends to the first block.",
+            "The first allocation is leaked when p is overwritten.",
+            "p becomes a pointer to both allocations.",
+            "The compiler frees the first allocation automatically."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Assigning a new allocation to the only pointer loses access to the old allocation.",
+          "learningObjective": "Recognize memory leaks from overwritten owning pointers.",
+          "id": "c-quiz-07-q18"
+        },
+        {
+          "title": "Freeing non-malloc memory",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "undefined-behavior"
+          ],
+          "prompt": "Which pointer is valid to pass to free?",
+          "codeSnippet": null,
+          "choices": [
+            "The address of a local variable.",
+            "A pointer to the middle of an allocation.",
+            "A pointer returned by malloc/calloc/realloc that has not already been freed.",
+            "A pointer to a string literal."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "free must receive a null pointer or a pointer value returned by an allocation function.",
+          "learningObjective": "Call free only on valid owned allocations.",
+          "id": "c-quiz-07-q19"
+        },
+        {
+          "title": "Error cleanup path",
+          "difficulty": "medium",
+          "topicTags": [
+            "dynamic-memory",
+            "file-io",
+            "debugging"
+          ],
+          "prompt": "A function opens a file and then malloc fails. What should it do before returning an error?",
+          "codeSnippet": null,
+          "choices": [
+            "Call fclose(NULL) only.",
+            "Retry malloc forever.",
+            "Ignore the file because malloc failed later.",
+            "Close the file it already opened."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Cleanup should release resources acquired before the failure.",
+          "learningObjective": "Write reliable cleanup paths for multiple resources.",
+          "id": "c-quiz-07-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-08",
+      "title": "Preprocessor, Build Errors, and Debugging",
+      "difficulty": "medium",
+      "topicTags": [
+        "preprocessor",
+        "headers",
+        "compiler-errors",
+        "linker",
+        "debugging"
+      ],
+      "questions": [
+        {
+          "title": "Macro expansion hazard",
+          "difficulty": "medium",
+          "topicTags": [
+            "preprocessor",
+            "macros",
+            "operators"
+          ],
+          "prompt": "Why is this macro dangerous?",
+          "codeSnippet": "#define SQUARE(x) x * x",
+          "choices": [
+            "Macros cannot take arguments.",
+            "Its parameters are not parenthesized, so precedence can change the result.",
+            "x is evaluated at compile time only.",
+            "The macro returns a pointer."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "SQUARE(a + 1) expands to a + 1 * a + 1, not (a + 1) * (a + 1).",
+          "learningObjective": "Write safer expression macros.",
+          "id": "c-quiz-08-q01"
+        },
+        {
+          "title": "Macro double evaluation",
+          "difficulty": "medium",
+          "topicTags": [
+            "preprocessor",
+            "macros",
+            "side-effects"
+          ],
+          "prompt": "What is the issue with MIN(i++, j)?",
+          "codeSnippet": "#define MIN(a,b) ((a) < (b) ? (a) : (b))",
+          "choices": [
+            "The macro cannot compare integers.",
+            "The ?: operator cannot be used in macros.",
+            "i++ may be evaluated more than once.",
+            "The preprocessor prevents side effects."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Macro arguments are substituted textually, so an argument used twice can run twice.",
+          "learningObjective": "Avoid side-effecting expressions in unsafe macros.",
+          "id": "c-quiz-08-q02"
+        },
+        {
+          "title": "Include search form",
+          "difficulty": "medium",
+          "topicTags": [
+            "preprocessor",
+            "headers"
+          ],
+          "prompt": "What is the usual difference between #include <stdio.h> and #include \"mylib.h\"?",
+          "codeSnippet": null,
+          "choices": [
+            "They are exactly identical on every compiler.",
+            "Quotes can include only binary files.",
+            "Angle brackets include the file twice.",
+            "Angle brackets search system include paths; quotes commonly search the local/project path first."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Compilers commonly treat quoted includes as project/local headers before standard include paths.",
+          "learningObjective": "Use include syntax appropriately.",
+          "id": "c-quiz-08-q03"
+        },
+        {
+          "title": "#define constant",
+          "difficulty": "medium",
+          "topicTags": [
+            "preprocessor",
+            "constants"
+          ],
+          "prompt": "What does the preprocessor do with #define SIZE 10?",
+          "codeSnippet": null,
+          "choices": [
+            "It replaces later SIZE tokens with 10 before compilation.",
+            "It creates a typed int variable.",
+            "It allocates an array named SIZE.",
+            "It changes the linker search path."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Object-like macros perform token replacement during preprocessing.",
+          "learningObjective": "Understand basic macro substitution.",
+          "id": "c-quiz-08-q04"
+        },
+        {
+          "title": "Prefer const or enum",
+          "difficulty": "medium",
+          "topicTags": [
+            "preprocessor",
+            "constants",
+            "types"
+          ],
+          "prompt": "Why might enum { SIZE = 10 }; be preferable to #define SIZE 10 for an integer constant?",
+          "codeSnippet": null,
+          "choices": [
+            "It allocates writable memory.",
+            "It gives a real named integer constant visible to the compiler.",
+            "It works only at runtime.",
+            "It prevents all overflow."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "An enum constant participates in C's syntax and diagnostics more directly than a textual macro.",
+          "learningObjective": "Choose typed language constructs over macros when possible.",
+          "id": "c-quiz-08-q05"
+        },
+        {
+          "title": "Conditional compilation",
+          "difficulty": "medium",
+          "topicTags": [
+            "preprocessor",
+            "debugging"
+          ],
+          "prompt": "What does #ifdef DEBUG test?",
+          "codeSnippet": null,
+          "choices": [
+            "Whether a variable named DEBUG is nonzero.",
+            "Whether the debugger is attached.",
+            "Whether the macro DEBUG is defined.",
+            "Whether compilation has no warnings."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "#ifdef checks macro definition status during preprocessing.",
+          "learningObjective": "Use conditional compilation correctly.",
+          "id": "c-quiz-08-q06"
+        },
+        {
+          "title": "Syntax error from missing semicolon",
+          "difficulty": "medium",
+          "topicTags": [
+            "compiler-errors",
+            "syntax",
+            "debugging"
+          ],
+          "prompt": "A compiler reports an error on the second line. What is the likely cause?",
+          "codeSnippet": "int x = 3\nprintf(\"%d\\n\", x);",
+          "choices": [
+            "printf cannot print ints.",
+            "int variables cannot be initialized.",
+            "The second line must be in a header.",
+            "The missing semicolon after the first declaration."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "A missing semicolon often makes the next line look wrong to the parser.",
+          "learningObjective": "Debug syntax errors by checking the previous statement too.",
+          "id": "c-quiz-08-q07"
+        },
+        {
+          "title": "Implicit function declaration problem",
+          "difficulty": "medium",
+          "topicTags": [
+            "compiler-errors",
+            "headers",
+            "functions"
+          ],
+          "prompt": "Why is calling a function without a visible declaration a serious problem in modern C?",
+          "codeSnippet": null,
+          "choices": [
+            "The compiler may not know the correct parameter and return types, and modern standards reject implicit declarations.",
+            "The linker cannot ever link declared functions.",
+            "The function becomes static automatically.",
+            "The preprocessor turns the call into a macro."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Visible prototypes are required for reliable type checking and are expected by modern C compilers.",
+          "learningObjective": "Include headers or declarations before calling functions.",
+          "id": "c-quiz-08-q08"
+        },
+        {
+          "title": "Warning value",
+          "difficulty": "medium",
+          "topicTags": [
+            "debugging",
+            "compiler-warnings"
+          ],
+          "prompt": "Why should warnings be treated seriously while learning C?",
+          "codeSnippet": null,
+          "choices": [
+            "Warnings are always false positives.",
+            "They often point to real bugs such as type mismatches or missing returns.",
+            "Warnings mean the executable was not produced.",
+            "Warnings only apply to comments."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "C allows many risky constructs, so warnings are an important safety net.",
+          "learningObjective": "Use compiler diagnostics as feedback.",
+          "id": "c-quiz-08-q09"
+        },
+        {
+          "title": "Segmentation fault clue",
+          "difficulty": "medium",
+          "topicTags": [
+            "debugging",
+            "pointers"
+          ],
+          "prompt": "A program crashes at *p = 1. What is the first thing to inspect?",
+          "codeSnippet": null,
+          "choices": [
+            "Whether printf was included.",
+            "Whether the file extension is .h.",
+            "Whether p points to valid writable storage.",
+            "Whether p has external linkage."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Crashes on dereference commonly come from null, uninitialized, dangling, or otherwise invalid pointers.",
+          "learningObjective": "Debug pointer crashes methodically.",
+          "id": "c-quiz-08-q10"
+        },
+        {
+          "title": "Compiler versus linker",
+          "difficulty": "medium",
+          "topicTags": [
+            "compiler-errors",
+            "linker"
+          ],
+          "prompt": "Which issue is usually found by the linker, not the compiler?",
+          "codeSnippet": null,
+          "choices": [
+            "A missing closing brace in a source file.",
+            "Using = instead of == in an if condition.",
+            "An undeclared local variable.",
+            "A declared external function has no definition in linked object files."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "The linker combines object files and resolves external symbols.",
+          "learningObjective": "Classify build errors by compilation phase.",
+          "id": "c-quiz-08-q11"
+        },
+        {
+          "title": "Header circular dependency",
+          "difficulty": "medium",
+          "topicTags": [
+            "headers",
+            "debugging"
+          ],
+          "prompt": "What often helps when two struct types refer to each other by pointer across headers?",
+          "codeSnippet": null,
+          "choices": [
+            "Forward declarations.",
+            "Removing all include guards.",
+            "Putting both .c files in the header.",
+            "Using #define for every struct field."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Forward declarations let headers mention pointer types without needing full struct definitions.",
+          "learningObjective": "Reduce header coupling with incomplete types.",
+          "id": "c-quiz-08-q12"
+        },
+        {
+          "title": "assert header",
+          "difficulty": "medium",
+          "topicTags": [
+            "debugging",
+            "headers"
+          ],
+          "prompt": "Which header provides assert?",
+          "codeSnippet": null,
+          "choices": [
+            "#include <stdio.h>",
+            "#include <assert.h>",
+            "#include <errno.h>",
+            "#include <limits.h>"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "assert is declared as a macro in assert.h.",
+          "learningObjective": "Use standard debugging support.",
+          "id": "c-quiz-08-q13"
+        },
+        {
+          "title": "assert purpose",
+          "difficulty": "medium",
+          "topicTags": [
+            "debugging",
+            "assert"
+          ],
+          "prompt": "What is assert best used for?",
+          "codeSnippet": null,
+          "choices": [
+            "Handling all user input errors in production.",
+            "Allocating memory safely.",
+            "Checking programmer assumptions during development.",
+            "Replacing compiler warnings."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "assert documents and checks conditions that should never be false if the program logic is correct.",
+          "learningObjective": "Apply assertions appropriately.",
+          "id": "c-quiz-08-q14"
+        },
+        {
+          "title": "errno use",
+          "difficulty": "medium",
+          "topicTags": [
+            "error-handling",
+            "file-io"
+          ],
+          "prompt": "When is errno meaningful?",
+          "codeSnippet": null,
+          "choices": [
+            "At any time as a global success flag.",
+            "Only before main starts.",
+            "Only for syntax errors.",
+            "After a library function reports failure in a way that documents errno use."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "errno should be checked after a function indicates failure and specifies errno behavior.",
+          "learningObjective": "Use errno without treating it as a universal status variable.",
+          "id": "c-quiz-08-q15"
+        },
+        {
+          "title": "printf format mismatch",
+          "difficulty": "medium",
+          "topicTags": [
+            "printf",
+            "undefined-behavior",
+            "debugging"
+          ],
+          "prompt": "What is wrong here if x has type long?",
+          "codeSnippet": "long x = 123;\nprintf(\"%d\\n\", x);",
+          "choices": [
+            "%d expects int, not long; use %ld.",
+            "%d prints all integer types portably.",
+            "long cannot be printed.",
+            "printf automatically reads the declared type of x."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "printf uses the format string to know the argument types. A mismatch has undefined behavior.",
+          "learningObjective": "Match printf conversions to argument types.",
+          "id": "c-quiz-08-q16"
+        },
+        {
+          "title": "size_t format",
+          "difficulty": "medium",
+          "topicTags": [
+            "printf",
+            "types",
+            "debugging"
+          ],
+          "prompt": "Which printf conversion is correct for size_t?",
+          "codeSnippet": null,
+          "choices": [
+            "%d",
+            "%zu",
+            "%ld always",
+            "%p"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "%zu is the standard conversion for size_t.",
+          "learningObjective": "Print size_t values portably.",
+          "id": "c-quiz-08-q17"
+        },
+        {
+          "title": "Preprocessed output",
+          "difficulty": "medium",
+          "topicTags": [
+            "preprocessor",
+            "debugging"
+          ],
+          "prompt": "Why might you inspect preprocessed output?",
+          "codeSnippet": null,
+          "choices": [
+            "To see final machine code.",
+            "To run the program step by step.",
+            "To see what includes and macros expanded into before compilation.",
+            "To find memory leaks directly."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Preprocessed output reveals the source that the compiler proper sees after macro expansion and includes.",
+          "learningObjective": "Debug macro and include problems.",
+          "id": "c-quiz-08-q18"
+        },
+        {
+          "title": "Header guard shape",
+          "difficulty": "medium",
+          "topicTags": [
+            "headers",
+            "preprocessor"
+          ],
+          "prompt": "Which pattern is a conventional include guard?",
+          "codeSnippet": null,
+          "choices": [
+            "#include MY_H\n...\n#endinclude",
+            "#guard MY_H\n...\n#end",
+            "if (!MY_H) { ... }",
+            "#ifndef MY_H\n#define MY_H\n...\n#endif"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "The #ifndef/#define/#endif pattern prevents repeated header inclusion.",
+          "learningObjective": "Recognize include guard syntax.",
+          "id": "c-quiz-08-q19"
+        },
+        {
+          "title": "Debugging minimal example",
+          "difficulty": "medium",
+          "topicTags": [
+            "debugging",
+            "testing"
+          ],
+          "prompt": "When a bug is confusing, why make a small reproducible example?",
+          "codeSnippet": null,
+          "choices": [
+            "It isolates the behavior and removes unrelated code.",
+            "It changes undefined behavior into defined behavior.",
+            "It prevents all compiler warnings.",
+            "It guarantees the compiler has a bug."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Smaller examples make it easier to identify the exact language rule or program mistake involved.",
+          "learningObjective": "Use reduction as a debugging technique.",
+          "id": "c-quiz-08-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-09",
+      "title": "Function Pointers, Bitwise Operations, and Qualifiers",
+      "difficulty": "hard",
+      "topicTags": [
+        "function-pointers",
+        "bitwise",
+        "const",
+        "volatile",
+        "restrict"
+      ],
+      "questions": [
+        {
+          "title": "Function pointer declaration",
+          "difficulty": "hard",
+          "topicTags": [
+            "function-pointers",
+            "declarations"
+          ],
+          "prompt": "Which declares fp as a pointer to a function taking two ints and returning int?",
+          "codeSnippet": null,
+          "choices": [
+            "int *fp(int, int);",
+            "int fp*(int, int);",
+            "int (*fp)(int, int);",
+            "int (fp*)(int, int);"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Parentheses around *fp are required; otherwise the declaration would be a function returning int *.",
+          "learningObjective": "Read and write function pointer declarations.",
+          "id": "c-quiz-09-q01"
+        },
+        {
+          "title": "Calling through function pointer",
+          "difficulty": "hard",
+          "topicTags": [
+            "function-pointers",
+            "syntax"
+          ],
+          "prompt": "Which call is valid if fp points to a compatible function?",
+          "codeSnippet": null,
+          "choices": [
+            "*fp(2, 3) only",
+            "fp->call(2, 3)",
+            "call fp(2, 3)",
+            "fp(2, 3)"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "A function pointer can be called with normal call syntax.",
+          "learningObjective": "Call functions through pointers.",
+          "id": "c-quiz-09-q02"
+        },
+        {
+          "title": "Callback parameter",
+          "difficulty": "hard",
+          "topicTags": [
+            "function-pointers",
+            "functions"
+          ],
+          "prompt": "What does apply accept as its second parameter?",
+          "codeSnippet": "int apply(int x, int (*fn)(int));",
+          "choices": [
+            "A pointer to a function taking int and returning int.",
+            "An int pointer.",
+            "A function returning int *.",
+            "An array of int functions."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "The parameter int (*fn)(int) is a function pointer.",
+          "learningObjective": "Use function pointers for callbacks.",
+          "id": "c-quiz-09-q03"
+        },
+        {
+          "title": "qsort comparator",
+          "difficulty": "hard",
+          "topicTags": [
+            "function-pointers",
+            "stdlib",
+            "void-pointer"
+          ],
+          "prompt": "What must a qsort comparison function return?",
+          "codeSnippet": null,
+          "choices": [
+            "Only 0 or 1.",
+            "Negative, zero, or positive depending on ordering.",
+            "A pointer to the smaller element.",
+            "The number of bytes compared."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "qsort comparators return an int less than, equal to, or greater than zero.",
+          "learningObjective": "Understand standard callback contracts.",
+          "id": "c-quiz-09-q04"
+        },
+        {
+          "title": "Bitwise AND",
+          "difficulty": "hard",
+          "topicTags": [
+            "bitwise",
+            "operators"
+          ],
+          "prompt": "What is 0b1100 & 0b1010 in binary?",
+          "codeSnippet": null,
+          "choices": [
+            "0b1110",
+            "0b0110",
+            "0b1000",
+            "0b0010"
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Bitwise AND keeps a bit set only when both operands have that bit set.",
+          "learningObjective": "Apply bitwise AND.",
+          "id": "c-quiz-09-q05"
+        },
+        {
+          "title": "Bitwise OR",
+          "difficulty": "hard",
+          "topicTags": [
+            "bitwise",
+            "operators"
+          ],
+          "prompt": "What does flags |= MASK do?",
+          "codeSnippet": null,
+          "choices": [
+            "Clears the bits that are set in MASK.",
+            "Toggles every bit.",
+            "Tests whether flags equals MASK.",
+            "Sets the bits that are set in MASK."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "OR assignment turns on mask bits while leaving other bits unchanged.",
+          "learningObjective": "Set flag bits with masks.",
+          "id": "c-quiz-09-q06"
+        },
+        {
+          "title": "Bitwise clear",
+          "difficulty": "hard",
+          "topicTags": [
+            "bitwise",
+            "operators"
+          ],
+          "prompt": "Which expression clears the bits in MASK from flags?",
+          "codeSnippet": null,
+          "choices": [
+            "flags &= ~MASK;",
+            "flags |= MASK;",
+            "flags ^= 0;",
+            "flags &&= MASK;"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "~MASK has zeros where MASK has ones; ANDing clears those bits.",
+          "learningObjective": "Clear flag bits with masks.",
+          "id": "c-quiz-09-q07"
+        },
+        {
+          "title": "Bitwise toggle",
+          "difficulty": "hard",
+          "topicTags": [
+            "bitwise",
+            "operators"
+          ],
+          "prompt": "Which operator is commonly used to toggle selected bits?",
+          "codeSnippet": null,
+          "choices": [
+            "|",
+            "^",
+            "&",
+            "&&"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "XOR with 1 flips a bit; XOR with 0 leaves it unchanged.",
+          "learningObjective": "Use XOR for bit toggling.",
+          "id": "c-quiz-09-q08"
+        },
+        {
+          "title": "Left shift",
+          "difficulty": "hard",
+          "topicTags": [
+            "bitwise",
+            "operators",
+            "undefined-behavior"
+          ],
+          "prompt": "For unsigned int x = 1u; what is x << 3?",
+          "codeSnippet": null,
+          "choices": [
+            "3u",
+            "4u",
+            "8u",
+            "Undefined because all shifts are undefined."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Left shifting unsigned 1 by 3 positions produces 2^3.",
+          "learningObjective": "Use unsigned shifts for bit masks.",
+          "id": "c-quiz-09-q09"
+        },
+        {
+          "title": "Shift count rule",
+          "difficulty": "hard",
+          "topicTags": [
+            "bitwise",
+            "undefined-behavior"
+          ],
+          "prompt": "What is wrong with shifting a 32-bit unsigned int by 32?",
+          "codeSnippet": null,
+          "choices": [
+            "It always yields zero portably.",
+            "It rotates the bits.",
+            "It is allowed only for signed integers.",
+            "The shift count must be less than the width of the promoted left operand."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "A shift count equal to or greater than the type width has undefined behavior.",
+          "learningObjective": "Avoid invalid shift counts.",
+          "id": "c-quiz-09-q10"
+        },
+        {
+          "title": "Signed shift caution",
+          "difficulty": "hard",
+          "topicTags": [
+            "bitwise",
+            "undefined-behavior"
+          ],
+          "prompt": "Why prefer unsigned types for bit manipulation?",
+          "codeSnippet": null,
+          "choices": [
+            "Signed overflow and some signed shift cases can be undefined or implementation-defined.",
+            "Unsigned types cannot overflow in any sense.",
+            "Signed types cannot use bitwise operators.",
+            "Unsigned types are always exactly 32 bits."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Unsigned integer arithmetic is defined modulo 2^N, making it more predictable for bit work.",
+          "learningObjective": "Choose appropriate integer types for bit operations.",
+          "id": "c-quiz-09-q11"
+        },
+        {
+          "title": "const object",
+          "difficulty": "hard",
+          "topicTags": [
+            "const",
+            "qualifiers"
+          ],
+          "prompt": "What does const int n = 5; primarily promise?",
+          "codeSnippet": null,
+          "choices": [
+            "n is a preprocessor macro.",
+            "The program should not modify n through that lvalue.",
+            "n must be stored in ROM.",
+            "n has external linkage by default."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "const qualifies the object type and prevents assignment through that name.",
+          "learningObjective": "Use const for read-only intent.",
+          "id": "c-quiz-09-q12"
+        },
+        {
+          "title": "const API contract",
+          "difficulty": "hard",
+          "topicTags": [
+            "const",
+            "functions",
+            "pointers"
+          ],
+          "prompt": "Why should strlen take const char * rather than char *?",
+          "codeSnippet": null,
+          "choices": [
+            "It makes strlen faster in all cases.",
+            "It means the pointer cannot be NULL.",
+            "It promises not to modify the characters and accepts string literals.",
+            "It makes the string length compile-time constant."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "const char * lets callers pass read-only character arrays because the function only reads them.",
+          "learningObjective": "Apply const to function interfaces.",
+          "id": "c-quiz-09-q13"
+        },
+        {
+          "title": "volatile purpose",
+          "difficulty": "hard",
+          "topicTags": [
+            "volatile",
+            "qualifiers"
+          ],
+          "prompt": "What is volatile mainly for?",
+          "codeSnippet": null,
+          "choices": [
+            "Making operations atomic between threads.",
+            "Making a pointer non-null.",
+            "Preventing all compiler optimization in the program.",
+            "Objects that may change outside normal program flow, such as memory-mapped I/O."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "volatile tells the compiler that accesses are observable and should not be optimized away like ordinary memory.",
+          "learningObjective": "Understand the limited purpose of volatile.",
+          "id": "c-quiz-09-q14"
+        },
+        {
+          "title": "volatile is not atomic",
+          "difficulty": "hard",
+          "topicTags": [
+            "volatile",
+            "concurrency",
+            "qualifiers"
+          ],
+          "prompt": "Which statement is true?",
+          "codeSnippet": null,
+          "choices": [
+            "volatile does not by itself make increments thread-safe.",
+            "volatile makes every access locked by the CPU.",
+            "volatile prevents data races in C.",
+            "volatile is the same as restrict."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "volatile is not a synchronization primitive. Thread safety needs atomics, locks, or another correct concurrency mechanism.",
+          "learningObjective": "Avoid misusing volatile for synchronization.",
+          "id": "c-quiz-09-q15"
+        },
+        {
+          "title": "restrict basics",
+          "difficulty": "hard",
+          "topicTags": [
+            "restrict",
+            "pointers",
+            "optimization"
+          ],
+          "prompt": "What does restrict on a pointer parameter express?",
+          "codeSnippet": null,
+          "choices": [
+            "The pointer cannot be NULL.",
+            "For that pointer's lifetime, the object it points to is accessed only through that pointer or values based on it.",
+            "The pointed-to object cannot be modified.",
+            "The pointer has static storage duration."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "restrict is an aliasing promise that can enable optimization when used correctly.",
+          "learningObjective": "Understand the basic contract of restrict.",
+          "id": "c-quiz-09-q16"
+        },
+        {
+          "title": "restrict violation",
+          "difficulty": "hard",
+          "topicTags": [
+            "restrict",
+            "undefined-behavior"
+          ],
+          "prompt": "What is the problem with passing the same array for both restrict parameters if both are used to access it?",
+          "codeSnippet": "void add(int * restrict a, int * restrict b, size_t n);",
+          "choices": [
+            "It causes an automatic deep copy.",
+            "It forces the compiler to disable all optimization.",
+            "It violates the no-alias promise and can produce undefined behavior.",
+            "It changes the array length."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "restrict requires the caller to honor the aliasing contract.",
+          "learningObjective": "Use restrict only when aliases are controlled.",
+          "id": "c-quiz-09-q17"
+        },
+        {
+          "title": "Bit test",
+          "difficulty": "hard",
+          "topicTags": [
+            "bitwise",
+            "control-flow"
+          ],
+          "prompt": "Which condition tests whether FLAG_READ is set in flags?",
+          "codeSnippet": null,
+          "choices": [
+            "if (flags && FLAG_READ)",
+            "if (flags | FLAG_READ)",
+            "if (~flags == FLAG_READ)",
+            "if (flags & FLAG_READ)"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "AND with the mask leaves a nonzero result only if at least one selected bit is set.",
+          "learningObjective": "Test flags with bit masks.",
+          "id": "c-quiz-09-q18"
+        },
+        {
+          "title": "Function returning pointer to function",
+          "difficulty": "hard",
+          "topicTags": [
+            "function-pointers",
+            "declarations"
+          ],
+          "prompt": "Which spelling is clearest for a function get_op returning a binary operation pointer?",
+          "codeSnippet": null,
+          "choices": [
+            "typedef int (*Op)(int, int); Op get_op(char c);",
+            "int *get_op(char c)(int, int);",
+            "int get_op*(char c, int, int);",
+            "typedef int Op; Op *get_op(char c);"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A typedef can make complex function pointer interfaces much easier to read.",
+          "learningObjective": "Use typedefs to simplify callback-heavy declarations.",
+          "id": "c-quiz-09-q19"
+        },
+        {
+          "title": "Bit fields caution",
+          "difficulty": "hard",
+          "topicTags": [
+            "structs",
+            "bitwise",
+            "portability"
+          ],
+          "prompt": "Why are struct bit-fields not always ideal for serialized file or network formats?",
+          "codeSnippet": null,
+          "choices": [
+            "Bit-fields cannot store unsigned values.",
+            "Layout details such as order and padding are implementation-defined.",
+            "Bit-fields always use exactly 8 bits.",
+            "The compiler encrypts bit-fields."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "For external formats, explicit masks and shifts on fixed-width unsigned types are usually more portable.",
+          "learningObjective": "Understand portability limits of bit-fields.",
+          "id": "c-quiz-09-q20"
+        }
+      ]
+    },
+    {
+      "id": "c-quiz-10",
+      "title": "Undefined Behavior and C Semantic Traps",
+      "difficulty": "hard",
+      "topicTags": [
+        "undefined-behavior",
+        "debugging",
+        "pointers",
+        "integers",
+        "strings"
+      ],
+      "questions": [
+        {
+          "title": "Unsequenced modification",
+          "difficulty": "hard",
+          "topicTags": [
+            "undefined-behavior",
+            "operators"
+          ],
+          "prompt": "What is true about this expression?",
+          "codeSnippet": "int i = 1;\nint x = i++ + ++i;",
+          "choices": [
+            "It must store 3 in x.",
+            "It must store 4 in x.",
+            "It is invalid syntax and cannot compile.",
+            "It has undefined behavior because i is modified more than once without sequencing."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "The side effects of i++ and ++i on the same scalar object are unsequenced relative to each other.",
+          "learningObjective": "Avoid expressions with unsequenced side effects.",
+          "id": "c-quiz-10-q01"
+        },
+        {
+          "title": "Signed overflow",
+          "difficulty": "hard",
+          "topicTags": [
+            "undefined-behavior",
+            "integers"
+          ],
+          "prompt": "What happens if INT_MAX + 1 is evaluated as signed int?",
+          "codeSnippet": null,
+          "choices": [
+            "The behavior is undefined.",
+            "It must wrap to INT_MIN.",
+            "It must saturate at INT_MAX.",
+            "It becomes an unsigned int automatically."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Signed integer overflow is undefined behavior in C.",
+          "learningObjective": "Avoid relying on signed overflow.",
+          "id": "c-quiz-10-q02"
+        },
+        {
+          "title": "Unsigned wrap",
+          "difficulty": "hard",
+          "topicTags": [
+            "integers",
+            "unsigned",
+            "semantics"
+          ],
+          "prompt": "What is true about unsigned integer overflow?",
+          "codeSnippet": null,
+          "choices": [
+            "It is undefined just like signed overflow.",
+            "It wraps modulo one more than the maximum value.",
+            "It traps automatically.",
+            "It turns the value into a float."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Unsigned arithmetic is defined modulo 2^N for an N-bit unsigned type.",
+          "learningObjective": "Use unsigned arithmetic with clear modulo expectations.",
+          "id": "c-quiz-10-q03"
+        },
+        {
+          "title": "Strict aliasing intuition",
+          "difficulty": "hard",
+          "topicTags": [
+            "pointers",
+            "undefined-behavior",
+            "aliasing"
+          ],
+          "prompt": "Why is reading an int object through a float * generally unsafe?",
+          "codeSnippet": null,
+          "choices": [
+            "float pointers cannot hold addresses.",
+            "int objects are always larger than float objects.",
+            "It can violate effective type/aliasing rules and has undefined behavior.",
+            "The compiler automatically converts the object to float."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "C has rules about which lvalue types may access an object's stored value.",
+          "learningObjective": "Avoid invalid type punning through incompatible pointers.",
+          "id": "c-quiz-10-q04"
+        },
+        {
+          "title": "Use memcpy for representation copy",
+          "difficulty": "hard",
+          "topicTags": [
+            "memory",
+            "aliasing",
+            "debugging"
+          ],
+          "prompt": "What is a safer way to copy the bytes of an int into an unsigned char buffer?",
+          "codeSnippet": null,
+          "choices": [
+            "*(float *)buf = x;",
+            "buf = &x;",
+            "sprintf(buf, \"%d\", x) for all binary uses",
+            "memcpy(buf, &x, sizeof x);"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "memcpy copies object representations without violating aliasing rules.",
+          "learningObjective": "Use byte-copy APIs for representation-level work.",
+          "id": "c-quiz-10-q05"
+        },
+        {
+          "title": "Out of bounds write",
+          "difficulty": "hard",
+          "topicTags": [
+            "arrays",
+            "undefined-behavior"
+          ],
+          "prompt": "What is wrong here?",
+          "codeSnippet": "int a[3] = {0};\na[3] = 7;",
+          "choices": [
+            "a[3] writes past the end of a.",
+            "Arrays in C start at 1.",
+            "The initializer is too short.",
+            "Only char arrays can be indexed."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "int a[3] has valid indexes 0, 1, and 2.",
+          "learningObjective": "Catch out-of-bounds array access.",
+          "id": "c-quiz-10-q06"
+        },
+        {
+          "title": "Mismatched printf arguments",
+          "difficulty": "hard",
+          "topicTags": [
+            "printf",
+            "undefined-behavior"
+          ],
+          "prompt": "What is wrong here?",
+          "codeSnippet": "int x = 5;\nprintf(\"%d %d\\n\", x);",
+          "choices": [
+            "printf cannot print the same variable twice.",
+            "The format string expects two int arguments, but only one is provided.",
+            "%d can only appear once.",
+            "The newline is missing."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "Variadic functions such as printf rely on the format string matching the provided arguments.",
+          "learningObjective": "Match variadic function arguments to their format strings.",
+          "id": "c-quiz-10-q07"
+        },
+        {
+          "title": "Dangling returned pointer",
+          "difficulty": "hard",
+          "topicTags": [
+            "pointers",
+            "lifetime",
+            "undefined-behavior"
+          ],
+          "prompt": "Why is using the returned pointer invalid?",
+          "codeSnippet": "char *make(void) {\n    char buf[16] = \"hi\";\n    return buf;\n}",
+          "choices": [
+            "It points to static storage.",
+            "It points to a string literal.",
+            "It points to an object whose lifetime ended when make returned.",
+            "It points to allocated memory that must be freed."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Automatic local arrays cease to exist when their block exits.",
+          "learningObjective": "Recognize dangling pointers from returned local addresses.",
+          "id": "c-quiz-10-q08"
+        },
+        {
+          "title": "Modifying string literal",
+          "difficulty": "hard",
+          "topicTags": [
+            "strings",
+            "undefined-behavior"
+          ],
+          "prompt": "Which rewrite makes this modification valid?",
+          "codeSnippet": null,
+          "choices": [
+            "char *s = \"abc\"; s[0] = 'A';",
+            "const char *s = \"abc\"; s[0] = 'A';",
+            "\"abc\"[0] = 'A';",
+            "char s[] = \"abc\"; s[0] = 'A';"
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "An array initialized from a string literal is a modifiable local array if not const.",
+          "learningObjective": "Use modifiable storage when changing strings.",
+          "id": "c-quiz-10-q09"
+        },
+        {
+          "title": "Invalid free target",
+          "difficulty": "hard",
+          "topicTags": [
+            "dynamic-memory",
+            "undefined-behavior"
+          ],
+          "prompt": "What is wrong here?",
+          "codeSnippet": "char *base = malloc(10);\nchar *p = base + 1;\nfree(p);",
+          "choices": [
+            "p does not point to the start of the allocated block returned by malloc.",
+            "p is NULL.",
+            "The allocation is too small for int.",
+            "free cannot be used on char pointers."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "free must receive the original allocation pointer or NULL, not an interior pointer.",
+          "learningObjective": "Free exactly the allocation pointer you own.",
+          "id": "c-quiz-10-q10"
+        },
+        {
+          "title": "Reading beyond null terminator",
+          "difficulty": "hard",
+          "topicTags": [
+            "strings",
+            "undefined-behavior"
+          ],
+          "prompt": "Why can strlen crash or run too far on this buffer?",
+          "codeSnippet": "char buf[3] = {'a', 'b', 'c'};\nprintf(\"%zu\\n\", strlen(buf));",
+          "choices": [
+            "strlen requires an int array.",
+            "The array is not guaranteed to contain a null terminator.",
+            "The buffer is too large.",
+            "strlen stops at newline, not null."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "strlen scans until it finds '\\0'. Without one in bounds, it reads beyond the array.",
+          "learningObjective": "Provide null-terminated strings to string functions.",
+          "id": "c-quiz-10-q11"
+        },
+        {
+          "title": "Division by zero",
+          "difficulty": "hard",
+          "topicTags": [
+            "undefined-behavior",
+            "arithmetic"
+          ],
+          "prompt": "What happens when integer division by zero is evaluated?",
+          "codeSnippet": null,
+          "choices": [
+            "The result is always zero.",
+            "The result is infinity.",
+            "The behavior is undefined.",
+            "The compiler converts it to floating-point division."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "C does not define integer division by zero.",
+          "learningObjective": "Guard divisors before integer division or remainder.",
+          "id": "c-quiz-10-q12"
+        },
+        {
+          "title": "Null pointer dereference",
+          "difficulty": "hard",
+          "topicTags": [
+            "pointers",
+            "undefined-behavior"
+          ],
+          "prompt": "What is true about *p when p is NULL?",
+          "codeSnippet": null,
+          "choices": [
+            "It reads integer value 0.",
+            "It allocates an int automatically.",
+            "It is allowed only in main.",
+            "Dereferencing it has undefined behavior."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "A null pointer does not point to an object.",
+          "learningObjective": "Avoid dereferencing null pointers.",
+          "id": "c-quiz-10-q13"
+        },
+        {
+          "title": "Effective type and unsigned char",
+          "difficulty": "hard",
+          "topicTags": [
+            "aliasing",
+            "memory"
+          ],
+          "prompt": "Which pointer type is specially allowed to inspect an object's bytes?",
+          "codeSnippet": null,
+          "choices": [
+            "unsigned char *",
+            "float *",
+            "struct Any *",
+            "long double *"
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "Character types can access the object representation of any object.",
+          "learningObjective": "Know the safe byte-inspection exception.",
+          "id": "c-quiz-10-q14"
+        },
+        {
+          "title": "Sequence with comma operator",
+          "difficulty": "hard",
+          "topicTags": [
+            "operators",
+            "sequencing"
+          ],
+          "prompt": "Is this expression well-defined?",
+          "codeSnippet": "int i = 1;\nint x = (i++, i + 2);",
+          "choices": [
+            "No; all uses of ++ twice are undefined.",
+            "Yes; the comma operator sequences the left expression before the right.",
+            "No; comma in C never sequences.",
+            "Only if i is unsigned."
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "The comma operator introduces a sequence point between its left and right operands.",
+          "learningObjective": "Distinguish sequenced from unsequenced side effects.",
+          "id": "c-quiz-10-q15"
+        },
+        {
+          "title": "Order of function arguments",
+          "difficulty": "hard",
+          "topicTags": [
+            "functions",
+            "operators",
+            "undefined-behavior"
+          ],
+          "prompt": "Why is this call unsafe?",
+          "codeSnippet": "printf(\"%d %d\\n\", i++, i);",
+          "choices": [
+            "printf cannot take expressions.",
+            "i++ is illegal in function arguments.",
+            "The evaluations of function arguments are not sequenced relative to each other.",
+            "The comma between arguments is the comma operator."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "The order of evaluating function arguments is unspecified, and modifying i while also reading it unsequenced can be undefined.",
+          "learningObjective": "Avoid side effects that depend on argument evaluation order.",
+          "id": "c-quiz-10-q16"
+        },
+        {
+          "title": "Uninitialized pointer",
+          "difficulty": "hard",
+          "topicTags": [
+            "pointers",
+            "undefined-behavior"
+          ],
+          "prompt": "What should be done before this dereference?",
+          "codeSnippet": "int *p;\nprintf(\"%d\\n\", *p);",
+          "choices": [
+            "Cast p to void *.",
+            "Print p with %p.",
+            "Declare p as extern.",
+            "Assign p a valid address, such as &x or allocated storage."
+          ],
+          "correctAnswerIndex": 3,
+          "explanation": "Declaring a pointer does not make it point anywhere valid.",
+          "learningObjective": "Initialize pointers before use.",
+          "id": "c-quiz-10-q17"
+        },
+        {
+          "title": "Lifetime of compound literal",
+          "difficulty": "hard",
+          "topicTags": [
+            "lifetime",
+            "pointers"
+          ],
+          "prompt": "Inside a block, how long does a non-static compound literal object generally live?",
+          "codeSnippet": null,
+          "choices": [
+            "Until the end of the enclosing block.",
+            "Forever.",
+            "Only until the next semicolon.",
+            "Only during preprocessing."
+          ],
+          "correctAnswerIndex": 0,
+          "explanation": "A compound literal at block scope has automatic storage duration.",
+          "learningObjective": "Reason about lifetimes of temporary-looking C objects.",
+          "id": "c-quiz-10-q18"
+        },
+        {
+          "title": "memcpy overlap",
+          "difficulty": "hard",
+          "topicTags": [
+            "memory",
+            "undefined-behavior"
+          ],
+          "prompt": "What should be used when source and destination ranges may overlap?",
+          "codeSnippet": null,
+          "choices": [
+            "memcpy",
+            "memmove",
+            "strcpy always",
+            "printf"
+          ],
+          "correctAnswerIndex": 1,
+          "explanation": "memcpy requires non-overlapping ranges. memmove handles overlap.",
+          "learningObjective": "Choose memory-copy functions correctly.",
+          "id": "c-quiz-10-q19"
+        },
+        {
+          "title": "Why undefined behavior matters",
+          "difficulty": "hard",
+          "topicTags": [
+            "undefined-behavior",
+            "debugging"
+          ],
+          "prompt": "Why is relying on undefined behavior especially dangerous?",
+          "codeSnippet": null,
+          "choices": [
+            "It always produces the same crash.",
+            "It is defined by the operating system only.",
+            "The compiler may assume it never happens and optimize in surprising ways.",
+            "It only affects comments and formatting."
+          ],
+          "correctAnswerIndex": 2,
+          "explanation": "Undefined behavior gives the implementation no required semantics, so optimization can make bugs appear unrelated.",
+          "learningObjective": "Treat undefined behavior as a correctness issue, not a quirky result.",
+          "id": "c-quiz-10-q20"
+        }
+      ]
+    }
+  ]
+}

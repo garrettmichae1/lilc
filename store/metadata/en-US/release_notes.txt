@@ -1,0 +1,1 @@
+First release. A free on-device C editor for iPhone. PicoC interprets your programs on this device — not GCC or Clang, and not a cloud compiler.

@@ -1,0 +1,22 @@
+1. Xcode → Settings → Accounts → + → Apple ID. Sign in (likely garrettiswoodside@gmail.com or gmichaelw@icloud.com). Complete 2FA on this Mac. Xcode currently has a broken account record (missing Xcode-Username), so App Store export cannot run until this succeeds.
+
+2. If Apple asks to enroll: developer.apple.com → Join the Apple Developer Program ($99). Wait for the email that the membership is active. The current team (3W96U86P58) only has an Apple Development cert and a wildcard "iOS Team Provisioning Profile: *", which cannot ship on the store.
+
+3. appstoreconnect.apple.com → Agreements, Tax, and Banking → accept the Paid Apps / Free Apps agreement if it is pending. Add tax/banking only if Apple blocks Submit without it (free apps often still need the paid agreement accepted).
+
+4. My Apps → + → New App
+   - Platforms: iOS
+   - Name: lilC
+   - Primary language: English (US)
+   - Bundle ID: app.lilc  (create the App ID if the dropdown is empty)
+   - SKU: app.lilc
+   - User Access: Full Access
+   → Create
+
+5. On the app page, paste listing copy from store/metadata/en-US/ (name, subtitle, description, keywords, URLs, What’s New). Category Education, secondary Developer Tools. Age 4+. Encryption: No (ITSAppUsesNonExemptEncryption is already false).
+
+6. Screenshots → iPhone 6.9" → upload store/screenshots/iphone-6.9/01-home.png, 02-editor.png, 03-hello-output.png, 04-error-output.png, 05-settings.png. Then iPad 13" → the same filenames under store/screenshots/ipad-13/.
+
+7. Xcode → Product → Archive (Release, Any iOS Device). Organizer → Distribute App → App Store Connect → Upload. Version 0.1.0 build 1. Wait for “Finished processing” email.
+
+8. App Store Connect version page → select that build → Submit for Review.

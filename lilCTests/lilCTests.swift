@@ -10,6 +10,162 @@ struct lilCTests {
         #expect(AgentRuntimeConfig.surfacesVisibleInThisRelease == false)
     }
 
+    @Test func extraLegalRowsStayHiddenInThisRelease() {
+        #expect(LegalURLs.extraLegalRowsVisibleInThisRelease == false)
+    }
+
+    @Test func picoCSettingsNoteSaysLibrariesWillNotWork() {
+        #expect(SettingsScreen.picoCExplanation.contains("interpreter, not a compiler"))
+        #expect(SettingsScreen.picoCExplanation.contains("C libraries"))
+        #expect(SettingsScreen.picoCExplanation.contains("will not work"))
+        #expect(SettingsScreen.picoCExplanation.contains("beginner programs") == false)
+        #expect(SettingsScreen.picoCExplanation.contains("standard library") == false)
+    }
+
+    @MainActor
+    @Test func firstLaunchShowsOnboarding() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let store = OnboardingStore(defaults: suite)
+        #expect(store.hasCompleted == false)
+        #expect(store.needsOnboarding)
+        #expect(OnboardingCopy.pageCount == 2)
+    }
+
+    @MainActor
+    @Test func completingOnboardingSetsFlagAndSubsequentLaunchSkips() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let first = OnboardingStore(defaults: suite)
+        #expect(first.needsOnboarding)
+        first.complete()
+        #expect(first.hasCompleted)
+        #expect(first.needsOnboarding == false)
+        #expect(suite.bool(forKey: OnboardingStore.storageKey))
+
+        let subsequent = OnboardingStore(defaults: suite)
+        #expect(subsequent.hasCompleted)
+        #expect(subsequent.needsOnboarding == false)
+    }
+
+    @MainActor
+    @Test func skippingOnboardingSetsTheSameFlag() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let store = OnboardingStore(defaults: suite)
+        store.complete()
+        #expect(OnboardingStore(defaults: suite).needsOnboarding == false)
+    }
+
+    @MainActor
+    @Test func filesFolderTipShowsOnceUntilDismissed() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let first = OnboardingStore(defaults: suite)
+        #expect(first.needsFilesFolderTip)
+        #expect(OnboardingCopy.filesFolderTip == "Create a folder, then drag C files into it.")
+        first.dismissFilesFolderTip()
+        #expect(first.needsFilesFolderTip == false)
+        #expect(suite.bool(forKey: OnboardingStore.filesFolderTipKey))
+        #expect(OnboardingStore(defaults: suite).needsFilesFolderTip == false)
+    }
+
+    @MainActor
+    @Test func syntaxColoringDefaultsOffAndPersists() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let first = AppearanceStore(defaults: suite)
+        #expect(first.syntaxColoring == false)
+        first.syntaxColoring = true
+        #expect(suite.bool(forKey: AppearanceStore.syntaxColoringKey))
+        let next = AppearanceStore(defaults: suite)
+        #expect(next.syntaxColoring)
+        next.syntaxColoring = false
+        #expect(AppearanceStore(defaults: suite).syntaxColoring == false)
+    }
+
+    @MainActor
+    @Test func navigationHapticsUseAppleLightImpactAndSelection() {
+        AppHaptics.prepare()
+        AppHaptics.tap()
+        AppHaptics.select()
+        AppHaptics.play(.tap)
+        AppHaptics.play(.select)
+    }
+
+    @Test func syntaxLexerColorsKeywordsOperatorsAndSkipsStrings() {
+        let source = """
+        #include <stdio.h>
+        int main(void) {
+            if (x == 1) {
+                printf("if");
+            }
+            // if
+            return 0x2A;
+        }
+        """
+        let tokens = CSyntaxLexer.tokens(in: source)
+        let labeled = tokens.map { token -> (CSyntaxKind, String) in
+            let text = (source as NSString).substring(with: token.range)
+            return (token.kind, text)
+        }
+        #expect(labeled.contains { $0.0 == .preprocessor && $0.1.hasPrefix("#include") })
+        #expect(labeled.contains { $0.0 == .type && $0.1 == "int" })
+        #expect(labeled.contains { $0.0 == .type && $0.1 == "void" })
+        #expect(labeled.contains { $0.0 == .control && $0.1 == "if" })
+        #expect(labeled.contains { $0.0 == .control && $0.1 == "return" })
+        #expect(labeled.contains { $0.0 == .op && $0.1 == "==" })
+        #expect(labeled.contains { $0.0 == .string && $0.1 == "\"if\"" })
+        #expect(labeled.contains { $0.0 == .comment && $0.1.contains("if") })
+        #expect(labeled.contains { $0.0 == .number && $0.1 == "0x2A" })
+        #expect(labeled.contains { $0.0 == .control && $0.1 == "printf" } == false)
+        #expect(labeled.filter { $0.0 == .control && $0.1 == "if" }.count == 1)
+    }
+
+    @Test func syntaxLexerDoesNotHangOnUnclosedString() {
+        let source = "char *s = \"hello"
+        let tokens = CSyntaxLexer.tokens(in: source)
+        #expect(tokens.contains { $0.kind == .string })
+        let texts = tokens.map { (source as NSString).substring(with: $0.range) }
+        #expect(texts.contains("char"))
+    }
+
+    @Test func onboardingCopyIsTwoTightPages() {
+        #expect(OnboardingCopy.page1Headline == "Write C. Press Run.")
+        #expect(OnboardingCopy.page1Line == "lilC runs your code locally")
+        #expect(OnboardingCopy.continueTitle == "Continue")
+        #expect(OnboardingCopy.page2Headline == "Always free. Zero ads.")
+        #expect(OnboardingCopy.page2Line == "For students and developers.")
+        #expect(OnboardingCopy.getStartedTitle == "Get Started")
+        #expect(OnboardingCopy.skipTitle == "Skip")
+        let all = [
+            OnboardingCopy.page1Headline,
+            OnboardingCopy.page1Line,
+            OnboardingCopy.page2Headline,
+            OnboardingCopy.page2Line,
+        ].joined(separator: " ")
+        #expect(all.split(whereSeparator: \.isWhitespace).count <= 18)
+        let banned = ["GCC", "Agent", "C Manual", "Classroom", "subscription", "revolutionary"]
+        for word in banned {
+            #expect(all.localizedCaseInsensitiveContains(word) == false)
+        }
+    }
+
+    @MainActor
+    @Test func onboardingViewRendersInLightAndDark() {
+        let previous = AppearanceStore.shared.colorWay
+        defer { AppearanceStore.shared.colorWay = previous }
+        for way in AppColorWay.allCases {
+            AppearanceStore.shared.colorWay = way
+            let view = OnboardingView(finish: {})
+                .frame(width: 393, height: 852)
+                .background(AppPalette.background)
+                .lilCPreferredScheme(way)
+                .id(way)
+            let renderer = ImageRenderer(content: view)
+            renderer.scale = 1
+            let image = renderer.uiImage
+            #expect(image != nil, "Onboarding should render in \(way.title)")
+            #expect((image?.size.width ?? 0) >= 393)
+            #expect((image?.size.height ?? 0) >= 852)
+        }
+    }
+
     @Test func legalURLsArePublicGitHubPages() {
         #expect(LegalURLs.home.absoluteString == "https://garrettmichae1.github.io/lilc/")
         #expect(LegalURLs.privacy.absoluteString == "https://garrettmichae1.github.io/lilc/privacy.html")
@@ -18,26 +174,469 @@ struct lilCTests {
         #expect(LegalURLs.webPlayground.absoluteString == "https://garrettmichae1.github.io/lilc/web/")
         #expect(LegalURLs.privacy.scheme == "https")
         #expect(LegalURLs.terms.scheme == "https")
+        #expect(LegalURLs.appStoreNumericID == "6806824902")
+        #expect(LegalURLs.writeReviewURL(for: "") == nil)
+        #expect(LegalURLs.writeReviewURL()?.absoluteString == "https://apps.apple.com/app/id6806824902?action=write-review")
+        #expect(LegalURLs.writeReviewURL(for: "123456789")?.absoluteString == "https://apps.apple.com/app/id123456789?action=write-review")
     }
 
-    @Test func firstHourCurriculumLoadsSixOptionalLessons() {
-        #expect(FirstHourCurriculum.lessons.count == 6)
+    @MainActor
+    @Test func appReviewPromptFiresOnceThenStops() {
+        #expect(AppReviewPrompt.shouldPrompt(alreadyPrompted: false, screenshotsBypass: false))
+        #expect(AppReviewPrompt.shouldPrompt(alreadyPrompted: true, screenshotsBypass: false) == false)
+        #expect(AppReviewPrompt.shouldPrompt(alreadyPrompted: false, screenshotsBypass: true) == false)
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let store = AppReviewPromptStore(defaults: suite)
+        #expect(store.hasPrompted == false)
+        store.noteLearningWin()
+        #expect(store.hasPrompted)
+        store.noteLearningWin()
+        #expect(suite.bool(forKey: AppReviewPrompt.storageKey))
+        #expect(AppReviewPromptStore(defaults: suite).hasPrompted)
+    }
+
+    @Test func firstHourCurriculumLoadsTwentyOptionalLessons() {
+        #expect(FirstHourCurriculum.lessons.count == 20)
+        #expect(FirstHourCurriculum.firstHour.count == 20)
         #expect(FirstHourCurriculum.first.id == "hello")
         #expect(FirstHourCurriculum.lesson(id: "function")?.number == 6)
-        #expect(Set(FirstHourCurriculum.lessons.map(\.id)).count == 6)
-        #expect(Set(FirstHourCurriculum.lessons.map(\.fileName)).count == 6)
+        #expect(FirstHourCurriculum.lesson(id: "copy")?.number == 20)
+        #expect(Set(FirstHourCurriculum.lessons.map(\.id)).count == 20)
+        #expect(Set(FirstHourCurriculum.lessons.map(\.fileName)).count == 20)
         for lesson in FirstHourCurriculum.lessons {
             #expect(lesson.relativePath.hasPrefix("lessons/"))
             #expect(lesson.source.contains("int main("))
-            #expect(lesson.expectedOutput.isEmpty == false)
+            #expect(lesson.source.contains("???"))
+            #expect(lesson.solution.contains("???") == false)
         }
     }
 
     @Test func firstHourLessonsRunOnPicoC() {
-        for lesson in FirstHourCurriculum.lessons {
-            let output = LocalCRunner.run(lesson.source)
-            #expect(output == lesson.expectedOutput, "\(lesson.id) produced \(output)")
+        for lesson in FirstHourCurriculum.firstHour {
+            #expect(LessonWinChecker.passes(lesson: lesson, output: "", source: lesson.source) == false)
+            let output = LocalCRunner.run(lesson.solution)
+            #expect(
+                LessonWinChecker.passes(lesson: lesson, output: output, source: lesson.solution),
+                "\(lesson.id) produced \(output)"
+            )
         }
+    }
+
+    @Test func challengeStartersNeedWorkAndSolutionsPassPicoC() {
+        #expect(FirstHourCurriculum.challenges.count == 12)
+        #expect(Set(FirstHourCurriculum.challenges.map(\.id)).count == 12)
+        for lesson in FirstHourCurriculum.challenges {
+            #expect(lesson.relativePath.hasPrefix("challenges/"))
+            #expect(lesson.source.contains("???"))
+            #expect(LessonWinChecker.passes(lesson: lesson, output: "", source: lesson.source) == false)
+            let output = LocalCRunner.run(lesson.solution)
+            #expect(
+                LessonWinChecker.passes(lesson: lesson, output: output, source: lesson.solution),
+                "\(lesson.id) produced \(output)"
+            )
+        }
+    }
+
+    @Test func homeShowsChallengesDeckWhileFirstHourIsIncomplete() {
+        let empty = LessonProgressState.empty
+        #expect(empty.showsFirstHourDeck)
+        #expect(empty.showsChallengesDeck)
+        #expect(empty.allDone == false)
+
+        var firstHourOnly = LessonProgressState.empty
+        firstHourOnly.completedIds = FirstHourCurriculum.firstHour.map(\.id)
+        #expect(firstHourOnly.showsFirstHourDeck == false)
+        #expect(firstHourOnly.showsChallengesDeck)
+        #expect(firstHourOnly.allDone == false)
+
+        var challengesOnly = LessonProgressState.empty
+        challengesOnly.completedIds = FirstHourCurriculum.challenges.map(\.id)
+        #expect(challengesOnly.showsFirstHourDeck)
+        #expect(challengesOnly.showsChallengesDeck == false)
+
+        var both = LessonProgressState.empty
+        both.completedIds = FirstHourCurriculum.all.map(\.id)
+        #expect(both.showsFirstHourDeck == false)
+        #expect(both.showsChallengesDeck == false)
+        #expect(both.allDone)
+    }
+
+    @MainActor
+    @Test func lessonProgressHidesDeckWhenEveryChallengeIsDone() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let store = LessonProgressStore(defaults: suite)
+        #expect(store.state.allDone == false)
+        for lesson in FirstHourCurriculum.all {
+            store.markComplete(lesson.id)
+        }
+        #expect(store.state.firstHourDone)
+        #expect(store.state.challengesDone)
+        #expect(store.state.allDone)
+        #expect(store.state.showsFirstHourDeck == false)
+        #expect(store.state.showsChallengesDeck == false)
+        #expect(store.continueLesson() == nil)
+    }
+
+    @MainActor
+    @Test func curriculumCollapsedDefaultsOffAndPersists() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let first = LessonProgressStore(defaults: suite)
+        #expect(first.curriculumCollapsed == false)
+        first.curriculumCollapsed = true
+        #expect(suite.bool(forKey: LessonProgressStore.curriculumCollapsedKey))
+        #expect(LessonProgressStore(defaults: suite).curriculumCollapsed)
+        first.curriculumCollapsed = false
+        #expect(LessonProgressStore(defaults: suite).curriculumCollapsed == false)
+    }
+
+    @Test func quizCatalogLoadsStubQuizzesInAnyOrder() throws {
+        let json = """
+        {
+          "title": "Quizzes",
+          "questionsPerQuiz": 20,
+          "quizzes": [
+            {"id":"quiz-03","number":3,"title":"Quiz 3","goal":"Last","questions":[]},
+            {"id":"quiz-01","number":1,"title":"Quiz 1","goal":"First","questions":[]}
+          ]
+        }
+        """
+        let file = try CQuizCatalog.load(from: Data(json.utf8))
+        #expect(file.questionsPerQuiz == 20)
+        #expect(file.quizzes.map(\.id) == ["quiz-01", "quiz-03"])
+        #expect(file.quizzes.allSatisfy { $0.isReady == false })
+    }
+
+    @Test func quizScoresSelectedAnswersAndAllowsStartingAtTheLastQuiz() throws {
+        let json = """
+        {
+          "title": "Quizzes",
+          "questionsPerQuiz": 20,
+          "quizzes": [
+            {
+              "id": "quiz-03",
+              "number": 3,
+              "title": "Quiz 3",
+              "goal": "Twenty questions",
+              "questions": [
+                {
+                  "id": "q1",
+                  "prompt": "Which is a type?",
+                  "choices": ["int", "for"],
+                  "correctIndex": 0,
+                  "explanation": "int names a type."
+                },
+                {
+                  "id": "q2",
+                  "prompt": "What does this print?",
+                  "choices": ["0", "1"],
+                  "correctIndex": 1,
+                  "snippet": "int x = 1;"
+                }
+              ]
+            }
+          ]
+        }
+        """
+        let file = try CQuizCatalog.load(from: Data(json.utf8))
+        let quiz = try #require(file.quizzes.first)
+        #expect(quiz.isReady)
+        #expect(quiz.score(selectedIndexes: [0, 1]) == 2)
+        #expect(quiz.score(selectedIndexes: [0, 0]) == 1)
+        #expect(quiz.score(selectedIndexes: [-1, -1]) == 0)
+    }
+
+    @MainActor
+    @Test func quizAttemptsPersistAndKeepTheBestScore() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let store = QuizProgressStore(defaults: suite)
+        #expect(store.hasTaken("c-quiz-10") == false)
+
+        let first = QuizAttempt(
+            quizId: "c-quiz-10",
+            selectedIndexes: [0, 0],
+            score: 1,
+            total: 2,
+            finishedAt: Date(timeIntervalSince1970: 1)
+        )
+        store.record(first)
+        #expect(store.hasTaken("c-quiz-10"))
+        #expect(store.bestAttempt(for: "c-quiz-10")?.score == 1)
+
+        let better = QuizAttempt(
+            quizId: "c-quiz-10",
+            selectedIndexes: [0, 1],
+            score: 2,
+            total: 2,
+            finishedAt: Date(timeIntervalSince1970: 2)
+        )
+        store.record(better)
+        #expect(store.bestAttempt(for: "c-quiz-10")?.score == 2)
+        #expect(store.latestAttempt(for: "c-quiz-10")?.score == 2)
+
+        let reloaded = QuizProgressStore(defaults: suite)
+        #expect(reloaded.bestAttempt(for: "c-quiz-10")?.score == 2)
+        #expect(reloaded.hasTaken("c-quiz-10"))
+    }
+
+    @Test func quizCatalogLoadsSourceFileShapeAndBundledQuizzes() throws {
+        let json = """
+        {
+          "title": "lilC C Programming Quizzes",
+          "quizzes": [
+            {
+              "id": "c-quiz-10",
+              "title": "Undefined Behavior",
+              "difficulty": "hard",
+              "topicTags": ["undefined-behavior"],
+              "questions": [
+                {
+                  "id": "q1",
+                  "title": "Trap",
+                  "prompt": "Which is undefined?",
+                  "choices": ["initialized int", "uninitialized automatic int"],
+                  "correctAnswerIndex": 1,
+                  "codeSnippet": "int x;",
+                  "explanation": "Uninitialized."
+                }
+              ]
+            },
+            {
+              "id": "c-quiz-01",
+              "title": "Foundations",
+              "difficulty": "easy",
+              "topicTags": ["types"],
+              "questions": [
+                {
+                  "id": "q1",
+                  "prompt": "Which is a type?",
+                  "choices": ["int", "for"],
+                  "correctAnswerIndex": 0
+                }
+              ]
+            }
+          ]
+        }
+        """
+        let file = try CQuizCatalog.load(from: Data(json.utf8))
+        #expect(file.quizzes.map(\.id) == ["c-quiz-01", "c-quiz-10"])
+        #expect(file.quizzes[0].goal == "Easy. Twenty questions on types.")
+        #expect(file.quizzes[1].questions[0].correctIndex == 1)
+        #expect(file.quizzes[1].questions[0].snippet == "int x;")
+        #expect(CQuizCatalog.quizzes.count == 10)
+        #expect(CQuizCatalog.quizzes.allSatisfy { $0.questions.count == 20 && $0.isReady })
+        #expect(CQuizCatalog.quiz(id: "c-quiz-10") != nil)
+    }
+
+    @Test func invalidParensOutputDoesNotPassValidParens() {
+        let lesson = FirstHourCurriculum.lesson(id: "valid-parens")!
+        #expect(lesson.win.matches(output: "invalid") == false)
+        #expect(lesson.win.matches(output: "invalid\n") == false)
+        #expect(lesson.win.matches(output: "valid"))
+        #expect(lesson.win.matches(output: "valid\nProgram finished.\n"))
+    }
+
+    @Test func twoSumDoesNotPassOnZeroTen() {
+        let lesson = FirstHourCurriculum.lesson(id: "two-sum")!
+        #expect(lesson.win.matches(output: "0 10") == false)
+        #expect(lesson.win.matches(output: "0 10\n") == false)
+        #expect(lesson.win.matches(output: "0 1"))
+        #expect(lesson.win.matches(output: "0 1\n"))
+        #expect(lesson.win.matches(output: "0 1\nProgram finished.\n"))
+    }
+
+    @Test func plusOneAndMoveZeroesUseExactWins() {
+        let plus = FirstHourCurriculum.lesson(id: "plus-one")!
+        #expect(plus.win.matches(output: "1 2 40") == false)
+        #expect(plus.win.matches(output: "1 2 4"))
+        let move = FirstHourCurriculum.lesson(id: "move-zeroes")!
+        #expect(move.win.matches(output: "1 3 12 0 0 9") == false)
+        #expect(move.win.matches(output: "1 3 12 0 0\nProgram finished.\n"))
+    }
+
+    @Test func palindromeWinIsExactYes() {
+        let lesson = FirstHourCurriculum.lesson(id: "palindrome")!
+        #expect(lesson.win.matches(output: "yes"))
+        #expect(lesson.win.matches(output: "yesterday") == false)
+        #expect(lesson.win.matches(output: "no") == false)
+    }
+
+    @Test func firstHourHelloRequiresTheFilledInMessage() {
+        let hello = FirstHourCurriculum.first
+        #expect(hello.source.contains("???"))
+        #expect(LessonWinChecker.passes(lesson: hello, output: "hello from lilC\n", source: hello.source) == false)
+        #expect(LessonWinChecker.passes(lesson: hello, output: "hello from lilC\n", source: hello.solution))
+        #expect(LessonWinChecker.passes(lesson: hello, output: "howdy\n", source: hello.solution) == false)
+    }
+
+    @Test func firstHourIfAcceptsWarmOrCool() {
+        let lesson = FirstHourCurriculum.lesson(id: "if")!
+        #expect(LessonWinChecker.passes(lesson: lesson, output: "warm\n", source: lesson.solution))
+        #expect(LessonWinChecker.passes(lesson: lesson, output: "cool\n", source: lesson.solution))
+        #expect(LessonWinChecker.passes(lesson: lesson, output: "hot\n", source: lesson.solution) == false)
+        #expect(LessonWinChecker.passes(lesson: lesson, output: "warm\n", source: lesson.source) == false)
+    }
+
+    @Test(arguments: BridgingLessonCase.all)
+    func bridgingLessonRejectsStarterAndWrongOutput(_ row: BridgingLessonCase) {
+        let lesson = FirstHourCurriculum.lesson(id: row.id)!
+        #expect(lesson.number == row.number)
+        #expect(lesson.fileName == row.fileName)
+        #expect(lesson.relativePath == "lessons/\(row.fileName)")
+        #expect(lesson.source.contains("???"))
+        #expect(lesson.solution.contains("???") == false)
+        #expect(LessonWinChecker.passes(lesson: lesson, output: row.good, source: lesson.source) == false)
+        #expect(LessonWinChecker.passes(lesson: lesson, output: row.good, source: lesson.solution))
+        #expect(LessonWinChecker.passes(lesson: lesson, output: row.bad, source: lesson.solution) == false)
+        let output = LocalCRunner.run(lesson.solution)
+        #expect(
+            LessonWinChecker.passes(lesson: lesson, output: output, source: lesson.solution),
+            "\(row.id) produced \(output)"
+        )
+        #expect(FirstHourCurriculum.next(after: lesson)?.id == row.nextId)
+    }
+
+    @Test func bridgingLessonsRequireTheTaughtConstruct() {
+        let sum = FirstHourCurriculum.lesson(id: "sum-fn")!
+        #expect(LessonWinChecker.passes(lesson: sum, output: "7\n", source: sum.solution.replacingOccurrences(of: "sum", with: "add")) == false)
+        let opposite = FirstHourCurriculum.lesson(id: "opposite")!
+        #expect(LessonWinChecker.passes(lesson: opposite, output: "4\n", source: opposite.solution.replacingOccurrences(of: "opposite", with: "flip")) == false)
+        let equals = FirstHourCurriculum.lesson(id: "equals")!
+        #expect(LessonWinChecker.passes(lesson: equals, output: "match\n", source: equals.solution.replacingOccurrences(of: "==", with: ">")) == false)
+        let remainder = FirstHourCurriculum.lesson(id: "remainder")!
+        #expect(LessonWinChecker.passes(lesson: remainder, output: "even\n", source: remainder.solution.replacingOccurrences(of: "%", with: "/")) == false)
+        let and = FirstHourCurriculum.lesson(id: "and")!
+        #expect(LessonWinChecker.passes(lesson: and, output: "in\n", source: and.solution.replacingOccurrences(of: "&&", with: "||")) == false)
+    }
+
+    @MainActor
+    @Test func challengeStarterTellsTheUserToFillInTheBlank() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-tests-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let lesson = FirstHourCurriculum.lesson(id: "factorial")!
+        workspace.openLesson(lesson)
+        #expect(workspace.currentFile.code.contains("???"))
+        workspace.startLiveRun()
+        #expect(workspace.isRunning == false)
+        #expect(workspace.lastRunFailed == false)
+        #expect(workspace.lastRunNeedsFillIn)
+        #expect(workspace.output.contains("Complete this challenge."))
+        #expect(workspace.output.contains("Replace ??? with C code"))
+        #expect(workspace.output.contains("The program must print 120."))
+        #expect(workspace.output.contains("SYNTAX ERROR") == false)
+        #expect(workspace.lastErrorJump != nil)
+        #expect(workspace.showLessonNice == false)
+    }
+
+    @MainActor
+    @Test func firstHourStarterTellsTheUserToFillInTheBlank() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-tests-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let lesson = FirstHourCurriculum.first
+        workspace.openLesson(lesson)
+        #expect(workspace.currentFile.code.contains("???"))
+        workspace.startLiveRun()
+        #expect(workspace.lastRunFailed == false)
+        #expect(workspace.lastRunNeedsFillIn)
+        #expect(workspace.output.contains("Complete this lesson."))
+        #expect(workspace.output.contains("Replace ??? with C code"))
+        #expect(workspace.output.contains("The program must print hello from lilC."))
+        #expect(workspace.output.contains("SYNTAX ERROR") == false)
+    }
+
+    @MainActor
+    @Test func replayingCompletedLastChallengeDoesNotCelebrateAllDone() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-tests-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        for lesson in FirstHourCurriculum.all {
+            workspace.lessonProgress.markComplete(lesson.id)
+        }
+        let last = FirstHourCurriculum.lesson(id: "move-zeroes")!
+        workspace.openLesson(last)
+        workspace.updateCurrentCode(last.solution)
+        workspace.evaluateLessonRun(output: "1 3 12 0 0\n", failed: false, runID: UUID())
+        #expect(workspace.showLessonNice)
+        #expect(workspace.lessonCelebrate == nil)
+        #expect(workspace.output.contains("Nice."))
+        #expect(workspace.output.contains("That was the last challenge.") == false)
+    }
+
+    @MainActor
+    @Test func finishingLastChallengeFirstTimeSetsAllDoneCelebrate() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-tests-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let last = FirstHourCurriculum.lesson(id: "move-zeroes")!
+        for lesson in FirstHourCurriculum.all where lesson.id != last.id {
+            workspace.lessonProgress.markComplete(lesson.id)
+        }
+        workspace.openLesson(last)
+        workspace.updateCurrentCode(last.solution)
+        workspace.evaluateLessonRun(output: "1 3 12 0 0\n", failed: false, runID: UUID())
+        #expect(workspace.lessonCelebrate == .allDone)
+        #expect(workspace.output.contains("Nice. That was the last challenge."))
+    }
+
+    @MainActor
+    @Test func replayingACompletedLessonDoesNotAutoAdvance() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-tests-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let hello = FirstHourCurriculum.first
+        workspace.openLesson(hello)
+        workspace.updateCurrentCode(hello.solution)
+        workspace.evaluateLessonRun(output: "hello from lilC\n", failed: false, runID: UUID())
+        guard case .next(let next) = workspace.lessonCelebrate else {
+            Issue.record("expected first-time advance")
+            return
+        }
+        #expect(next.id == "variables")
+        workspace.openLesson(hello)
+        workspace.updateCurrentCode(hello.solution)
+        workspace.evaluateLessonRun(output: "hello from lilC\n", failed: false, runID: UUID())
+        #expect(workspace.showLessonNice)
+        #expect(workspace.lessonCelebrate == nil)
+        #expect(workspace.currentFile.relativePath == hello.relativePath)
+    }
+
+    @MainActor
+    @Test func lastFirstHourAdvancesToFirstChallenge() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-tests-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let lastHour = FirstHourCurriculum.firstHour.last!
+        for lesson in FirstHourCurriculum.firstHour where lesson.id != lastHour.id {
+            workspace.lessonProgress.markComplete(lesson.id)
+        }
+        workspace.openLesson(lastHour)
+        workspace.updateCurrentCode(lastHour.solution)
+        workspace.evaluateLessonRun(output: "4 9 1\n", failed: false, runID: UUID())
+        guard case .next(let next) = workspace.lessonCelebrate else {
+            Issue.record("expected advance into challenges")
+            return
+        }
+        #expect(next.id == "two-sum")
+        #expect(next.track == .challenge)
+    }
+
+    @MainActor
+    @Test func passingALessonAdvancesToTheNextIncomplete() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-tests-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let hello = FirstHourCurriculum.first
+        workspace.openLesson(hello)
+        workspace.updateCurrentCode(hello.solution)
+        workspace.evaluateLessonRun(output: "hello from lilC\n", failed: false, runID: UUID())
+        #expect(workspace.lessonProgress.isComplete("hello"))
+        #expect(workspace.showLessonNice)
+        guard case .next(let next) = workspace.lessonCelebrate else {
+            Issue.record("expected slow advance to the next lesson")
+            return
+        }
+        #expect(next.id == "variables")
     }
 
     @MainActor
@@ -53,6 +652,145 @@ struct lilCTests {
         workspace.openLesson(lesson)
         #expect(workspace.currentFile.code.contains("return 0;"))
         #expect(workspace.currentFile.code != lesson.source)
+    }
+
+    @MainActor
+    @Test func catalogEditorShowsOnlyTheOpenLessonAndCreatesAtRoot() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-catalog-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let hello = FirstHourCurriculum.first
+        let loop = FirstHourCurriculum.lesson(id: "loop")!
+        workspace.openLesson(hello)
+        workspace.openLesson(loop)
+        #expect(workspace.currentFile.relativePath == loop.relativePath)
+        #expect(workspace.currentFile.name == loop.fileName)
+        #expect(workspace.projectFiles.map(\.relativePath) == [loop.relativePath])
+
+        workspace.browsePath = "lessons"
+        let catalogNames = workspace.browserEntries.compactMap { entry -> String? in
+            if case .file(let file) = entry { return file.name }
+            return nil
+        }
+        #expect(catalogNames.contains(hello.fileName))
+        #expect(catalogNames.contains(loop.fileName))
+
+        workspace.browsePath = workspace.currentProjectPath
+        workspace.createFile()
+        #expect(workspace.currentFile.folderPath.isEmpty)
+        #expect(workspace.files.contains { $0.folderPath == "lessons" && $0.name.hasPrefix("program") } == false)
+
+        let twoSum = FirstHourCurriculum.lesson(id: "two-sum")!
+        workspace.openLesson(twoSum)
+        #expect(workspace.currentFile.name == twoSum.fileName)
+        workspace.browsePath = workspace.currentProjectPath
+        workspace.createFile()
+        #expect(workspace.currentFile.folderPath.isEmpty)
+        #expect(workspace.files.contains { $0.folderPath == "challenges" && $0.name.hasPrefix("program") } == false)
+    }
+
+    @MainActor
+    @Test func openProjectDoesNotInventMainInsideCurriculumCatalogs() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-openproj-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let hello = FirstHourCurriculum.first
+        workspace.openLesson(hello)
+        let lessons = workspace.folders.first { $0.relativePath == "lessons" }!
+        workspace.openProject(lessons)
+        #expect(workspace.files.contains { $0.relativePath == "lessons/main.c" } == false)
+
+        workspace.deleteFolder(lessons)
+        workspace.createFolder(named: "lessons")
+        let emptyLessons = workspace.folders.first { $0.relativePath == "lessons" }!
+        workspace.openProject(emptyLessons)
+        #expect(workspace.files.contains { $0.relativePath == "lessons/main.c" } == false)
+
+        workspace.browsePath = ""
+        workspace.createFolder(named: "challenges")
+        let emptyChallenges = workspace.folders.first { $0.relativePath == "challenges" }!
+        workspace.openProject(emptyChallenges)
+        #expect(workspace.files.contains { $0.relativePath == "challenges/main.c" } == false)
+    }
+
+    @MainActor
+    @Test func newCFileAtRootIncludesMainEvenWhenAnotherRootFileHasMain() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-root-main-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        #expect(workspace.currentFile.code.contains("int main(void)"))
+
+        workspace.browsePath = ""
+        workspace.createFile()
+        #expect(workspace.currentFile.folderPath.isEmpty)
+        #expect(workspace.currentFile.code == LocalCWorkspace.starterCode)
+        #expect(workspace.currentFile.code.contains("int main(void)"))
+    }
+
+    @MainActor
+    @Test func firstCFileInNewFolderIncludesMainAndSecondIsHelper() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-helper-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+
+        workspace.createFolder(named: "demo")
+        workspace.browsePath = "demo"
+        workspace.createFile()
+        #expect(workspace.currentFile.relativePath == "demo/program.c")
+        #expect(workspace.currentFile.code == LocalCWorkspace.starterCode)
+        #expect(workspace.currentFile.code.contains("int main(void)"))
+
+        workspace.createFile()
+        #expect(workspace.currentFile.relativePath == "demo/program-2.c")
+        #expect(workspace.currentFile.code == LocalCWorkspace.helperStarter(for: "program-2.c"))
+        #expect(workspace.currentFile.code.contains("int main(void)") == false)
+        #expect(workspace.currentFile.code.contains("int program_2(void)"))
+        #expect(workspace.currentFile.code.contains("/* helper — add functions here */"))
+    }
+
+    @MainActor
+    @Test func headerStarterHasGuardsAndNoMain() {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-header-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        workspace.createFolder(named: "demo")
+        workspace.browsePath = "demo"
+        workspace.createHeader()
+        #expect(workspace.currentFile.name.hasSuffix(".h"))
+        #expect(workspace.currentFile.code.contains("#ifndef MODULE_H"))
+        #expect(workspace.currentFile.code.contains("#define MODULE_H"))
+        #expect(workspace.currentFile.code.contains("#endif"))
+        #expect(workspace.currentFile.code.contains("int main(void)") == false)
+
+        workspace.createFile()
+        #expect(workspace.currentFile.name.hasSuffix(".c"))
+        #expect(workspace.currentFile.code == LocalCWorkspace.starterCode)
+    }
+
+    @MainActor
+    @Test func secondCFileLinksWithExistingMain() async throws {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-link-helper-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+
+        workspace.createFolder(named: "demo")
+        let folder = workspace.folders.first { $0.relativePath == "demo" }!
+        workspace.openProject(folder)
+        #expect(workspace.currentFile.relativePath == "demo/main.c")
+        #expect(workspace.currentFile.code.contains("int main(void)"))
+
+        workspace.browsePath = "demo"
+        workspace.createFile()
+        #expect(workspace.currentFile.relativePath == "demo/program.c")
+        #expect(workspace.currentFile.code.contains("int main(void)") == false)
+        #expect(workspace.extraSourcesToLink(with: workspace.fileToCompile()).map(\.name) == ["program.c"])
+
+        workspace.startLiveRun()
+        try await Task.sleep(for: .milliseconds(800))
+        #expect(workspace.isRunning == false)
+        #expect(workspace.output.contains("hello from lilC"))
+        #expect(!workspace.output.lowercased().contains("already defined"))
+        #expect(!workspace.output.contains("more than one main()"))
     }
 
     @Test func localCFileNamesNormalizeToCFiles() {
@@ -307,15 +1045,129 @@ struct lilCTests {
         )
     }
 
+    @Test func runConsoleUsesSystemKeyboardSafeAreaAndHidesEditor() {
+        #expect(RunConsoleChrome.hidesEditorChrome(isRunning: true))
+        #expect(RunConsoleChrome.hidesEditorChrome(isRunning: false) == false)
+        #expect(RunConsoleChrome.ignoresSystemKeyboardSafeArea(isRunning: true))
+        #expect(RunConsoleChrome.ignoresSystemKeyboardSafeArea(isRunning: false))
+        #expect(RunConsoleChrome.keyboardOverlapPadding(isRunning: false, overlap: 336) == 0)
+        #expect(RunConsoleChrome.keyboardOverlapPadding(isRunning: true, overlap: 336) == 336)
+        #expect(RunConsoleChrome.keyboardOverlapPadding(isRunning: true, overlap: 0) == 0)
+        #expect(RunConsoleChrome.ignoresContainerBottom(padding: 336))
+        #expect(RunConsoleChrome.ignoresContainerBottom(padding: 0) == false)
+    }
+
+    @Test func softwareKeyboardOverlapUsesOnScreenIntersection() {
+        let window = CGRect(x: 0, y: 0, width: 390, height: 844)
+        #expect(
+            SoftwareKeyboardOverlap.amount(
+                endFrameInScreen: CGRect(x: 0, y: 508, width: 390, height: 336),
+                windowFrameInScreen: window
+            ) == 336
+        )
+        #expect(
+            SoftwareKeyboardOverlap.amount(
+                endFrameInScreen: CGRect(x: 0, y: 844, width: 390, height: 336),
+                windowFrameInScreen: window
+            ) == 0
+        )
+        #expect(
+            SoftwareKeyboardOverlap.amount(
+                endFrameInScreen: CGRect(x: 0, y: 800, width: 390, height: 0),
+                windowFrameInScreen: window
+            ) == 0
+        )
+    }
+
+    @Test func consoleTranscriptKeepsEchoedStdinWhenRunFinishes() {
+        let live = "Number 1: 5\nNumber 2: 9\nNumber 3: 2\nNumber 4: 1\nNumber 5: 4\nLargest number: 9\n"
+        let captured = "Number 1: Number 2: Number 3: Number 4: Number 5: Largest number: 9\n"
+        #expect(ConsoleTranscript.finishing(live: live, captured: captured, failed: false) == live)
+    }
+
+    @Test func consoleTranscriptAppendsLateStdoutAfterEchoes() {
+        let live = "Number 1: 5\nNumber 2: 9\n"
+        let captured = "Number 1: Number 2: Largest number: 9\n"
+        #expect(
+            ConsoleTranscript.finishing(live: live, captured: captured, failed: false)
+                == "Number 1: 5\nNumber 2: 9\nLargest number: 9\n"
+        )
+    }
+
+    @Test func consoleTranscriptUsesDiagnosticWhenFailed() {
+        #expect(
+            ConsoleTranscript.finishing(live: "Number 1: 5\n", captured: "SYNTAX ERROR\n", failed: true)
+                == "SYNTAX ERROR\n"
+        )
+        #expect(ConsoleTranscript.finishing(live: "", captured: "hello\n", failed: false) == "hello\n")
+        #expect(ConsoleTranscript.finishing(live: "hello\n", captured: "hello\n", failed: false) == "hello\n")
+    }
+
+    @Test func runningConsoleOutputHugsContentInsteadOfStretching() {
+        let short = "Enter two integers:\n"
+        let twoLines = RunningConsoleLayout.lineHeight * 2
+        #expect(RunningConsoleLayout.lineCount(in: short) == 1)
+        #expect(
+            RunningConsoleLayout.compactOutputHeight(output: short, availableHeight: 800) == twoLines
+        )
+        #expect(
+            RunningConsoleLayout.compactOutputHeight(output: "", availableHeight: 800) == twoLines
+        )
+        let many = (1...20).map { "line \($0)" }.joined(separator: "\n")
+        let sixLines = RunningConsoleLayout.lineHeight * 6
+        #expect(
+            RunningConsoleLayout.compactOutputHeight(output: many, availableHeight: 800) == sixLines
+        )
+        #expect(
+            RunningConsoleLayout.compactOutputHeight(output: many, availableHeight: 100) == twoLines
+        )
+        #expect(RunningConsoleLayout.consoleLayoutPriority(isRunning: true, outputExpanded: true) == 1)
+        #expect(RunningConsoleLayout.consoleLayoutPriority(isRunning: false, outputExpanded: true) == 0)
+    }
+
+    @Test func outputChromeSwipeExpandsOnlyWhileRunning() {
+        #expect(OutputChromeExpandPolicy.expanded(isRunning: true) == true)
+        #expect(OutputChromeExpandPolicy.expanded(isRunning: false) == false)
+        #expect(
+            OutputChromeExpandPolicy.expanded(
+                afterTranslation: -48,
+                isRunning: true,
+                currentlyExpanded: false
+            ) == true
+        )
+        #expect(
+            OutputChromeExpandPolicy.expanded(
+                afterTranslation: 80,
+                isRunning: true,
+                currentlyExpanded: true
+            ) == true
+        )
+        #expect(
+            OutputChromeExpandPolicy.expanded(
+                afterTranslation: -80,
+                isRunning: false,
+                currentlyExpanded: false
+            ) == false
+        )
+        #expect(
+            OutputChromeExpandPolicy.expanded(
+                afterTranslation: -80,
+                isRunning: false,
+                currentlyExpanded: true
+            ) == false
+        )
+    }
+
     @MainActor
     @Test func accessoryBarHasOneDismissAndFormatBesideIt() {
         let accessory = CSymbolAccessoryView()
         let labels = accessory.controlAccessibilityLabels
         #expect(labels.last == "Hide keyboard")
-        #expect(labels.dropLast().last == "Indent code")
+        #expect(labels.dropLast().last == "Format code")
         #expect(labels.filter { $0 == "Hide keyboard" }.count == 1)
         #expect(labels.contains("{"))
         #expect(labels.contains("Indent"))
+        #expect(labels.contains("Format code"))
     }
 
     @MainActor
@@ -331,6 +1183,7 @@ struct lilCTests {
             findIndex: 0,
             findEpoch: 0,
             overlayHeight: 0,
+            syntaxColoring: false,
             onBeginEditing: {},
             onEndEditing: {}
         )
@@ -555,6 +1408,126 @@ struct lilCTests {
         #expect(CDiagnosticFormatter.diagnostic(from: raw)?.kind == .runtime)
     }
 
+    @Test func unsizedArrayWithoutStorageFailsInsteadOfCrashing() {
+        let smallest = LocalCRunner.run("""
+        int main(void) {
+            char grades[];
+            grades[0] = 'A';
+            return 0;
+        }
+        """)
+        #expect(smallest.contains("array 'grades' has no allocated storage"), "smallest raw: \(smallest)")
+        let diagnostic = CDiagnosticFormatter.diagnostic(from: smallest)
+        #expect(diagnostic?.kind == .arrayMemory)
+        #expect(diagnostic?.title.contains("grades") == true)
+        #expect(diagnostic?.displayText.contains("ARRAY / MEMORY ERROR") == true)
+
+        let scanfProgram = LocalCRunner.run(
+            """
+            #include <stdio.h>
+            int main(void) {
+                int numClasses;
+                char grades[];
+                printf("How many classes? ");
+                scanf("%d", &numClasses);
+                for (int i = 0; i < numClasses; i++) {
+                    scanf(" %c", &grades[i]);
+                }
+                return 0;
+            }
+            """,
+            stdin: "2\nA\nB\n"
+        )
+        #expect(scanfProgram.contains("array 'grades' has no allocated storage"), "scanf raw: \(scanfProgram)")
+        #expect(CDiagnosticFormatter.diagnostic(from: scanfProgram)?.kind == .arrayMemory)
+
+        let zeroSize = LocalCRunner.run("int main(void) { int nums[0]; return 0; }")
+        #expect(zeroSize.contains("array size must be greater than 0"), "zero size raw: \(zeroSize)")
+        #expect(CDiagnosticFormatter.diagnostic(from: zeroSize)?.kind == .arrayMemory)
+
+        let negativeSize = LocalCRunner.run("int main(void) { int nums[-1]; return 0; }")
+        #expect(negativeSize.contains("array size must be greater than 0"), "negative size raw: \(negativeSize)")
+        #expect(CDiagnosticFormatter.diagnostic(from: negativeSize)?.kind == .arrayMemory)
+
+        let flexible = LocalCRunner.run("""
+        struct Bucket { int n; char grades[]; };
+        int main(void) { struct Bucket b; b.grades[0] = 'A'; return 0; }
+        """)
+        #expect(flexible.contains("no allocated storage"), "flexible raw: \(flexible)")
+        #expect(CDiagnosticFormatter.diagnostic(from: flexible)?.kind == .arrayMemory)
+
+        let nullScanf = LocalCRunner.run(
+            """
+            #include <stdio.h>
+            int main(void) { int *p = 0; scanf("%d", p); return 0; }
+            """,
+            stdin: "1\n"
+        )
+        #expect(nullScanf.lowercased().contains("null pointer"), "null scanf raw: \(nullScanf)")
+        #expect(CDiagnosticFormatter.diagnostic(from: nullScanf)?.kind == .runtime)
+    }
+
+    @Test func validArrayDeclarationsStillRunAfterUnsizedArrayFailure() {
+        let failed = LocalCRunner.run("int main(void) { char grades[]; grades[0] = 'A'; return 0; }")
+        #expect(failed.contains("no allocated storage"))
+
+        let sized = LocalCRunner.run("""
+        #include <stdio.h>
+        int main(void) {
+            char grades[20];
+            grades[0] = 'A';
+            grades[1] = '\\0';
+            printf("%s\\n", grades);
+            return 0;
+        }
+        """)
+        #expect(sized == "A\n", "sized array raw: \(sized)")
+
+        let unsizedInit = LocalCRunner.run("""
+        #include <stdio.h>
+        int main(void) {
+            char s[] = "hello";
+            printf("%s\\n", s);
+            return 0;
+        }
+        """)
+        #expect(unsizedInit == "hello\n", "unsized init raw: \(unsizedInit)")
+
+        let intInit = LocalCRunner.run("""
+        #include <stdio.h>
+        int main(void) {
+            int nums[] = {1, 2, 3};
+            printf("%d\\n", nums[2]);
+            return 0;
+        }
+        """)
+        #expect(intInit == "3\n", "int init raw: \(intInit)")
+
+        let arrayParam = LocalCRunner.run("""
+        #include <stdio.h>
+        void setfirst(char buf[]) {
+            buf[0] = 'Z';
+            printf("%c\\n", buf[0]);
+        }
+        int main(void) {
+            char s[4] = "abc";
+            setfirst(s);
+            return 0;
+        }
+        """)
+        #expect(arrayParam == "Z\n", "array param raw: \(arrayParam)")
+
+        let nestedInit = LocalCRunner.run("""
+        #include <stdio.h>
+        int main(void) {
+            char rows[][4] = {"ab", "cd"};
+            printf("%s%s\\n", rows[0], rows[1]);
+            return 0;
+        }
+        """)
+        #expect(nestedInit == "abcd\n", "nested init raw: \(nestedInit)")
+    }
+
     @Test func formatterMapsHardToTriggerPicoCMessages() {
         let samples: [(String, CRunDiagnostic.Kind, String)] = [
             ("can't get the address of this", .type, "Cannot take address"),
@@ -567,6 +1540,10 @@ struct lilCTests {
             ("bad parameter", .type, "Invalid argument"),
             ("int is not a function - can't call", .type, "Not a function"),
             ("can't initialize an incomplete type", .type, "Incomplete type"),
+            ("array 'grades' has no allocated storage", .arrayMemory, "grades"),
+            ("array has no allocated storage", .arrayMemory, "allocated"),
+            ("array size must be greater than 0", .arrayMemory, "size"),
+            ("array size is too large", .arrayMemory, "size"),
             ("can't define a void variable", .type, "Void variable"),
             ("struct/union definitions can only be globals", .type, "Type must be global"),
             ("invalid type in struct", .type, "Invalid struct member"),
@@ -1019,8 +1996,7 @@ struct lilCTests {
         workspace.submitStdinLine()
         try await Task.sleep(for: .milliseconds(600))
         #expect(!workspace.isRunning)
-        #expect(workspace.output.contains("before input"))
-        #expect(workspace.output.contains("after input: 7"))
+        #expect(workspace.output.contains("before input\n7\nafter input: 7"))
     }
 
     @MainActor
@@ -1074,6 +2050,48 @@ struct lilCTests {
         try await Task.sleep(for: .milliseconds(800))
         #expect(workspace.isRunning == false)
         #expect(workspace.output.contains("8"))
+    }
+
+    @MainActor
+    @Test func liveRunCompilesOnlyTheOpenCatalogLesson() async throws {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-catrun-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let hello = FirstHourCurriculum.first
+        let loop = FirstHourCurriculum.lesson(id: "loop")!
+        workspace.openLesson(hello)
+        workspace.updateCurrentCode(hello.solution)
+        workspace.openLesson(loop)
+        workspace.updateCurrentCode(loop.solution)
+        workspace.select(workspace.files.first { $0.relativePath == hello.relativePath }!)
+        #expect(workspace.projectFiles.map(\.relativePath) == [hello.relativePath])
+
+        workspace.startLiveRun()
+        try await Task.sleep(for: .milliseconds(800))
+        #expect(workspace.isRunning == false)
+        #expect(workspace.lastRunFailed == false)
+        #expect(!workspace.output.contains("more than one main"))
+        #expect(workspace.output.contains("hello from lilC"))
+        #expect(!workspace.output.contains("1\n2\n3"))
+    }
+
+    @MainActor
+    @Test func liveRunDoesNotLinkAHelperDroppedInLessons() async throws {
+        let suite = UserDefaults(suiteName: "lilc-tests-\(UUID().uuidString)")!
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lilc-cathelp-\(UUID().uuidString)", isDirectory: true)
+        let workspace = LocalCWorkspace(defaults: suite, directoryURL: directory)
+        let functionLesson = FirstHourCurriculum.lesson(id: "function")!
+        workspace.openLesson(functionLesson)
+        workspace.updateCurrentCode(functionLesson.solution)
+        #expect(workspace.agentWriteFile("lessons/helper.c", contents: "int twice(int n) { return 0; }\n").contains("Created"))
+        workspace.select(workspace.files.first { $0.relativePath == functionLesson.relativePath }!)
+        #expect(workspace.projectFiles.map(\.relativePath) == [functionLesson.relativePath])
+
+        workspace.startLiveRun()
+        try await Task.sleep(for: .milliseconds(800))
+        #expect(workspace.isRunning == false)
+        #expect(workspace.output.contains("42"))
+        #expect(!workspace.output.lowercased().contains("already defined"))
     }
 
 }
@@ -1146,6 +2164,10 @@ private let picoCAndRunnerErrorCatalog = [
     "can't assign from an array of size 4 to one of size 2",
     "can't get the address of this",
     "can't initialize an incomplete type",
+    "array 'grades' has no allocated storage",
+    "array has no allocated storage",
+    "array size must be greater than 0",
+    "array size is too large",
     "can't define a void variable",
     "array index must be an integer",
     "this int is not an array",
@@ -1164,6 +2186,7 @@ private let picoCAndRunnerErrorCatalog = [
     "struct/union definitions can only be globals",
     "enum definitions can only be globals",
     "NULL pointer dereference",
+    "NULL pointer passed to scanf()",
     "a. invalid use of a NULL pointer",
     "division by zero",
     "modulo by zero",
@@ -1210,6 +2233,7 @@ private struct EditorKeyboardHarness: View {
             findIndex: 0,
             findEpoch: 0,
             overlayHeight: 0,
+            syntaxColoring: false,
             onBeginEditing: {},
             onEndEditing: {}
         )
@@ -1217,6 +2241,33 @@ private struct EditorKeyboardHarness: View {
     }
 }
 
+struct BridgingLessonCase: Sendable {
+    let id: String
+    let number: Int
+    let fileName: String
+    let good: String
+    let bad: String
+    let nextId: String?
+
+    static let all: [BridgingLessonCase] = [
+        BridgingLessonCase(id: "add", number: 7, fileName: "07-add.c", good: "15\n", bad: "10\n", nextId: "equals"),
+        BridgingLessonCase(id: "equals", number: 8, fileName: "08-equals.c", good: "match\n", bad: "no\n", nextId: "while-loop"),
+        BridgingLessonCase(id: "while-loop", number: 9, fileName: "09-while.c", good: "3\n2\n1\n", bad: "3\n", nextId: "remainder"),
+        BridgingLessonCase(id: "remainder", number: 10, fileName: "10-remainder.c", good: "even\n", bad: "odd\n", nextId: "and"),
+        BridgingLessonCase(id: "and", number: 11, fileName: "11-and.c", good: "in\n", bad: "out\n", nextId: "index"),
+        BridgingLessonCase(id: "index", number: 12, fileName: "12-index.c", good: "9\n", bad: "4\n", nextId: "count"),
+        BridgingLessonCase(id: "count", number: 13, fileName: "13-count.c", good: "2\n", bad: "4\n", nextId: "biggest"),
+        BridgingLessonCase(id: "biggest", number: 14, fileName: "14-biggest.c", good: "9\n", bad: "3\n", nextId: "nested"),
+        BridgingLessonCase(id: "nested", number: 15, fileName: "15-nested.c", good: "11\n12\n21\n22\n", bad: "11\n12\n", nextId: "swap"),
+        BridgingLessonCase(id: "swap", number: 16, fileName: "16-swap.c", good: "2 1\n", bad: "1 2\n", nextId: "sum-fn"),
+        BridgingLessonCase(id: "sum-fn", number: 17, fileName: "17-sum.c", good: "7\n", bad: "3\n", nextId: "opposite"),
+        BridgingLessonCase(id: "opposite", number: 18, fileName: "18-opposite.c", good: "4\n", bad: "-4\n", nextId: "find"),
+        BridgingLessonCase(id: "find", number: 19, fileName: "19-find.c", good: "1\n", bad: "0\n", nextId: "copy"),
+        BridgingLessonCase(id: "copy", number: 20, fileName: "20-copy.c", good: "4 9 1\n", bad: "0 0 0\n", nextId: nil),
+    ]
+}
+
+@MainActor
 private func firstTextView(in view: UIView) -> UITextView? {
     if let textView = view as? UITextView {
         return textView

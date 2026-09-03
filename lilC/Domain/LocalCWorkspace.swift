@@ -145,13 +145,25 @@ final class LocalCWorkspace {
     var isRunning = false
     var isWaitingForInput = false
     var lastRunFailed = false
+    var lastRunNeedsFillIn = false
     var lastErrorJump: CErrorJump?
     var stdinLine = ""
+    let lessonProgress: LessonProgressStore
+    let quizProgress: QuizProgressStore
+    var lessonCelebrate: LessonCelebrate?
+    var showLessonNice = false
+
+    enum LessonCelebrate: Equatable, Sendable {
+        case next(FirstHourLesson)
+        case allDone
+    }
 
     init(defaults: UserDefaults = .standard, fileManager: FileManager = .default, directoryURL: URL? = nil) {
         self.defaults = defaults
         self.fileManager = fileManager
         self.directoryURL = directoryURL ?? Self.defaultDirectoryURL(fileManager: fileManager)
+        self.lessonProgress = LessonProgressStore(defaults: defaults)
+        self.quizProgress = QuizProgressStore(defaults: defaults)
         Self.prepareDirectory(self.directoryURL, fileManager: fileManager)
         let loadedFiles = Self.loadFiles(
             directoryURL: self.directoryURL,
@@ -174,14 +186,32 @@ final class LocalCWorkspace {
         currentFile.folderPath
     }
 
+    var isCurriculumCatalog: Bool {
+        FirstHourCurriculum.isCurriculumFolder(currentProjectPath)
+    }
+
+    /// Files shown as editor tabs. Catalog folders are a shelf of standalone programs, so only the open file is a tab.
     var projectFiles: [LocalCFile] {
-        files
+        if isCurriculumCatalog {
+            return [currentFile]
+        }
+        return files
             .filter { $0.folderPath == currentProjectPath }
             .sorted { lhs, rhs in
                 if lhs.name == "main.c" { return true }
                 if rhs.name == "main.c" { return false }
                 return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
             }
+    }
+
+    var editorTitle: String {
+        if isCurriculumCatalog {
+            return currentFile.name
+        }
+        if currentProjectPath.isEmpty {
+            return "lilC"
+        }
+        return URL(fileURLWithPath: currentProjectPath).lastPathComponent
     }
 
     var recentProjects: [LocalCFolder] {
@@ -244,7 +274,8 @@ final class LocalCWorkspace {
 
     func openProject(_ folder: LocalCFolder) {
         browsePath = folder.relativePath
-        if files.contains(where: { $0.folderPath == folder.relativePath }) == false {
+        if !FirstHourCurriculum.isCurriculumFolder(folder.relativePath),
+           files.contains(where: { $0.folderPath == folder.relativePath }) == false {
             createFile(in: folder.relativePath, named: "main.c")
         }
         let members = files.filter { $0.folderPath == folder.relativePath }
@@ -359,7 +390,7 @@ final class LocalCWorkspace {
     }
 
     func createFile() {
-        createFile(in: browsePath, named: nil)
+        createFile(in: folderForNewFile(browsePath), named: nil)
     }
 
     func createStandaloneFile() {
@@ -370,10 +401,19 @@ final class LocalCWorkspace {
     /// Copies a first-hour lesson into `lessons/` if needed, then selects it.
     /// Does not overwrite a file the student already edited.
     func openLesson(_ lesson: FirstHourLesson) {
+        lessonProgress.setCurrent(lesson)
+        lessonCelebrate = nil
+        showLessonNice = false
         let relative = lesson.relativePath
-        if let existing = files.first(where: { $0.relativePath == relative }) {
-            select(existing)
-            output = "Lesson \(lesson.number) of \(FirstHourCurriculum.lessons.count) — \(lesson.title). Press RUN."
+        if let index = files.firstIndex(where: { $0.relativePath == relative }) {
+            if lesson.source.contains("???"),
+               !files[index].code.contains("???"),
+               files[index].code == lesson.solution {
+                files[index].code = lesson.source
+                persist(files[index])
+            }
+            select(files[index])
+            output = "\(lesson.kicker) — \(lesson.title). Press RUN."
             return
         }
         let file = LocalCFile(relativePath: relative, code: lesson.source)
@@ -381,17 +421,19 @@ final class LocalCWorkspace {
         selectedFileID = file.id
         persist(file)
         refreshFolders()
-        output = "Lesson \(lesson.number) of \(FirstHourCurriculum.lessons.count) — \(lesson.title). Press RUN."
+        output = "\(lesson.kicker) — \(lesson.title). Press RUN."
     }
 
     func createHeader() {
-        createFile(in: browsePath, named: availableFileName(base: "module", ext: "h", in: browsePath))
+        let folder = folderForNewFile(browsePath)
+        createFile(in: folder, named: availableFileName(base: "module", ext: "h", in: folder))
     }
 
     func createFile(in folder: String, named requested: String?) {
-        let name = requested ?? availableFileName(base: "program", ext: "c", in: folder)
-        let relative = folder.isEmpty ? name : "\(folder)/\(name)"
-        let code = name.hasSuffix(".h") ? Self.headerStarter(for: name) : Self.starterCode
+        let targetFolder = folderForNewFile(folder)
+        let name = requested ?? availableFileName(base: "program", ext: "c", in: targetFolder)
+        let relative = targetFolder.isEmpty ? name : "\(targetFolder)/\(name)"
+        let code = Self.sourceStarter(named: name, folderHasMain: folderContainsMain(targetFolder))
         let file = LocalCFile(relativePath: relative, code: code)
         files.insert(file, at: 0)
         selectedFileID = file.id
@@ -629,11 +671,14 @@ final class LocalCWorkspace {
         let projectMains = projectFiles.filter {
             $0.name.hasSuffix(".c") && containsMainFunction($0.code)
         }
-        if !currentProjectPath.isEmpty, projectMains.count > 1 {
+        if !currentProjectPath.isEmpty,
+           !FirstHourCurriculum.isCurriculumFolder(currentProjectPath),
+           projectMains.count > 1 {
             liveRunID = UUID()
             isRunning = false
             isWaitingForInput = false
             lastRunFailed = true
+            lastRunNeedsFillIn = false
             lastErrorJump = nil
             let names = projectMains.map(\.name).joined(separator: ", ")
             let raw = "Cannot run this project: it has more than one main() function (\(names)). Keep one main() and turn the others into helper functions.\n"
@@ -641,6 +686,22 @@ final class LocalCWorkspace {
             return
         }
         let runFile = fileToCompile()
+        if runFile.code.contains("???") {
+            liveRunID = UUID()
+            isRunning = false
+            isWaitingForInput = false
+            lastRunFailed = false
+            lastRunNeedsFillIn = true
+            lastErrorJump = LessonWinChecker.firstPlaceholderJump(in: runFile)
+            showLessonNice = false
+            lessonCelebrate = nil
+            if let lesson = FirstHourCurriculum.lesson(relativePath: currentFile.relativePath) {
+                output = LessonWinChecker.completeTheTaskMessage(for: lesson)
+            } else {
+                output = LessonWinChecker.replacePlaceholderMessage
+            }
+            return
+        }
         let extras = extraSourcesToLink(with: runFile)
         let projectSnapshot = projectFiles
         let includeRoot = currentIncludeRootURL.path
@@ -654,6 +715,7 @@ final class LocalCWorkspace {
         isRunning = true
         isWaitingForInput = false
         lastRunFailed = false
+        lastRunNeedsFillIn = false
         lastErrorJump = nil
         touchCurrentFile()
 
@@ -677,9 +739,11 @@ final class LocalCWorkspace {
             await MainActor.run {
                 guard let workspace = self, workspace.liveRunID == runID else { return }
                 let formatted = CDiagnosticFormatter.displayOutput(for: result)
-                if !formatted.text.isEmpty {
-                    workspace.output = formatted.text
-                }
+                workspace.output = ConsoleTranscript.finishing(
+                    live: workspace.output,
+                    captured: formatted.text,
+                    failed: formatted.failed
+                )
                 workspace.lastRunFailed = formatted.failed
                 if formatted.failed, let diagnostic = CDiagnosticFormatter.diagnostic(from: result) {
                     workspace.lastErrorJump = CDiagnosticJump.resolve(
@@ -693,8 +757,51 @@ final class LocalCWorkspace {
                 }
                 workspace.isRunning = false
                 workspace.isWaitingForInput = false
+                workspace.evaluateLessonRun(output: workspace.output, failed: formatted.failed, runID: runID)
             }
         }
+    }
+
+    func evaluateLessonRun(output: String, failed: Bool, runID: UUID) {
+        guard let lesson = FirstHourCurriculum.lesson(relativePath: currentFile.relativePath) else { return }
+        let source = currentFile.code
+        let passed = !failed && LessonWinChecker.passes(lesson: lesson, output: output, source: source)
+        if !passed {
+            if !failed || source.contains("???") {
+                self.output = LessonWinChecker.appendingNotYet(to: output, lesson: lesson)
+            }
+            showLessonNice = false
+            lessonCelebrate = nil
+            return
+        }
+        if lessonProgress.isComplete(lesson.id) {
+            showLessonNice = true
+            lessonCelebrate = nil
+            self.output = output.trimmingCharacters(in: .newlines) + "\n\nNice.\n"
+            return
+        }
+        lessonProgress.markComplete(lesson.id)
+        AppReviewPromptStore.shared.noteLearningWin()
+        showLessonNice = true
+        if lessonProgress.state.allDone {
+            self.output = output.trimmingCharacters(in: .newlines) + "\n\nNice. That was the last challenge.\n"
+            lessonCelebrate = .allDone
+            return
+        }
+        if let next = FirstHourCurriculum.nextIncomplete(after: lesson.id, completedIds: lessonProgress.state.completedIds),
+           next.id != lesson.id {
+            self.output = output.trimmingCharacters(in: .newlines) + "\n\nNice.\n"
+            lessonCelebrate = .next(next)
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(2.4))
+                guard liveRunID == runID else { return }
+                guard case .next(let pending) = lessonCelebrate, pending.id == next.id else { return }
+                showLessonNice = false
+                openLesson(next)
+            }
+            return
+        }
+        self.output = output.trimmingCharacters(in: .newlines) + "\n\nNice.\n"
     }
 
     func submitStdinLine() {
@@ -715,8 +822,8 @@ final class LocalCWorkspace {
         LocalCRunner.requestStop()
     }
 
-    private func extraSourcesToLink(with runFile: LocalCFile) -> [LocalCFile] {
-        guard !currentProjectPath.isEmpty else { return [] }
+    func extraSourcesToLink(with runFile: LocalCFile) -> [LocalCFile] {
+        guard !currentProjectPath.isEmpty, !isCurriculumCatalog else { return [] }
         return projectFiles.filter {
             $0.relativePath != runFile.relativePath
                 && $0.name.hasSuffix(".c")
@@ -724,7 +831,10 @@ final class LocalCWorkspace {
         }
     }
 
-    private func fileToCompile() -> LocalCFile {
+    func fileToCompile() -> LocalCFile {
+        if isCurriculumCatalog {
+            return currentFile
+        }
         if currentFile.name.hasSuffix(".c"),
            containsMainFunction(currentFile.code) || currentProjectPath.isEmpty {
             return currentFile
@@ -739,10 +849,29 @@ final class LocalCWorkspace {
         code.range(of: #"\bmain\s*\([^)]*\)\s*\{"#, options: .regularExpression) != nil
     }
 
+    private func folderContainsMain(_ folder: String) -> Bool {
+        guard !folder.isEmpty else { return false }
+        return files.contains {
+            $0.folderPath == folder
+                && $0.name.hasSuffix(".c")
+                && containsMainFunction($0.code)
+        }
+    }
+
     private func touchCurrentFile() {
         guard let index = files.firstIndex(where: { $0.id == selectedFileID }) else { return }
         files[index].updatedAt = Date()
         persist(files[index])
+    }
+
+    private func folderForNewFile(_ folder: String) -> String {
+        if FirstHourCurriculum.isCurriculumFolder(folder) {
+            if browsePath == folder {
+                browsePath = ""
+            }
+            return ""
+        }
+        return folder
     }
 
     private func availableFileName(base: String, ext: String, in folder: String, ignoring oldName: String? = nil) -> String {
@@ -875,6 +1004,16 @@ final class LocalCWorkspace {
 
     private static let starterFile = LocalCFile(name: "hello.c", code: starterCode)
 
+    static func sourceStarter(named name: String, folderHasMain: Bool) -> String {
+        if name.hasSuffix(".h") {
+            return headerStarter(for: name)
+        }
+        if folderHasMain {
+            return helperStarter(for: name)
+        }
+        return starterCode
+    }
+
     static func headerStarter(for name: String) -> String {
         let guardName = name
             .uppercased()
@@ -885,6 +1024,21 @@ final class LocalCWorkspace {
         #define \(token)
 
         #endif
+        """
+    }
+
+    static func helperStarter(for name: String) -> String {
+        let stem = (name as NSString).deletingPathExtension
+        let ident = String(stem.map { $0.isLetter || $0.isNumber ? $0 : "_" })
+        let functionName = ident.isEmpty || ident.first?.isNumber == true ? "helper" : ident
+        return """
+        #include <stdio.h>
+
+        /* helper — add functions here */
+
+        int \(functionName)(void) {
+            return 0;
+        }
         """
     }
 
@@ -902,6 +1056,47 @@ final class LocalCWorkspace {
         return 0;
     }
     """
+}
+
+/// PicoC stdout has no TTY echo. The live console appends each submitted stdin
+/// line; replacing that buffer with the runner's capture is what erased typed input.
+enum ConsoleTranscript {
+    static func finishing(live: String, captured: String, failed: Bool) -> String {
+        if failed {
+            return captured.isEmpty ? live : captured
+        }
+        if live.isEmpty { return captured }
+        if captured.isEmpty { return live }
+        if isSubsequence(captured, of: live) {
+            return live
+        }
+        let kept = longestSubsequencePrefixLength(of: captured, in: live)
+        let tail = captured.index(captured.startIndex, offsetBy: kept)
+        return live + String(captured[tail...])
+    }
+
+    static func isSubsequence(_ needle: String, of haystack: String) -> Bool {
+        longestSubsequencePrefixLength(of: needle, in: haystack) == needle.count
+    }
+
+    static func longestSubsequencePrefixLength(of needle: String, in haystack: String) -> Int {
+        var hay = haystack.startIndex
+        var count = 0
+        for character in needle {
+            var found = false
+            while hay < haystack.endIndex {
+                let next = haystack[hay]
+                hay = haystack.index(after: hay)
+                if next == character {
+                    found = true
+                    break
+                }
+            }
+            if !found { return count }
+            count += 1
+        }
+        return count
+    }
 }
 
 enum LocalCRunner {

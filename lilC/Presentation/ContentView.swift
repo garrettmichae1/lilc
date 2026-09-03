@@ -1,4 +1,5 @@
 import Foundation
+import StoreKit
 import SwiftUI
 import UIKit
 
@@ -7,6 +8,11 @@ struct ContentView: View {
     @State private var appearance = AppearanceStore.shared
     @State private var agentSettings = AgentSettingsStore.shared
     @State private var activeScreen: AppScreen = .home
+    @State private var activeQuizID: String?
+    @State private var quizStartInReview = false
+    @State private var editorReturn: AppScreen = .home
+    @State private var filesReturn: AppScreen = .home
+    @Environment(\.requestReview) private var requestReview
 
     var body: some View {
         NavigationStack {
@@ -16,13 +22,16 @@ struct ContentView: View {
                 HomeScreen(
                     workspace: localWorkspace,
                     startLocal: {
+                        editorReturn = .home
                         localWorkspace.browsePath = localWorkspace.currentFile.folderPath
                         activeScreen = .local
                     },
                     openFiles: {
+                        filesReturn = .home
                         localWorkspace.browsePath = ""
                         activeScreen = .files
                     },
+                    openLearn: { activeScreen = .learn },
                     deleteFile: {
                         localWorkspace.browsePath = ""
                         activeScreen = .deletePicker
@@ -31,15 +40,38 @@ struct ContentView: View {
                     openAgent: { activeScreen = .agent },
                     agentsVisible: agentSettings.showsAgentSurfaces
                 )
+            case .learn:
+                LearnScreen(
+                    workspace: localWorkspace,
+                    openHome: { activeScreen = .home },
+                    openFiles: {
+                        filesReturn = .learn
+                        localWorkspace.browsePath = ""
+                        activeScreen = .files
+                    },
+                    openLesson: { lesson in
+                        editorReturn = .learn
+                        localWorkspace.openLesson(lesson)
+                        activeScreen = .local
+                    },
+                    openQuiz: { quiz, review in
+                        activeQuizID = quiz.id
+                        quizStartInReview = review
+                        activeScreen = .quiz
+                    },
+                    openAgent: { activeScreen = .agent },
+                    agentsVisible: agentSettings.showsAgentSurfaces
+                )
             case .files:
                 FilesScreen(workspace: localWorkspace, title: nil, primaryActionTitle: "OPEN", allowsCreate: true) { file in
+                    editorReturn = .home
                     localWorkspace.select(file)
                     activeScreen = .local
                 } onFolder: { folder in
                     localWorkspace.enterFolder(folder)
                 } back: {
                     if !localWorkspace.goUpFromBrowse() {
-                        activeScreen = .home
+                        activeScreen = filesReturn
                     }
                 }
             case .deletePicker:
@@ -54,9 +86,23 @@ struct ContentView: View {
                 agentDestination
             case .local:
                 LocalModeScreen(workspace: localWorkspace, agentSettings: agentSettings) {
-                    activeScreen = .home
+                    activeScreen = editorReturn
                 } openAgent: {
                     activeScreen = .agent
+                }
+            case .quiz:
+                if let id = activeQuizID, let quiz = CQuizCatalog.quiz(id: id) {
+                    QuizScreen(
+                        quiz: quiz,
+                        progress: localWorkspace.quizProgress,
+                        startInReview: quizStartInReview,
+                        back: {
+                            activeScreen = .learn
+                            activeQuizID = nil
+                        }
+                    )
+                } else {
+                    Color.clear.onAppear { activeScreen = .learn }
                 }
             }
         }
@@ -64,10 +110,17 @@ struct ContentView: View {
         .toolbar(.hidden, for: .navigationBar)
         .id(appearance.colorWay)
         .lilCPreferredScheme(appearance.colorWay)
+        .onAppear { AppHaptics.prepare() }
         }
         .task {
             if AgentRuntimeConfig.surfacesVisibleInThisRelease {
                 await agentSettings.loadStore()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .lilCAskForReview)) { _ in
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(AppReviewPrompt.delaySeconds))
+                requestReview()
             }
         }
     }
@@ -90,17 +143,20 @@ struct ContentView: View {
 
 private enum AppScreen {
     case home
+    case learn
     case files
     case deletePicker
     case settings
     case local
     case agent
+    case quiz
 }
 
 private struct HomeScreen: View {
     let workspace: LocalCWorkspace
     let startLocal: () -> Void
     let openFiles: () -> Void
+    let openLearn: () -> Void
     let deleteFile: () -> Void
     let openSettings: () -> Void
     let openAgent: () -> Void
@@ -131,73 +187,7 @@ private struct HomeScreen: View {
                         .padding(.vertical, 16)
                         .background(AppPalette.green, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
-                    .buttonStyle(.plain)
-
-                    Button {
-                        workspace.openLesson(FirstHourCurriculum.first)
-                        startLocal()
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Start lesson 1")
-                                    .font(.system(size: 17, weight: .semibold))
-                                    .foregroundStyle(AppPalette.foreground)
-                                Text(FirstHourCurriculum.first.goal)
-                                    .font(.system(size: 15))
-                                    .foregroundStyle(AppPalette.silver)
-                            }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(AppPalette.silver)
-                        }
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 16)
-                        .background(AppPalette.card, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    }
-                    .buttonStyle(.plain)
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("First hour")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(AppPalette.silver)
-                            .textCase(.uppercase)
-                            .tracking(0.4)
-                        VStack(spacing: 0) {
-                            ForEach(Array(FirstHourCurriculum.lessons.enumerated()), id: \.element.id) { index, lesson in
-                                Button {
-                                    workspace.openLesson(lesson)
-                                    startLocal()
-                                } label: {
-                                    HStack {
-                                        Text("\(lesson.number)")
-                                            .font(.system(size: 15, weight: .semibold, design: .monospaced))
-                                            .foregroundStyle(AppPalette.green)
-                                            .frame(width: 28, alignment: .leading)
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(lesson.title)
-                                                .font(.system(size: 17))
-                                                .foregroundStyle(AppPalette.foreground)
-                                            Text(lesson.goal)
-                                                .font(.system(size: 15))
-                                                .foregroundStyle(AppPalette.silver)
-                                        }
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.system(size: 13, weight: .semibold))
-                                            .foregroundStyle(AppPalette.silver)
-                                    }
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 14)
-                                }
-                                .buttonStyle(.plain)
-                                if index < FirstHourCurriculum.lessons.count - 1 {
-                                    Divider().padding(.leading, 44)
-                                }
-                            }
-                        }
-                        .background(AppPalette.card, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    }
+                    .buttonStyle(.appHaptic)
 
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
@@ -218,7 +208,7 @@ private struct HomeScreen: View {
                     }
 
                     VStack(spacing: 0) {
-                        HomeActionRow(title: "New file", detail: "A single C file") {
+                        HomeActionRow(title: "New file", detail: "A single C file", accessibilityID: "home-new-file") {
                             workspace.createStandaloneFile()
                             startLocal()
                         }
@@ -234,10 +224,74 @@ private struct HomeScreen: View {
                 .padding(.bottom, 24)
             }
 
-            HomeTabBar(openHome: {}, openFiles: openFiles, openAgent: agentsVisible ? openAgent : nil)
+            MainTabBar(
+                active: .home,
+                openHome: {},
+                openLearn: openLearn,
+                openFiles: openFiles,
+                openAgent: agentsVisible ? openAgent : nil
+            )
         }
         .background(AppPalette.background)
         .foregroundStyle(AppPalette.foreground)
+        .buttonStyle(.appHaptic)
+    }
+}
+
+private struct LearnScreen: View {
+    let workspace: LocalCWorkspace
+    let openHome: () -> Void
+    let openFiles: () -> Void
+    let openLesson: (FirstHourLesson) -> Void
+    let openQuiz: (CQuiz, Bool) -> Void
+    let openAgent: () -> Void
+    let agentsVisible: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 28) {
+                    Text("Learn")
+                        .font(.system(size: 28, weight: .semibold))
+                        .foregroundStyle(AppPalette.foreground)
+
+                    LessonCardDeck(
+                        title: "Lessons",
+                        lessons: FirstHourCurriculum.firstHour,
+                        progress: workspace.lessonProgress.state,
+                        open: openLesson
+                    )
+                    LessonCardDeck(
+                        title: "Challenges",
+                        lessons: FirstHourCurriculum.challenges,
+                        progress: workspace.lessonProgress.state,
+                        open: openLesson
+                    )
+                    if !CQuizCatalog.quizzes.isEmpty {
+                        QuizCardDeck(
+                            title: CQuizCatalog.title,
+                            quizzes: CQuizCatalog.quizzes,
+                            progress: workspace.quizProgress,
+                            open: openQuiz
+                        )
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 24)
+            }
+
+            MainTabBar(
+                active: .learn,
+                openHome: openHome,
+                openLearn: {},
+                openFiles: openFiles,
+                openAgent: agentsVisible ? openAgent : nil
+            )
+        }
+        .background(AppPalette.background)
+        .foregroundStyle(AppPalette.foreground)
+        .buttonStyle(.appHaptic)
     }
 }
 
@@ -303,7 +357,7 @@ private struct RecentProjectsList: View {
                         .padding(.horizontal, 10)
                         .frame(height: 52)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.appHaptic)
                     if folder.id != projects.last?.id {
                         Rectangle()
                             .fill(AppPalette.line.opacity(0.8))
@@ -321,6 +375,7 @@ private struct HomeActionRow: View {
     let title: String
     let detail: String
     var isDestructive = false
+    var accessibilityID: String? = nil
     let action: () -> Void
 
     var body: some View {
@@ -342,19 +397,29 @@ private struct HomeActionRow: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.appHaptic)
+        .accessibilityIdentifier(accessibilityID ?? title)
     }
 }
 
-private struct HomeTabBar: View {
+private struct MainTabBar: View {
+    enum Tab {
+        case home
+        case learn
+        case files
+    }
+
+    let active: Tab
     let openHome: () -> Void
+    let openLearn: () -> Void
     let openFiles: () -> Void
     var openAgent: (() -> Void)? = nil
 
     var body: some View {
         HStack {
-            HomeTabItem(title: "HOME", icon: .home, active: true, action: openHome)
-            HomeTabItem(title: "FILES", icon: .files, active: false, action: openFiles)
+            HomeTabItem(title: "HOME", icon: .home, active: active == .home, action: openHome)
+            HomeTabItem(title: "FILES", icon: .files, active: active == .files, action: openFiles)
+            HomeTabItem(title: "LEARN", icon: .learn, active: active == .learn, action: openLearn)
             if let openAgent {
                 Button(action: openAgent) {
                     VStack(spacing: 5) {
@@ -367,7 +432,7 @@ private struct HomeTabBar: View {
                     .foregroundStyle(AppPalette.silver)
                     .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.appHapticSelect)
             }
         }
         .padding(.top, 8)
@@ -396,13 +461,14 @@ private struct HomeTabItem: View {
             .foregroundStyle(active ? AppPalette.green : AppPalette.silver)
             .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.appHapticSelect)
     }
 }
 
 private struct PixelTabIcon: View {
     enum Kind {
         case home
+        case learn
         case files
     }
 
@@ -429,6 +495,20 @@ private struct PixelTabIcon: View {
                     path.addLine(to: CGPoint(x: x + unit * 5, y: y + unit * 6.5))
                     path.addLine(to: CGPoint(x: x + unit * 6.7, y: y + unit * 6.5))
                     path.addLine(to: CGPoint(x: x + unit * 6.7, y: y + unit * 9))
+                case .learn:
+                    let unit = min(size.width / 12, size.height / 10)
+                    let x = (size.width - unit * 12) / 2
+                    let y = (size.height - unit * 10) / 2
+                    path.move(to: CGPoint(x: x + unit * 2, y: y + unit * 2.5))
+                    path.addLine(to: CGPoint(x: x + unit * 5.8, y: y + unit * 3.5))
+                    path.addLine(to: CGPoint(x: x + unit * 5.8, y: y + unit * 8.5))
+                    path.addLine(to: CGPoint(x: x + unit * 2, y: y + unit * 7.5))
+                    path.closeSubpath()
+                    path.move(to: CGPoint(x: x + unit * 10, y: y + unit * 2.5))
+                    path.addLine(to: CGPoint(x: x + unit * 6.2, y: y + unit * 3.5))
+                    path.addLine(to: CGPoint(x: x + unit * 6.2, y: y + unit * 8.5))
+                    path.addLine(to: CGPoint(x: x + unit * 10, y: y + unit * 7.5))
+                    path.closeSubpath()
                 case .files:
                     let unit = min(size.width / 12, size.height / 9)
                     let x = (size.width - unit * 12) / 2
@@ -461,6 +541,7 @@ private struct FilesScreen: View {
     @State private var showCreateOptions = false
     @State private var showFolderName = false
     @State private var folderName = ""
+    @State private var onboarding = OnboardingStore.shared
     @FocusState private var searchFocused: Bool
 
     private var matches: [LocalBrowserEntry] {
@@ -584,8 +665,15 @@ private struct FilesScreen: View {
                 }
                 return moved
             }
+
+            if allowsCreate, onboarding.needsFilesFolderTip {
+                FilesFolderTipBanner {
+                    onboarding.dismissFilesFolderTip()
+                }
+            }
         }
         .background(AppPalette.background)
+        .buttonStyle(.appHaptic)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
@@ -627,6 +715,40 @@ private struct FilesScreen: View {
     }
 }
 
+private struct FilesFolderTipBanner: View {
+    let dismiss: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text(OnboardingCopy.filesFolderTip)
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
+                .foregroundStyle(AppPalette.foreground)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.trailing, 4)
+            Button(action: dismiss) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(AppPalette.silver)
+                    .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.appHaptic)
+            .accessibilityLabel("Dismiss")
+        }
+        .padding(.leading, 16)
+        .padding(.trailing, 8)
+        .padding(.vertical, 10)
+        .background(AppPalette.panel)
+        .overlay(alignment: .top) {
+            Rectangle().fill(AppPalette.line.opacity(0.7)).frame(height: 1)
+        }
+        .safeAreaPadding(.bottom)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(OnboardingCopy.filesFolderTip)
+    }
+}
+
 private struct FolderBrowserRow: View {
     let folder: LocalCFolder
     var subtitle: String = "Project folder"
@@ -662,7 +784,7 @@ private struct FolderBrowserRow: View {
                         .foregroundStyle(AppPalette.green)
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.appHaptic)
 
             if let onDelete {
                 Button("DELETE", action: onDelete)
@@ -791,6 +913,7 @@ private struct DeleteFileScreen: View {
             .background(AppPalette.background)
         }
         .background(AppPalette.background)
+        .buttonStyle(.appHaptic)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
@@ -878,7 +1001,139 @@ private struct FileBrowserRow: View {
             .background(AppPalette.card, in: RoundedRectangle(cornerRadius: 3))
             .overlay(RoundedRectangle(cornerRadius: 3).stroke(AppPalette.line.opacity(0.7)))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.appHaptic)
+    }
+}
+
+/// Full-screen OUTPUT console for the whole live run, then back to editor + compact output.
+/// Not swipe-driven: swipe cannot collapse a running console (keyboard would cover stdin).
+enum OutputChromeExpandPolicy {
+    static func expanded(isRunning: Bool) -> Bool {
+        isRunning
+    }
+
+    /// Swipe is ignored: stay full-screen until the program ends.
+    static func expanded(
+        afterTranslation _: CGFloat,
+        isRunning: Bool,
+        currentlyExpanded _: Bool
+    ) -> Bool {
+        isRunning
+    }
+}
+
+/// While a program is running, hide the editor chrome and lift the console by the
+/// tracked software-keyboard overlap. SwiftUI's keyboard safe area is ignored:
+/// it only updates when the keyboard *appears*, so Run with the editor keyboard
+/// already up left stdin under the keys.
+enum RunConsoleChrome {
+    static func hidesEditorChrome(isRunning: Bool) -> Bool { isRunning }
+
+    static func ignoresSystemKeyboardSafeArea(isRunning _: Bool) -> Bool { true }
+
+    static func keyboardOverlapPadding(isRunning: Bool, overlap: CGFloat) -> CGFloat {
+        isRunning ? max(0, overlap) : 0
+    }
+
+    static func ignoresContainerBottom(padding: CGFloat) -> Bool {
+        padding > 80
+    }
+}
+
+enum SoftwareKeyboardOverlap {
+    static func amount(endFrameInScreen: CGRect, windowFrameInScreen: CGRect) -> CGFloat {
+        let intersection = endFrameInScreen.intersection(windowFrameInScreen)
+        guard !intersection.isNull, intersection.width > 1 else { return 0 }
+        return max(0, intersection.height)
+    }
+
+    static func amount(from notification: Notification, windowFrameInScreen: CGRect) -> CGFloat {
+        guard let end = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return 0
+        }
+        return amount(endFrameInScreen: end, windowFrameInScreen: windowFrameInScreen)
+    }
+}
+
+@MainActor
+final class SoftwareKeyboard: ObservableObject {
+    static let shared = SoftwareKeyboard()
+
+    @Published private(set) var overlap: CGFloat = 0
+
+    private init() {
+        let center = NotificationCenter.default
+        center.addObserver(self, selector: #selector(keyboardFrameChanged), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        center.addObserver(self, selector: #selector(keyboardFrameChanged), name: UIResponder.keyboardDidChangeFrameNotification, object: nil)
+        center.addObserver(self, selector: #selector(keyboardFrameChanged), name: UIResponder.keyboardWillHideNotification, object: nil)
+        center.addObserver(self, selector: #selector(keyboardFrameChanged), name: UIResponder.keyboardDidHideNotification, object: nil)
+    }
+
+    @objc private func keyboardFrameChanged(_ note: Notification) {
+        let next = SoftwareKeyboardOverlap.amount(from: note, windowFrameInScreen: windowFrameInScreen())
+        let duration = (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? 0
+        guard abs(next - overlap) >= 0.5 else { return }
+        if duration > 0.01 {
+            withAnimation(.easeInOut(duration: duration)) {
+                overlap = next
+            }
+        } else {
+            overlap = next
+        }
+    }
+
+    private func windowFrameInScreen() -> CGRect {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        if let window = scenes.flatMap(\.windows).first(where: \.isKeyWindow) ?? scenes.first?.windows.first {
+            return window.convert(window.bounds, to: nil)
+        }
+        return UIScreen.main.bounds
+    }
+}
+
+private struct RunConsoleKeyboardLift: ViewModifier {
+    let isRunning: Bool
+    let overlap: CGFloat
+
+    func body(content: Content) -> some View {
+        let padding = RunConsoleChrome.keyboardOverlapPadding(isRunning: isRunning, overlap: overlap)
+        content
+            .padding(.bottom, padding)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .ignoresSafeArea(
+                RunConsoleChrome.ignoresContainerBottom(padding: padding) ? .container : [],
+                edges: .bottom
+            )
+    }
+}
+
+/// Compact running console: output hugs its text, stdin sits directly under it.
+enum RunningConsoleLayout {
+    static let lineHeight: CGFloat = 20
+    static let minLines = 2
+    static let maxLines = 6
+    static let maxFraction: CGFloat = 0.28
+
+    static func lineCount(in output: String) -> Int {
+        if output.isEmpty { return 0 }
+        let parts = output.split(separator: "\n", omittingEmptySubsequences: false)
+        if output.hasSuffix("\n") {
+            return max(parts.count - 1, 0)
+        }
+        return parts.count
+    }
+
+    static func compactOutputHeight(output: String, availableHeight: CGFloat) -> CGFloat {
+        let minHeight = CGFloat(minLines) * lineHeight
+        let lineCap = CGFloat(maxLines) * lineHeight
+        let fractionCap = max(0, availableHeight) * maxFraction
+        let maxHeight = max(minHeight, min(lineCap, max(fractionCap, minHeight)))
+        let contentHeight = CGFloat(max(lineCount(in: output), minLines)) * lineHeight
+        return min(contentHeight, maxHeight)
+    }
+
+    static func consoleLayoutPriority(isRunning: Bool, outputExpanded: Bool) -> Double {
+        isRunning && outputExpanded ? 1 : 0
     }
 }
 
@@ -887,17 +1142,38 @@ private struct LocalModeScreen: View {
     let agentSettings: AgentSettingsStore
     let back: () -> Void
     var openAgent: () -> Void = {}
+    @State private var appearance = AppearanceStore.shared
     @State private var draftFileName = ""
     @State private var outputExpanded = true
     @State private var findVisible = false
     @State private var findQuery = ""
     @State private var findIndex = 0
     @State private var findEpoch = 0
+    @State private var formatEpoch = 0
     @State private var caretJump: CaretJump?
+    @State private var showCreateOptions = false
+    @State private var containerHeight: CGFloat = 0
     @FocusState private var focusedLocalField: LocalEditorField?
+    @ObservedObject private var softwareKeyboard = SoftwareKeyboard.shared
+
+    private var runningCompactOutputHeight: CGFloat? {
+        guard workspace.isRunning, outputExpanded, !outputCoversEditor else { return nil }
+        return RunningConsoleLayout.compactOutputHeight(
+            output: workspace.output,
+            availableHeight: max(containerHeight, 400)
+        )
+    }
+
+    private var hidesEditorChrome: Bool {
+        RunConsoleChrome.hidesEditorChrome(isRunning: workspace.isRunning)
+    }
 
     private var findMatches: [NSRange] {
         EditorSearch.nsMatches(in: workspace.currentFile.code, query: findQuery)
+    }
+
+    private var outputCoversEditor: Bool {
+        OutputChromeExpandPolicy.expanded(isRunning: workspace.isRunning) && outputExpanded
     }
 
     var body: some View {
@@ -907,17 +1183,19 @@ private struct LocalModeScreen: View {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 16, weight: .bold))
                 }
-                Text(workspace.currentProjectPath.isEmpty ? "Local Mode" : URL(fileURLWithPath: workspace.currentProjectPath).lastPathComponent)
+                .buttonStyle(.appHaptic)
+                Text(workspace.editorTitle)
                     .font(.system(size: 18, weight: .bold, design: .monospaced))
                 Spacer()
                 Button {
-                    workspace.browsePath = workspace.currentProjectPath
-                    workspace.createFile()
+                    workspace.browsePath = workspace.isCurriculumCatalog ? "" : workspace.currentProjectPath
+                    showCreateOptions = true
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 14, weight: .bold))
                 }
                 .foregroundStyle(AppPalette.green)
+                .accessibilityLabel("New file")
                 ShareLink(item: workspace.currentFileURL) {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 14, weight: .bold))
@@ -929,6 +1207,13 @@ private struct LocalModeScreen: View {
                 }
                 .foregroundStyle(findVisible ? AppPalette.foreground : AppPalette.green)
                 .accessibilityLabel("Find")
+                Button("FMT") {
+                    formatEpoch += 1
+                }
+                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                .foregroundStyle(AppPalette.green)
+                .accessibilityLabel("Format code")
+                .accessibilityIdentifier("format-code")
                 if agentSettings.showsAgentSurfaces {
                     Button(action: openAgent) {
                         Image(systemName: "sparkle")
@@ -948,8 +1233,9 @@ private struct LocalModeScreen: View {
                     .background(AppPalette.amber, in: RoundedRectangle(cornerRadius: 4))
                 } else {
                     Button("RUN") {
-                        dismissKeyboard()
-                        commitFileName()
+                        workspace.renameCurrentFile(to: draftFileName)
+                        draftFileName = workspace.currentFile.name
+                        outputExpanded = true
                         workspace.runCurrentFile()
                     }
                     .font(.system(size: 12, weight: .bold, design: .monospaced))
@@ -963,6 +1249,7 @@ private struct LocalModeScreen: View {
             .padding(12)
             .background(AppPalette.panel)
 
+            if !hidesEditorChrome {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(workspace.projectFiles) { file in
@@ -1007,7 +1294,36 @@ private struct LocalModeScreen: View {
             .foregroundStyle(AppPalette.green)
             .padding(12)
             .background(AppPalette.card)
+            }
 
+            if !hidesEditorChrome, let lesson = FirstHourCurriculum.lesson(relativePath: workspace.currentFile.relativePath) {
+                HStack(alignment: .top, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(lesson.kicker)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(AppPalette.green)
+                            .textCase(.uppercase)
+                            .tracking(0.4)
+                        Text(lesson.goal)
+                            .font(.system(size: 15))
+                            .foregroundStyle(AppPalette.foreground)
+                    }
+                    Spacer(minLength: 8)
+                    if workspace.showLessonNice {
+                        Text("Nice.")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(AppPalette.green)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(AppPalette.panel)
+                .overlay(alignment: .bottom) {
+                    Rectangle().fill(AppPalette.line.opacity(0.7)).frame(height: 1)
+                }
+            }
+
+            if !hidesEditorChrome {
             ZStack(alignment: .top) {
                 CCodeEditor(
                     text: Binding(
@@ -1021,7 +1337,9 @@ private struct LocalModeScreen: View {
                     findQuery: findQuery,
                     findIndex: findIndex,
                     findEpoch: findEpoch,
+                    formatEpoch: formatEpoch,
                     overlayHeight: findVisible ? 36 : 0,
+                    syntaxColoring: appearance.syntaxColoring,
                     onBeginEditing: { focusedLocalField = .editor },
                     onEndEditing: {
                         if focusedLocalField == .editor {
@@ -1042,29 +1360,52 @@ private struct LocalModeScreen: View {
                     )
                 }
             }
+            .frame(minHeight: 0)
+            .frame(maxHeight: outputCoversEditor ? 0 : .infinity)
+            .layoutPriority(0)
+            .clipped()
+            .opacity(outputCoversEditor ? 0 : 1)
+            .allowsHitTesting(!outputCoversEditor)
+            .accessibilityHidden(outputCoversEditor)
+            }
 
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
-                    Text("OUTPUT")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundStyle(AppPalette.green)
-                    if workspace.isWaitingForInput {
-                        RunStatusBadge(text: "WAITING FOR INPUT", color: AppPalette.amber, pulsing: true)
-                    } else if workspace.isRunning {
-                        RunStatusBadge(text: "RUNNING", color: AppPalette.green, pulsing: false)
-                    } else if workspace.lastRunFailed {
-                        if workspace.lastErrorJump != nil {
-                            Button(action: jumpToError) {
+                    HStack(spacing: 8) {
+                        Text("OUTPUT")
+                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .foregroundStyle(AppPalette.green)
+                        if workspace.isWaitingForInput {
+                            RunStatusBadge(text: "WAITING FOR INPUT", color: AppPalette.amber, pulsing: true)
+                                .accessibilityIdentifier("waiting-for-input")
+                        } else if workspace.isRunning {
+                            RunStatusBadge(text: "RUNNING", color: AppPalette.green, pulsing: false)
+                        } else if workspace.lastRunNeedsFillIn {
+                            if workspace.lastErrorJump != nil {
+                                Button(action: jumpToError) {
+                                    RunStatusBadge(text: "TODO", color: AppPalette.amber, pulsing: false)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Jump to the blank")
+                            } else {
+                                RunStatusBadge(text: "TODO", color: AppPalette.amber, pulsing: false)
+                            }
+                        } else if workspace.lastRunFailed {
+                            if workspace.lastErrorJump != nil {
+                                Button(action: jumpToError) {
+                                    RunStatusBadge(text: "ERROR", color: AppPalette.error, pulsing: false)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Jump to error")
+                            } else {
                                 RunStatusBadge(text: "ERROR", color: AppPalette.error, pulsing: false)
                             }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Jump to error")
-                        } else {
-                            RunStatusBadge(text: "ERROR", color: AppPalette.error, pulsing: false)
                         }
+                        Spacer(minLength: 0)
                     }
-                    Spacer()
+                    .contentShape(Rectangle())
                     Button {
+                        guard !workspace.isRunning else { return }
                         withAnimation(.easeInOut(duration: 0.18)) {
                             outputExpanded.toggle()
                         }
@@ -1081,66 +1422,43 @@ private struct LocalModeScreen: View {
                 }
                 if outputExpanded {
                     outputBody
-                    if workspace.isRunning {
-                        HStack(spacing: 8) {
-                            Text(">")
-                                .font(.system(size: 14, weight: .bold, design: .monospaced))
-                                .foregroundStyle(workspace.isWaitingForInput ? AppPalette.amber : AppPalette.silver)
-                            TextField(
-                                workspace.isWaitingForInput ? "type input, then ENTER" : "program input",
-                                text: Binding(
-                                    get: { workspace.stdinLine },
-                                    set: { workspace.stdinLine = $0 }
-                                ),
-                                prompt: Text(workspace.isWaitingForInput ? "type input, then ENTER" : "program input")
-                                    .foregroundStyle(AppPalette.silver)
-                            )
-                            .font(.system(size: 13, weight: .medium, design: .monospaced))
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .lilCFieldInk()
-                            .submitLabel(.send)
-                            .focused($focusedLocalField, equals: .stdin)
-                            .onSubmit {
-                                workspace.submitStdinLine()
-                                focusedLocalField = .stdin
-                            }
-                            Button("ENTER") {
-                                workspace.submitStdinLine()
-                                focusedLocalField = .stdin
-                            }
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .foregroundStyle(AppPalette.onAccent)
-                            .padding(.horizontal, 10)
-                            .frame(height: 30)
-                            .background(AppPalette.green, in: RoundedRectangle(cornerRadius: 4))
-                            Button("EOF") {
-                                workspace.sendStdinEOF()
-                            }
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
-                            .foregroundStyle(AppPalette.silver)
-                        }
-                        .padding(.horizontal, 10)
-                        .frame(height: 44)
-                        .background(
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(AppPalette.panel)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(
-                                            workspace.isWaitingForInput ? AppPalette.amber : AppPalette.line,
-                                            lineWidth: workspace.isWaitingForInput ? 1.5 : 1
-                                        )
-                                )
-                        )
-                    }
                 }
             }
             .padding(12)
             .frame(minHeight: outputExpanded ? 92 : 44, alignment: .top)
+            .frame(maxHeight: outputCoversEditor ? .infinity : nil, alignment: .top)
+            .fixedSize(
+                horizontal: false,
+                vertical: workspace.isRunning && outputExpanded && !outputCoversEditor
+            )
+            .layoutPriority(RunningConsoleLayout.consoleLayoutPriority(
+                isRunning: workspace.isRunning,
+                outputExpanded: outputExpanded
+            ))
             .background(AppPalette.card)
         }
         .background(AppPalette.background)
+        .animation(.easeInOut(duration: 0.18), value: outputCoversEditor)
+        .background {
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { containerHeight = geo.size.height }
+                    .onChange(of: geo.size.height) { _, height in
+                        containerHeight = height
+                    }
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if workspace.isRunning && outputExpanded {
+                stdinBar
+                    .padding(.horizontal, 12)
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppPalette.card)
+            }
+        }
+        .modifier(RunConsoleKeyboardLift(isRunning: workspace.isRunning, overlap: softwareKeyboard.overlap))
         .onAppear {
             draftFileName = workspace.currentFile.name
         }
@@ -1151,14 +1469,19 @@ private struct LocalModeScreen: View {
         .onChange(of: workspace.isWaitingForInput) { _, waiting in
             if waiting {
                 outputExpanded = true
-                focusedLocalField = .stdin
+                moveFocusToStdin()
             }
         }
         .onChange(of: workspace.isRunning) { _, running in
             if running {
                 outputExpanded = true
-                if focusedLocalField == .editor || focusedLocalField == .fileName {
-                    dismissKeyboard()
+            }
+        }
+        .onChange(of: workspace.lessonCelebrate) { _, celebrate in
+            if celebrate == .allDone {
+                Task {
+                    try? await Task.sleep(for: .seconds(2.4))
+                    back()
                 }
             }
         }
@@ -1173,6 +1496,72 @@ private struct LocalModeScreen: View {
             }
             return .ignored
         }
+        .confirmationDialog("Create", isPresented: $showCreateOptions, titleVisibility: .visible) {
+            Button(workspace.browsePath.isEmpty ? "New standalone C file" : "New C file in this project") {
+                workspace.createFile()
+                draftFileName = workspace.currentFile.name
+            }
+            Button("New Header") {
+                workspace.createHeader()
+                draftFileName = workspace.currentFile.name
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+    }
+
+    private var stdinBar: some View {
+        HStack(spacing: 8) {
+            Text(">")
+                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                .foregroundStyle(workspace.isWaitingForInput ? AppPalette.amber : AppPalette.silver)
+            TextField(
+                workspace.isWaitingForInput ? "type input, then ENTER" : "program input",
+                text: Binding(
+                    get: { workspace.stdinLine },
+                    set: { workspace.stdinLine = $0 }
+                ),
+                prompt: Text(workspace.isWaitingForInput ? "type input, then ENTER" : "program input")
+                    .foregroundStyle(AppPalette.silver)
+            )
+            .font(.system(size: 13, weight: .medium, design: .monospaced))
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+            .lilCFieldInk()
+            .submitLabel(.send)
+            .focused($focusedLocalField, equals: .stdin)
+            .accessibilityIdentifier("program-stdin")
+            .onSubmit {
+                workspace.submitStdinLine()
+                focusedLocalField = .stdin
+            }
+            Button("ENTER") {
+                workspace.submitStdinLine()
+                focusedLocalField = .stdin
+            }
+            .font(.system(size: 11, weight: .bold, design: .monospaced))
+            .foregroundStyle(AppPalette.onAccent)
+            .padding(.horizontal, 10)
+            .frame(height: 30)
+            .background(AppPalette.green, in: RoundedRectangle(cornerRadius: 4))
+            Button("EOF") {
+                workspace.sendStdinEOF()
+            }
+            .font(.system(size: 11, weight: .bold, design: .monospaced))
+            .foregroundStyle(AppPalette.silver)
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 44)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(AppPalette.panel)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(
+                            workspace.isWaitingForInput ? AppPalette.amber : AppPalette.line,
+                            lineWidth: workspace.isWaitingForInput ? 1.5 : 1
+                        )
+                )
+        )
     }
 
     @ViewBuilder
@@ -1182,7 +1571,7 @@ private struct LocalModeScreen: View {
             .foregroundStyle(AppPalette.foreground)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-        ScrollView {
+        let scroll = ScrollView {
             if workspace.lastErrorJump != nil {
                 outputText
                     .contentShape(Rectangle())
@@ -1193,6 +1582,23 @@ private struct LocalModeScreen: View {
                 outputText
                     .textSelection(.enabled)
             }
+        }
+        .defaultScrollAnchor(workspace.isRunning ? .bottom : .top)
+        .scrollBounceBehavior(.basedOnSize)
+        .accessibilityIdentifier("program-output")
+
+        if outputCoversEditor {
+            scroll.frame(maxHeight: .infinity, alignment: .top)
+        } else if let height = runningCompactOutputHeight {
+            scroll.frame(height: height, alignment: .top)
+        } else {
+            scroll
+        }
+    }
+
+    private func moveFocusToStdin() {
+        DispatchQueue.main.async {
+            focusedLocalField = .stdin
         }
     }
 

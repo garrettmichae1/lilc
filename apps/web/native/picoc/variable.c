@@ -73,6 +73,14 @@ void *VariableAlloc(Picoc *pc, struct ParseState *Parser, int Size, int OnHeap)
 {
     void *NewValue;
 
+    if (Size < 0) {
+        if (Parser != NULL)
+            ProgramFail(Parser, "(VariableAlloc) out of memory");
+        else
+            ProgramFailNoParser(pc, "(VariableAlloc) out of memory");
+        return NULL;
+    }
+
     if (OnHeap)
         NewValue = HeapAllocMem(pc, Size);
     else
@@ -116,9 +124,16 @@ struct Value *VariableAllocValueFromType(Picoc *pc, struct ParseState *Parser,
     struct ValueType *Typ, int IsLValue, struct Value *LValueFrom, int OnHeap)
 {
     int Size = TypeSize(Typ, Typ->ArraySize, false);
-    struct Value *NewValue = VariableAllocValueAndData(pc, Parser, Size,
+    struct Value *NewValue;
+
+    if (Size < 0 && Typ != &pc->VoidType) {
+        if (Parser != NULL)
+            ProgramFail(Parser, "(VariableAlloc) out of memory");
+        else
+            ProgramFailNoParser(pc, "(VariableAlloc) out of memory");
+    }
+    NewValue = VariableAllocValueAndData(pc, Parser, Size,
         IsLValue, LValueFrom, OnHeap);
-    assert(Size >= 0 || Typ == &pc->VoidType);
     NewValue->Typ = Typ;
 
     return NewValue;

@@ -52,7 +52,12 @@ void HeapCleanup(Picoc *pc)
 void *HeapAllocStack(Picoc *pc, int Size)
 {
     char *NewMem = pc->HeapStackTop;
-    char *NewTop = (char*)pc->HeapStackTop + MEM_ALIGN(Size);
+    char *NewTop;
+
+    if (Size < 0)
+        return NULL;
+
+    NewTop = (char*)pc->HeapStackTop + MEM_ALIGN(Size);
 #ifdef DEBUG_HEAP
     printf("HeapAllocStack(%ld) at 0x%lx\n", (unsigned long)MEM_ALIGN(Size),
         (unsigned long)pc->HeapStackTop);
@@ -124,7 +129,10 @@ int HeapPopStackFrame(Picoc *pc)
     can return NULL if out of memory */
 void *HeapAllocMem(Picoc *pc, int Size)
 {
-    return calloc(Size, 1);
+    (void)pc;
+    if (Size < 0)
+        return NULL;
+    return calloc((size_t)Size, 1);
 }
 
 /* free some dynamically allocated memory */

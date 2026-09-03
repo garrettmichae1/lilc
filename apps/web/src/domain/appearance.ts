@@ -73,6 +73,56 @@ export function saveColorWay(way: ColorWay): void {
   }
 }
 
+export const SYNTAX_COLORING_KEY = "lilc.editor.syntaxColoring";
+
+export const syntaxPalettes: Record<
+  ColorWay,
+  {
+    control: string;
+    type: string;
+    preprocessor: string;
+    op: string;
+    string: string;
+    comment: string;
+    number: string;
+  }
+> = {
+  dark: {
+    control: "#C586C0",
+    type: "#569CD6",
+    preprocessor: "#569CD6",
+    op: "#569CD6",
+    string: "#CE9178",
+    comment: "#6A9955",
+    number: "#B5CEA8",
+  },
+  light: {
+    control: "#AF00DB",
+    type: "#0000FF",
+    preprocessor: "#0000FF",
+    op: "#0000FF",
+    string: "#A31515",
+    comment: "#008000",
+    number: "#098658",
+  },
+};
+
+export function loadSyntaxColoring(): boolean {
+  try {
+    return localStorage.getItem(SYNTAX_COLORING_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function saveSyntaxColoring(on: boolean): void {
+  try {
+    localStorage.setItem(SYNTAX_COLORING_KEY, on ? "1" : "0");
+  } catch {
+    /* private mode */
+  }
+}
+
 export function applyColorWay(way: ColorWay): void {
   const palette = palettes[way];
   const root = document.documentElement;
@@ -80,6 +130,10 @@ export function applyColorWay(way: ColorWay): void {
   root.style.colorScheme = way;
   for (const [key, value] of Object.entries(palette)) {
     root.style.setProperty(`--${key}`, value);
+  }
+  const syntax = syntaxPalettes[way];
+  for (const [key, value] of Object.entries(syntax)) {
+    root.style.setProperty(`--syntax-${key}`, value);
   }
   const themeMeta = document.querySelector('meta[name="theme-color"]');
   if (themeMeta) {

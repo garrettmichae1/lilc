@@ -573,6 +573,8 @@ void ExpressionAssign(struct ParseState *Parser, struct Value *DestValue,
                 SourceValue->Typ->Base == TypePointer &&
                 SourceValue->Typ->FromType->Base == TypeChar) {
             if (DestValue->Typ->ArraySize == 0) { /* char x[] = "abcd", x is unsized */
+                if (SourceValue->Val->Pointer == NULL)
+                    ProgramFail(Parser, "NULL pointer dereference");
                 int Size = strlen(SourceValue->Val->Pointer) + 1;
 #ifdef DEBUG_ARRAY_INITIALIZER
                 PRINT_SOURCE_POS();
@@ -902,8 +904,9 @@ void ExpressionInfixOperator(struct ParseState *Parser,
         /* make the array element result */
         switch (BottomValue->Typ->Base) {
         case TypeArray:
-            if (BottomValue->Typ->ArraySize > 0 &&
-                    (ArrayIndex < 0 || ArrayIndex >= BottomValue->Typ->ArraySize))
+            if (BottomValue->Typ->ArraySize <= 0)
+                ProgramFail(Parser, "array has no allocated storage");
+            if (ArrayIndex < 0 || ArrayIndex >= BottomValue->Typ->ArraySize)
                 ProgramFail(Parser, "array index out of range");
             Result = VariableAllocValueFromExistingData(Parser,
             BottomValue->Typ->FromType,

@@ -1,0 +1,311 @@
+import {
+  challengeLessons,
+  firstHourLessons,
+  lessonKicker,
+  type FirstHourLesson,
+} from "../../domain/curriculum";
+import {
+  isLessonComplete,
+  loadProgress,
+  type FirstHourProgress,
+} from "../../domain/progress";
+import {
+  bestQuizAttempt,
+  hasTakenQuiz,
+} from "../../domain/quiz-progress";
+import {
+  QUIZ_DECK_TITLE,
+  quizKicker,
+  quizzes,
+  type CQuiz,
+} from "../../domain/quizzes";
+import type { LocalCWorkspace } from "../../domain/workspace";
+import { mainTabBar, trackMeter } from "../components/chrome";
+import { el } from "../dom";
+
+export function renderLearn(
+  workspace: LocalCWorkspace,
+  actions: {
+    openHome: () => void;
+    openFiles: () => void;
+    openEditor: () => void;
+    openQuiz: (quiz: CQuiz, review: boolean) => void;
+  },
+): HTMLElement {
+  const progress = loadProgress();
+  return el("div", {
+    className: "screen",
+    children: [
+      el("div", {
+        className: "scroll",
+        children: [
+          el("div", {
+            className: "pad",
+            children: [
+              el("div", { className: "learn-title", text: "Learn" }),
+              lessonDeck("Lessons", firstHourLessons, progress, workspace, actions.openEditor),
+              lessonDeck("Challenges", challengeLessons, progress, workspace, actions.openEditor),
+              quizzes.length > 0 ? quizDeck(QUIZ_DECK_TITLE, quizzes, actions.openQuiz) : undefined,
+            ],
+          }),
+        ],
+      }),
+      mainTabBar({
+        active: "learn",
+        openHome: actions.openHome,
+        openLearn: () => undefined,
+        openFiles: actions.openFiles,
+      }),
+    ],
+  });
+}
+
+function lessonDeck(
+  title: string,
+  lessons: FirstHourLesson[],
+  progress: FirstHourProgress,
+  workspace: LocalCWorkspace,
+  openEditor: () => void,
+): HTMLElement {
+  const startId = lessons.find((lesson) => !progress.completedIds.includes(lesson.id))?.id ?? lessons[0]?.id;
+  const scroller = el("div", {
+    className: "lesson-deck",
+    attrs: { role: "list", tabindex: "0", "aria-label": title },
+  });
+  const pips = el("div", { className: "lesson-pips deck-pips" });
+
+  const paintPips = (activeId: string): void => {
+    pips.replaceChildren(
+      ...lessons.map((lesson) => {
+        const complete = progress.completedIds.includes(lesson.id);
+        const current = lesson.id === activeId;
+        return el("span", {
+          className: complete ? "pip done" : current ? "pip current" : "pip",
+          attrs: { title: lesson.title },
+        });
+      }),
+    );
+  };
+
+  for (const lesson of lessons) {
+    const complete = isLessonComplete(lesson.id);
+    const card = el("button", {
+      className: "lesson-swipe-card",
+      attrs: {
+        type: "button",
+        role: "listitem",
+        "data-lesson-id": lesson.id,
+        "aria-label": `${lessonKicker(lesson)}. ${lesson.title}. ${complete ? "Replay" : "Open"}`,
+      },
+      on: {
+        click: () => {
+          workspace.openLesson(lesson);
+          openEditor();
+        },
+      },
+      children: [
+        el("div", {
+          className: "swipe-card-top",
+          children: [
+            el("div", { className: "lesson-kicker mono", text: lessonKicker(lesson) }),
+            complete
+              ? el("span", {
+                  className: "lesson-star",
+                  attrs: { "aria-label": "Completed" },
+                  text: "★",
+                })
+              : undefined,
+          ],
+        }),
+        el("div", { className: "swipe-card-title", text: lesson.title }),
+        el("div", { className: "swipe-card-goal", text: lesson.goal }),
+        el("div", { className: "swipe-card-cta", text: complete ? "Replay" : "Open" }),
+      ],
+    });
+    scroller.append(card);
+  }
+
+  const activeFromScroll = (): string => {
+    const cards = [...scroller.querySelectorAll<HTMLElement>("[data-lesson-id]")];
+    const mid = scroller.scrollLeft + scroller.clientWidth / 2;
+    let best = startId ?? "";
+    let bestDist = Number.POSITIVE_INFINITY;
+    for (const card of cards) {
+      const center = card.offsetLeft + card.offsetWidth / 2;
+      const dist = Math.abs(center - mid);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = card.dataset.lessonId ?? best;
+      }
+    }
+    return best;
+  };
+
+  scroller.addEventListener("scroll", () => {
+    paintPips(activeFromScroll());
+  });
+
+  paintPips(startId ?? "");
+  queueMicrotask(() => {
+    const target = scroller.querySelector<HTMLElement>(`[data-lesson-id="${startId ?? ""}"]`);
+    target?.scrollIntoView({ inline: "start", block: "nearest" });
+    paintPips(startId ?? "");
+  });
+
+  return el("div", {
+    className: "lesson-deck-wrap",
+    children: [
+      el("div", {
+        className: "row-between",
+        attrs: { style: "align-items:flex-end;margin-bottom:8px" },
+        children: [
+          el("div", { className: "section-label", attrs: { style: "margin:0" }, text: title }),
+          trackMeter(lessons, progress, startId, title),
+        ],
+      }),
+      progress.streak > 1 && title === "Lessons"
+        ? el("div", {
+            className: "muted",
+            attrs: { style: "font-size:13px;margin-bottom:8px" },
+            text: `${progress.streak}-day streak`,
+          })
+        : undefined,
+      scroller,
+      pips,
+    ],
+  });
+}
+
+function quizDeck(
+  title: string,
+  items: CQuiz[],
+  openQuiz: (quiz: CQuiz, review: boolean) => void,
+): HTMLElement {
+  const startId = items.find((quiz) => !hasTakenQuiz(quiz.id))?.id ?? items[0]?.id;
+  const scroller = el("div", {
+    className: "lesson-deck",
+    attrs: { role: "list", tabindex: "0", "aria-label": title },
+  });
+  const pips = el("div", { className: "lesson-pips deck-pips" });
+
+  const paintPips = (activeId: string): void => {
+    pips.replaceChildren(
+      ...items.map((quiz) => {
+        const taken = hasTakenQuiz(quiz.id);
+        const current = quiz.id === activeId;
+        return el("span", {
+          className: taken ? "pip done" : current ? "pip current" : "pip",
+          attrs: { title: quiz.title },
+        });
+      }),
+    );
+  };
+
+  for (const quiz of items) {
+    const attempt = bestQuizAttempt(quiz.id);
+    const actions = attempt
+      ? el("div", {
+          className: "swipe-card-ctas",
+          children: [
+            el("button", {
+              className: "swipe-card-cta",
+              attrs: { type: "button" },
+              text: "Review",
+              on: {
+                click: (event) => {
+                  event.stopPropagation();
+                  openQuiz(quiz, true);
+                },
+              },
+            }),
+            el("button", {
+              className: "swipe-card-cta",
+              attrs: { type: "button" },
+              text: "Retake",
+              on: {
+                click: (event) => {
+                  event.stopPropagation();
+                  openQuiz(quiz, false);
+                },
+              },
+            }),
+          ],
+        })
+      : el("div", { className: "swipe-card-cta", text: "Start" });
+    const card = el(attempt ? "div" : "button", {
+      className: "lesson-swipe-card quiz-swipe-card",
+      attrs: {
+        type: attempt ? undefined : "button",
+        role: "listitem",
+        "data-quiz-id": quiz.id,
+        "aria-label": attempt
+          ? `${quizKicker(quiz)}. ${quiz.title}. ${attempt.score} of ${attempt.total}.`
+          : `${quizKicker(quiz)}. ${quiz.title}. Start`,
+      },
+      ...(attempt
+        ? {}
+        : {
+            on: {
+              click: () => {
+                openQuiz(quiz, false);
+              },
+            },
+          }),
+      children: [
+        el("div", {
+          className: "swipe-card-top",
+          children: [
+            el("div", { className: "lesson-kicker mono", text: quizKicker(quiz) }),
+            attempt
+              ? el("span", {
+                  className: "swipe-card-score",
+                  attrs: { "aria-label": `Best score ${attempt.score} of ${attempt.total}` },
+                  text: `${attempt.score}/${attempt.total}`,
+                })
+              : undefined,
+          ],
+        }),
+        el("div", { className: "swipe-card-title", text: quiz.title }),
+        el("div", { className: "swipe-card-goal", text: quiz.goal }),
+        actions,
+      ],
+    });
+    scroller.append(card);
+  }
+
+  const activeFromScroll = (): string => {
+    const cards = [...scroller.querySelectorAll<HTMLElement>("[data-quiz-id]")];
+    const mid = scroller.scrollLeft + scroller.clientWidth / 2;
+    let best = startId ?? "";
+    let bestDist = Number.POSITIVE_INFINITY;
+    for (const card of cards) {
+      const center = card.offsetLeft + card.offsetWidth / 2;
+      const dist = Math.abs(center - mid);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = card.dataset.quizId ?? best;
+      }
+    }
+    return best;
+  };
+
+  scroller.addEventListener("scroll", () => {
+    paintPips(activeFromScroll());
+  });
+
+  paintPips(startId ?? "");
+  queueMicrotask(() => {
+    const target = scroller.querySelector<HTMLElement>(`[data-quiz-id="${startId ?? ""}"]`);
+    target?.scrollIntoView({ inline: "start", block: "nearest" });
+    paintPips(startId ?? "");
+  });
+
+  return el("div", {
+    className: "lesson-deck-wrap",
+    children: [
+      el("div", { className: "section-label", text: title }),
+      scroller,
+      pips,
+    ],
+  });
+}

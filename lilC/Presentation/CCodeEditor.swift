@@ -64,7 +64,9 @@ struct CCodeEditor: UIViewRepresentable {
     var findQuery: String
     var findIndex: Int
     var findEpoch: Int
+    var formatEpoch: Int = 0
     var overlayHeight: CGFloat
+    var syntaxColoring: Bool
     var onBeginEditing: () -> Void
     var onEndEditing: () -> Void
 
@@ -96,6 +98,7 @@ struct CCodeEditor: UIViewRepresentable {
         textView.inputAccessoryView = accessory
         context.coordinator.accessory = accessory
         applyChrome(textView, context: context)
+        textView.accessibilityIdentifier = "code-editor"
         return textView
     }
 
@@ -128,8 +131,13 @@ struct CCodeEditor: UIViewRepresentable {
             }
         }
 
-        applyHighlights(textView, previouslyFinding: context.coordinator.findWasVisible)
+        applyEditorAttributes(
+            textView,
+            previouslyFinding: context.coordinator.findWasVisible,
+            previouslyColoring: context.coordinator.syntaxWasEnabled
+        )
         context.coordinator.findWasVisible = findVisible
+        context.coordinator.syntaxWasEnabled = syntaxColoring
 
         if let jump, context.coordinator.appliedJumpID != jump.id {
             context.coordinator.appliedJumpID = jump.id
@@ -147,6 +155,15 @@ struct CCodeEditor: UIViewRepresentable {
                 let range = matches[findIndex]
                 textView.selectedRange = range
                 textView.scrollRangeToVisible(range)
+            }
+        }
+
+        if formatEpoch != context.coordinator.appliedFormatEpoch {
+            context.coordinator.appliedFormatEpoch = formatEpoch
+            if formatEpoch > 0 {
+                DispatchQueue.main.async {
+                    context.coordinator.formatBuffer()
+                }
             }
         }
 
@@ -180,18 +197,33 @@ struct CCodeEditor: UIViewRepresentable {
         context.coordinator.accessory?.applyPalette()
     }
 
-    private func applyHighlights(_ textView: UITextView, previouslyFinding: Bool) {
-        if !findVisible && !previouslyFinding { return }
+    fileprivate func applyEditorAttributes(
+        _ textView: UITextView,
+        previouslyFinding: Bool,
+        previouslyColoring: Bool
+    ) {
+        if !syntaxColoring && !findVisible && !previouslyFinding && !previouslyColoring { return }
         let storage = textView.textStorage
         let full = NSRange(location: 0, length: storage.length)
         guard full.length > 0 else { return }
         let selected = textView.selectedRange
         let foreground = UIColor(AppPalette.foreground)
+        let way = AppearanceStore.shared.colorWay
         storage.beginEditing()
         storage.setAttributes([
             .font: Self.editorFont,
             .foregroundColor: foreground
         ], range: full)
+        if syntaxColoring {
+            for token in CSyntaxLexer.tokens(in: textView.text) {
+                guard NSMaxRange(token.range) <= full.length else { continue }
+                storage.addAttribute(
+                    .foregroundColor,
+                    value: CSyntaxPalette.color(token.kind, way: way),
+                    range: token.range
+                )
+            }
+        }
         if findVisible {
             let matches = EditorSearch.nsMatches(in: textView.text, query: findQuery)
             let accent = UIColor(AppPalette.green)
@@ -250,7 +282,9 @@ struct CCodeEditor: UIViewRepresentable {
         var fileID = ""
         var appliedJumpID: UUID?
         var appliedFindEpoch = -1
+        var appliedFormatEpoch = 0
         var findWasVisible = false
+        var syntaxWasEnabled = false
 
         init(parent: CCodeEditor) {
             self.parent = parent
@@ -258,6 +292,15 @@ struct CCodeEditor: UIViewRepresentable {
 
         func textViewDidChange(_ textView: UITextView) {
             parent.text = textView.text ?? ""
+            recolor(textView)
+        }
+
+        func recolor(_ textView: UITextView) {
+            parent.applyEditorAttributes(
+                textView,
+                previouslyFinding: parent.findVisible,
+                previouslyColoring: parent.syntaxColoring
+            )
         }
 
         func textViewDidBeginEditing(_ textView: UITextView) {
@@ -288,6 +331,7 @@ struct CCodeEditor: UIViewRepresentable {
             let maxLength = (textView.text as NSString).length
             textView.selectedRange = NSRange(location: min(output.caretUTF16, maxLength), length: 0)
             parent.text = textView.text ?? ""
+            recolor(textView)
             if keepFocus, !textView.isFirstResponder {
                 textView.becomeFirstResponder()
             }
@@ -297,6 +341,7 @@ struct CCodeEditor: UIViewRepresentable {
             textView?.insertText(value)
             if let textView {
                 parent.text = textView.text ?? ""
+                recolor(textView)
             }
         }
 
@@ -342,6 +387,7 @@ struct CCodeEditor: UIViewRepresentable {
                 length: min(length, max(0, maxLength - min(location, maxLength)))
             )
             parent.text = textView.text ?? ""
+            recolor(textView)
         }
 
         private static func stripLeadingIndent(from mutable: NSMutableString, at location: Int, max count: Int) -> Int {
@@ -417,7 +463,8 @@ final class CSymbolAccessoryView: UIInputView {
         indentButton = indent
         stack.addArrangedSubview(indent)
 
-        let format = makeButton(systemName: "curlybraces", label: "Indent code")
+        let format = makeButton(title: "FMT", label: "Format code")
+        format.titleLabel?.font = UIFont.monospacedSystemFont(ofSize: 11, weight: .bold)
         format.addAction(UIAction { [weak self] _ in
             self?.coordinator?.formatBuffer()
         }, for: .touchUpInside)
@@ -453,6 +500,7 @@ final class CSymbolAccessoryView: UIInputView {
         indentButton?.tintColor = accent
         outdentButton?.tintColor = accent
         formatButton?.tintColor = accent
+        formatButton?.setTitleColor(accent, for: .normal)
         dismissButton?.tintColor = UIColor(AppPalette.silver)
     }
 

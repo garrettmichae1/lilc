@@ -1,0 +1,265 @@
+{
+  "id": "challenges",
+  "title": "Challenges",
+  "summary": "Twelve fill-in-the-blank programs. Replace ???, press Run.",
+  "lessons": [
+    {
+      "id": "two-sum",
+      "track": "challenge",
+      "number": 1,
+      "title": "Two Sum",
+      "goal": "Find two indexes whose values add to 9. Print them on one line, like 0 1.",
+      "fileName": "01-two-sum.c",
+      "printHint": "0 1",
+      "requireSource": [],
+      "requireAnySource": [
+        "for"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "0 1"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 1 \u2014 Two Sum.\n   TODO: print two indexes that add to target */\n\nint main(void) {\n    int nums[4];\n    int target;\n    int i;\n    int j;\n    nums[0] = 2;\n    nums[1] = 7;\n    nums[2] = 11;\n    nums[3] = 15;\n    target = 9;\n    for (i = 0; i < 4; i = i + 1) {\n        for (j = i + 1; j < 4; j = j + 1) {\n            if (???) {\n                printf(\"%d %d\\n\", i, j);\n                return 0;\n            }\n        }\n    }\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int nums[4];\n    int target;\n    int i;\n    int j;\n    nums[0] = 2;\n    nums[1] = 7;\n    nums[2] = 11;\n    nums[3] = 15;\n    target = 9;\n    for (i = 0; i < 4; i = i + 1) {\n        for (j = i + 1; j < 4; j = j + 1) {\n            if (nums[i] + nums[j] == target) {\n                printf(\"%d %d\\n\", i, j);\n                return 0;\n            }\n        }\n    }\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "reverse-digits",
+      "track": "challenge",
+      "number": 2,
+      "title": "Reverse digits",
+      "goal": "Reverse 123 so the program prints 321. Fill in the loop.",
+      "fileName": "02-reverse-digits.c",
+      "printHint": "321",
+      "requireSource": [],
+      "requireAnySource": [
+        "while",
+        "for"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "321\n"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 2 \u2014 Reverse digits.\n   TODO: build the reverse of n */\n\nint main(void) {\n    int n = 123;\n    int rev = 0;\n    while (n > 0) {\n        rev = ???;\n        n = n / 10;\n    }\n    printf(\"%d\\n\", rev);\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int n = 123;\n    int rev = 0;\n    while (n > 0) {\n        rev = rev * 10 + n % 10;\n        n = n / 10;\n    }\n    printf(\"%d\\n\", rev);\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "palindrome",
+      "track": "challenge",
+      "number": 3,
+      "title": "Palindrome",
+      "goal": "121 reads the same forwards and back. Print yes if n is a palindrome.",
+      "fileName": "03-palindrome.c",
+      "printHint": "yes",
+      "requireSource": [
+        "if"
+      ],
+      "requireAnySource": [],
+      "win": {
+        "kind": "exact",
+        "text": "yes"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 3 \u2014 Palindrome number.\n   TODO: compare n with its reverse */\n\nint main(void) {\n    int n = 121;\n    int original = n;\n    int rev = 0;\n    while (n > 0) {\n        rev = rev * 10 + n % 10;\n        n = n / 10;\n    }\n    if (???) {\n        printf(\"yes\\n\");\n    } else {\n        printf(\"no\\n\");\n    }\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int n = 121;\n    int original = n;\n    int rev = 0;\n    while (n > 0) {\n        rev = rev * 10 + n % 10;\n        n = n / 10;\n    }\n    if (rev == original) {\n        printf(\"yes\\n\");\n    } else {\n        printf(\"no\\n\");\n    }\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "max",
+      "track": "challenge",
+      "number": 4,
+      "title": "Maximum",
+      "goal": "Walk the array and print the largest value, 9.",
+      "fileName": "04-max.c",
+      "printHint": "9",
+      "requireSource": [],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "9\n"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 4 \u2014 Maximum.\n   TODO: keep the biggest value in best */\n\nint main(void) {\n    int nums[5];\n    int i;\n    int best;\n    nums[0] = 3;\n    nums[1] = 9;\n    nums[2] = 1;\n    nums[3] = 4;\n    nums[4] = 7;\n    best = nums[0];\n    for (i = 1; i < 5; i = i + 1) {\n        if (???) {\n            best = nums[i];\n        }\n    }\n    printf(\"%d\\n\", best);\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int nums[5];\n    int i;\n    int best;\n    nums[0] = 3;\n    nums[1] = 9;\n    nums[2] = 1;\n    nums[3] = 4;\n    nums[4] = 7;\n    best = nums[0];\n    for (i = 1; i < 5; i = i + 1) {\n        if (nums[i] > best) {\n            best = nums[i];\n        }\n    }\n    printf(\"%d\\n\", best);\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "factorial",
+      "track": "challenge",
+      "number": 5,
+      "title": "Factorial",
+      "goal": "Compute 5! so the program prints 120.",
+      "fileName": "05-factorial.c",
+      "printHint": "120",
+      "requireSource": [],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "120\n"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 5 \u2014 Factorial.\n   TODO: multiply into product */\n\nint main(void) {\n    int n = 5;\n    int i;\n    int product = 1;\n    for (i = 1; i <= n; i = i + 1) {\n        product = ???;\n    }\n    printf(\"%d\\n\", product);\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int n = 5;\n    int i;\n    int product = 1;\n    for (i = 1; i <= n; i = i + 1) {\n        product = product * i;\n    }\n    printf(\"%d\\n\", product);\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "fibonacci",
+      "track": "challenge",
+      "number": 6,
+      "title": "Fibonacci",
+      "goal": "Print the 8th Fibonacci number, 21. F1 is 1, F2 is 1.",
+      "fileName": "06-fibonacci.c",
+      "printHint": "21",
+      "requireSource": [],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "21\n"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 6 \u2014 Fibonacci.\n   TODO: walk the sequence to n = 8 */\n\nint main(void) {\n    int n = 8;\n    int a = 1;\n    int b = 1;\n    int i;\n    int next;\n    if (n <= 2) {\n        printf(\"1\\n\");\n        return 0;\n    }\n    for (i = 3; i <= n; i = i + 1) {\n        next = ???;\n        a = b;\n        b = next;\n    }\n    printf(\"%d\\n\", b);\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int n = 8;\n    int a = 1;\n    int b = 1;\n    int i;\n    int next;\n    if (n <= 2) {\n        printf(\"1\\n\");\n        return 0;\n    }\n    for (i = 3; i <= n; i = i + 1) {\n        next = a + b;\n        a = b;\n        b = next;\n    }\n    printf(\"%d\\n\", b);\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "fizzbuzz",
+      "track": "challenge",
+      "number": 7,
+      "title": "Fizz Buzz",
+      "goal": "For 1 through 15, print Fizz, Buzz, FizzBuzz, or the number. One per line.",
+      "fileName": "07-fizzbuzz.c",
+      "printHint": "1 then 2 then Fizz",
+      "requireSource": [
+        "if"
+      ],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "lines",
+        "lines": [
+          "1",
+          "2",
+          "Fizz",
+          "4",
+          "Buzz",
+          "Fizz",
+          "7",
+          "8",
+          "Fizz",
+          "Buzz",
+          "11",
+          "Fizz",
+          "13",
+          "14",
+          "FizzBuzz"
+        ]
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 7 \u2014 Fizz Buzz.\n   TODO: multiples of 3 and 5 */\n\nint main(void) {\n    int n;\n    for (n = 1; n <= 15; n = n + 1) {\n        if (???) {\n            printf(\"FizzBuzz\\n\");\n        } else if (n % 3 == 0) {\n            printf(\"Fizz\\n\");\n        } else if (n % 5 == 0) {\n            printf(\"Buzz\\n\");\n        } else {\n            printf(\"%d\\n\", n);\n        }\n    }\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int n;\n    for (n = 1; n <= 15; n = n + 1) {\n        if (n % 15 == 0) {\n            printf(\"FizzBuzz\\n\");\n        } else if (n % 3 == 0) {\n            printf(\"Fizz\\n\");\n        } else if (n % 5 == 0) {\n            printf(\"Buzz\\n\");\n        } else {\n            printf(\"%d\\n\", n);\n        }\n    }\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "plus-one",
+      "track": "challenge",
+      "number": 8,
+      "title": "Plus one",
+      "goal": "The digits 1, 2, 3 are a number. Add one and print 1 2 4.",
+      "fileName": "08-plus-one.c",
+      "printHint": "1 2 4",
+      "requireSource": [],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "1 2 4"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 8 \u2014 Plus one.\n   TODO: add one to the last digit */\n\nint main(void) {\n    int d[3];\n    int i;\n    d[0] = 1;\n    d[1] = 2;\n    d[2] = 3;\n    d[2] = ???;\n    for (i = 0; i < 3; i = i + 1) {\n        if (i > 0) {\n            printf(\" \");\n        }\n        printf(\"%d\", d[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int d[3];\n    int i;\n    d[0] = 1;\n    d[1] = 2;\n    d[2] = 3;\n    d[2] = d[2] + 1;\n    for (i = 0; i < 3; i = i + 1) {\n        if (i > 0) {\n            printf(\" \");\n        }\n        printf(\"%d\", d[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "single-number",
+      "track": "challenge",
+      "number": 9,
+      "title": "Single number",
+      "goal": "Every value appears twice except one. Print the unique value, 3.",
+      "fileName": "09-single-number.c",
+      "printHint": "3",
+      "requireSource": [],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "3\n"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 9 \u2014 Single number.\n   TODO: XOR every value into lone */\n\nint main(void) {\n    int nums[5];\n    int i;\n    int lone = 0;\n    nums[0] = 2;\n    nums[1] = 3;\n    nums[2] = 2;\n    nums[3] = 4;\n    nums[4] = 4;\n    for (i = 0; i < 5; i = i + 1) {\n        lone = ???;\n    }\n    printf(\"%d\\n\", lone);\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int nums[5];\n    int i;\n    int lone = 0;\n    nums[0] = 2;\n    nums[1] = 3;\n    nums[2] = 2;\n    nums[3] = 4;\n    nums[4] = 4;\n    for (i = 0; i < 5; i = i + 1) {\n        lone = lone ^ nums[i];\n    }\n    printf(\"%d\\n\", lone);\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "climb-stairs",
+      "track": "challenge",
+      "number": 10,
+      "title": "Climb stairs",
+      "goal": "You can take 1 or 2 steps. How many ways to climb 4 stairs? Print 5.",
+      "fileName": "10-climb-stairs.c",
+      "printHint": "5",
+      "requireSource": [],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "5\n"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 10 \u2014 Climb stairs.\n   TODO: ways(n) = ways(n-1) + ways(n-2) */\n\nint main(void) {\n    int n = 4;\n    int a = 1;\n    int b = 2;\n    int i;\n    int next;\n    if (n <= 2) {\n        printf(\"%d\\n\", n);\n        return 0;\n    }\n    for (i = 3; i <= n; i = i + 1) {\n        next = ???;\n        a = b;\n        b = next;\n    }\n    printf(\"%d\\n\", b);\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int n = 4;\n    int a = 1;\n    int b = 2;\n    int i;\n    int next;\n    if (n <= 2) {\n        printf(\"%d\\n\", n);\n        return 0;\n    }\n    for (i = 3; i <= n; i = i + 1) {\n        next = a + b;\n        a = b;\n        b = next;\n    }\n    printf(\"%d\\n\", b);\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "valid-parens",
+      "track": "challenge",
+      "number": 11,
+      "title": "Valid parens",
+      "goal": "Count ( and ). Print valid if they nest correctly for (()()).",
+      "fileName": "11-valid-parens.c",
+      "printHint": "valid",
+      "requireSource": [
+        "if"
+      ],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "valid"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 11 \u2014 Valid parentheses.\n   TODO: track depth; never go negative */\n\nint main(void) {\n    char s[7];\n    int i;\n    int depth = 0;\n    s[0] = '(';\n    s[1] = '(';\n    s[2] = ')';\n    s[3] = '(';\n    s[4] = ')';\n    s[5] = ')';\n    s[6] = 0;\n    for (i = 0; s[i] != 0; i = i + 1) {\n        if (s[i] == '(') {\n            depth = depth + 1;\n        } else {\n            depth = ???;\n            if (depth < 0) {\n                printf(\"invalid\\n\");\n                return 0;\n            }\n        }\n    }\n    if (depth == 0) {\n        printf(\"valid\\n\");\n    } else {\n        printf(\"invalid\\n\");\n    }\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    char s[7];\n    int i;\n    int depth = 0;\n    s[0] = '(';\n    s[1] = '(';\n    s[2] = ')';\n    s[3] = '(';\n    s[4] = ')';\n    s[5] = ')';\n    s[6] = 0;\n    for (i = 0; s[i] != 0; i = i + 1) {\n        if (s[i] == '(') {\n            depth = depth + 1;\n        } else {\n            depth = depth - 1;\n            if (depth < 0) {\n                printf(\"invalid\\n\");\n                return 0;\n            }\n        }\n    }\n    if (depth == 0) {\n        printf(\"valid\\n\");\n    } else {\n        printf(\"invalid\\n\");\n    }\n    return 0;\n}\n\n"
+    },
+    {
+      "id": "move-zeroes",
+      "track": "challenge",
+      "number": 12,
+      "title": "Move zeroes",
+      "goal": "Keep the order of non-zero values, then zeros. Print 1 3 12 0 0.",
+      "fileName": "12-move-zeroes.c",
+      "printHint": "1 3 12 0 0",
+      "requireSource": [],
+      "requireAnySource": [
+        "for",
+        "while"
+      ],
+      "win": {
+        "kind": "exact",
+        "text": "1 3 12 0 0"
+      },
+      "source": "#include <stdio.h>\n\n/* Challenge 12 \u2014 Move zeroes.\n   TODO: compact non-zeros toward the front */\n\nint main(void) {\n    int nums[5];\n    int i;\n    int write = 0;\n    nums[0] = 0;\n    nums[1] = 1;\n    nums[2] = 0;\n    nums[3] = 3;\n    nums[4] = 12;\n    for (i = 0; i < 5; i = i + 1) {\n        if (nums[i] != 0) {\n            nums[write] = nums[i];\n            write = ???;\n        }\n    }\n    while (write < 5) {\n        nums[write] = 0;\n        write = write + 1;\n    }\n    for (i = 0; i < 5; i = i + 1) {\n        if (i > 0) {\n            printf(\" \");\n        }\n        printf(\"%d\", nums[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n\n",
+      "solution": "#include <stdio.h>\n\nint main(void) {\n    int nums[5];\n    int i;\n    int write = 0;\n    nums[0] = 0;\n    nums[1] = 1;\n    nums[2] = 0;\n    nums[3] = 3;\n    nums[4] = 12;\n    for (i = 0; i < 5; i = i + 1) {\n        if (nums[i] != 0) {\n            nums[write] = nums[i];\n            write = write + 1;\n        }\n    }\n    while (write < 5) {\n        nums[write] = 0;\n        write = write + 1;\n    }\n    for (i = 0; i < 5; i = i + 1) {\n        if (i > 0) {\n            printf(\" \");\n        }\n        printf(\"%d\", nums[i]);\n    }\n    printf(\"\\n\");\n    return 0;\n}\n\n"
+    }
+  ]
+}

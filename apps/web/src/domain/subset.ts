@@ -1,6 +1,6 @@
 /**
  * Tiny C subset used only when PicoC WASM is not loaded.
- * Enough for the first-hour lessons (hello, variables, if, loop, array, function).
+ * Enough for the first-hour lessons (hello through copy).
  * Not a compiler. Not GCC. Prefer PicoC whenever it is available.
  */
 
@@ -30,6 +30,7 @@ type Stmt =
   | { kind: "decl"; name: string; size?: number; init?: Expr }
   | { kind: "if"; test: Expr; consequent: Stmt; alternate?: Stmt }
   | { kind: "for"; init?: Stmt | Expr; test?: Expr; inc?: Expr; body: Stmt }
+  | { kind: "while"; test: Expr; body: Stmt }
   | { kind: "return"; value?: Expr }
   | { kind: "expr"; expr: Expr };
 
@@ -95,6 +96,23 @@ function tokenize(source: string): Token[] {
       while (index < length && source[index] !== "\n") {
         index += 1;
       }
+      continue;
+    }
+    if (char === "'") {
+      index += 1;
+      let code = 0;
+      if (source[index] === "\\" && index + 1 < length) {
+        const next = source[index + 1] ?? "";
+        code = next === "n" ? 10 : next === "t" ? 9 : next.charCodeAt(0);
+        index += 2;
+      } else {
+        code = source.charCodeAt(index);
+        index += 1;
+      }
+      if (source[index] === "'") {
+        index += 1;
+      }
+      tokens.push({ kind: "number", value: String(code) });
       continue;
     }
     if (char === '"') {
@@ -249,6 +267,14 @@ class Parser {
       const body = this.parseStatement();
       return { kind: "for", ...(init ? { init } : {}), ...(test ? { test } : {}), ...(inc ? { inc } : {}), body };
     }
+    if (this.check("ident") && this.peek().value === "while") {
+      this.next();
+      this.expect("(");
+      const test = this.parseExpression();
+      this.expect(")");
+      const body = this.parseStatement();
+      return { kind: "while", test, body };
+    }
     if (this.check("ident") && this.peek().value === "return") {
       this.next();
       if (this.match(";")) {
@@ -304,7 +330,11 @@ class Parser {
   }
 
   private parseAnd(): Expr {
-    return this.parseBinary(() => this.parseEquality(), ["&&"]);
+    return this.parseBinary(() => this.parseBitXor(), ["&&"]);
+  }
+
+  private parseBitXor(): Expr {
+    return this.parseBinary(() => this.parseEquality(), ["^"]);
   }
 
   private parseEquality(): Expr {
@@ -518,6 +548,8 @@ function execute(functions: Map<string, Fn>): string {
             return left !== 0 && right !== 0 ? 1 : 0;
           case "||":
             return left !== 0 || right !== 0 ? 1 : 0;
+          case "^":
+            return (left ^ right) | 0;
           default:
             throw new Error(`Unknown operator ${expr.op}.`);
         }
@@ -607,6 +639,11 @@ function execute(functions: Map<string, Fn>): string {
         }
         return;
       }
+      case "while":
+        while (asInt(evalExpr(stmt.test)) !== 0) {
+          runStmt(stmt.body);
+        }
+        return;
       case "return":
         throw new ReturnSignal(stmt.value === undefined ? 0 : asInt(evalExpr(stmt.value)));
       case "expr":

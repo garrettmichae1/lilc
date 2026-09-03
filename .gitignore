@@ -23,8 +23,12 @@ build/
 spiritualJeffy-lilC-accounts.txt
 **/secrets.txt
 *.pem
+*.p8
+AuthKey_*.p8
 *.p12
 *.mobileprovision
+store/archives/
+store/logs/
 
 # Agent worker
 services/agent-worker/.wrangler/

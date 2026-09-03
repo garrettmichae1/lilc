@@ -1,21 +1,33 @@
-import { firstHourCurriculum, lessonForPath } from "../../domain/curriculum";
+import { allLessons, lessonForPath, lessonKicker, lessonRelativePath } from "../../domain/curriculum";
 import { fileName } from "../../domain/files";
 import { formatC, indentSelection } from "../../domain/indent";
 import { isLessonComplete, loadProgress } from "../../domain/progress";
 import { encodeShareHash, playgroundURL, type SharePayload } from "../../domain/share";
 import { findMatches, offsetOfLine } from "../../domain/search";
+import { tokenizeC } from "../../domain/syntax";
 import type { LocalCWorkspace } from "../../domain/workspace";
-import { hourMeter } from "../components/chrome";
+import { challengeMeter, hourMeter } from "../components/chrome";
 import { el, icons, svgIcon } from "../dom";
 
 const SYMBOLS = ["{", "}", "(", ")", "[", "]", ";", "=", "&", "*"] as const;
 
-export const NICE_DELAY_MS = 900;
+export const NICE_DELAY_MS = 2400;
+
+/** Full-screen OUTPUT for the whole live run. Swipe cannot collapse it. */
+export function nextOutputChromeExpanded(
+  _translationY: number,
+  isRunning: boolean,
+  _currentlyExpanded: boolean,
+): boolean {
+  return isRunning;
+}
 
 export function renderEditor(
   workspace: LocalCWorkspace,
   actions: { back: () => void },
+  options: { syntaxColoring?: boolean } = {},
 ): HTMLElement {
+  const syntaxColoring = options.syntaxColoring === true;
   const screen = el("div", { className: "screen" });
   const editor = el("textarea", {
     className: "editor",
@@ -38,18 +50,24 @@ export function renderEditor(
   let findIndex = 0;
   let editorFocused = false;
   let outputExpanded = true;
+  let outputChromeExpanded = false;
   let lastFileID = workspace.selectedFileID;
   let applyingBoundText = false;
   let niceVisible = false;
-  let celebrating = false;
   let handledToken = 0;
   let advanceTimer: ReturnType<typeof setTimeout> | undefined;
+  let createOverlay: HTMLElement | undefined;
 
   editor.addEventListener("input", () => {
     if (applyingBoundText) {
       return;
     }
     workspace.updateCurrentCode(editor.value);
+    paintHighlight();
+    syncHighlightScroll();
+  });
+  editor.addEventListener("scroll", () => {
+    syncHighlightScroll();
   });
   editor.addEventListener("focus", () => {
     setEditorFocused(true);
@@ -135,16 +153,20 @@ export function renderEditor(
     }
   });
 
-  const chrome = el("div", { className: "screen", attrs: { style: "min-height:0;flex:1" } });
+  const chrome = el("div", { className: "screen", attrs: { style: "min-height:0;flex:1", "data-editor-chrome": "" } });
   const topSlot = el("div");
   const tabsSlot = el("div");
   const nameSlot = el("div");
   const lessonSlot = el("div");
   const editorHost = el("div", { className: "editor-wrap", attrs: { "data-editor-host": "" } });
   const findSlot = el("div");
-  const outputSlot = el("div");
+  const highlight = el("pre", {
+    className: "editor-highlight",
+    attrs: { "aria-hidden": "true", "data-editor-highlight": "" },
+  });
+  const outputSlot = el("div", { attrs: { "data-output-slot": "" } });
   const symbolSlot = el("div");
-  editorHost.append(findSlot, editor);
+  editorHost.append(findSlot, highlight, editor);
   chrome.append(topSlot, tabsSlot, nameSlot, lessonSlot, editorHost, outputSlot, symbolSlot);
   screen.append(chrome);
 
@@ -154,6 +176,37 @@ export function renderEditor(
     if (bar) {
       bar.classList.toggle("visible", focused);
     }
+  };
+
+  const paintHighlight = (): void => {
+    if (!syntaxColoring) {
+      highlight.replaceChildren();
+      return;
+    }
+    const source = editor.value;
+    const tokens = tokenizeC(source);
+    const frag = document.createDocumentFragment();
+    let cursor = 0;
+    for (const token of tokens) {
+      if (token.start > cursor) {
+        frag.append(source.slice(cursor, token.start));
+      }
+      const span = document.createElement("span");
+      span.className = `tok-${token.kind}`;
+      span.textContent = source.slice(token.start, token.end);
+      frag.append(span);
+      cursor = token.end;
+    }
+    if (cursor < source.length) {
+      frag.append(source.slice(cursor));
+    }
+    frag.append("\n");
+    highlight.replaceChildren(frag);
+  };
+
+  const syncHighlightScroll = (): void => {
+    highlight.scrollTop = editor.scrollTop;
+    highlight.scrollLeft = editor.scrollLeft;
   };
 
   const paint = (): void => {
@@ -173,6 +226,11 @@ export function renderEditor(
     stdinField.value = workspace.stdinLine;
     stdinField.placeholder = workspace.isWaitingForInput ? "type input, then ENTER" : "program input";
     editor.classList.toggle("find-open", findVisible);
+    editor.classList.toggle("syntax-on", syntaxColoring);
+    highlight.classList.toggle("find-open", findVisible);
+    highlight.hidden = !syntaxColoring;
+    paintHighlight();
+    syncHighlightScroll();
 
     const matches = findMatches(editor.value, findQuery);
     const matchLabel = matches.length === 0 ? "0/0" : `${Math.min(findIndex + 1, matches.length)}/${matches.length}`;
@@ -187,6 +245,16 @@ export function renderEditor(
       lessonSlot.replaceChildren();
     }
     paintFindBar(matchLabel);
+    if (workspace.isRunning) {
+      outputExpanded = true;
+      outputChromeExpanded = true;
+    } else {
+      outputChromeExpanded = false;
+    }
+    chrome.classList.toggle(
+      "output-chrome-expanded",
+      outputChromeExpanded && outputExpanded,
+    );
     outputSlot.replaceChildren(outputPane());
     symbolSlot.replaceChildren(symbolBar());
     paintCelebration();
@@ -194,6 +262,61 @@ export function renderEditor(
       outputExpanded = true;
       queueMicrotask(() => stdinField.focus());
     }
+  };
+
+  const dismissCreate = (): void => {
+    createOverlay?.remove();
+    createOverlay = undefined;
+  };
+
+  const showCreate = (): void => {
+    dismissCreate();
+    workspace.browsePath = workspace.isCurriculumCatalog ? "" : workspace.currentProjectPath;
+    createOverlay = el("div", {
+      className: "sheet",
+      on: {
+        click: (event) => {
+          if (event.target === createOverlay) {
+            dismissCreate();
+          }
+        },
+      },
+      children: [
+        el("div", {
+          className: "sheet-card",
+          children: [
+            el("button", {
+              attrs: { type: "button" },
+              text: workspace.browsePath === "" ? "New standalone C file" : "New C file in this project",
+              on: {
+                click: () => {
+                  workspace.createFile();
+                  dismissCreate();
+                  paint();
+                },
+              },
+            }),
+            el("button", {
+              attrs: { type: "button" },
+              text: "New Header",
+              on: {
+                click: () => {
+                  workspace.createHeader();
+                  dismissCreate();
+                  paint();
+                },
+              },
+            }),
+            el("button", {
+              attrs: { type: "button", style: "color:var(--silver)" },
+              text: "Cancel",
+              on: { click: dismissCreate },
+            }),
+          ],
+        }),
+      ],
+    });
+    screen.append(createOverlay);
   };
 
   const topBar = (): HTMLElement =>
@@ -208,18 +331,14 @@ export function renderEditor(
         }),
         el("div", {
           className: "title",
-          text: workspace.currentProjectPath === "" ? "Local Mode" : workspace.currentProjectPath.split("/").pop() ?? "Local Mode",
+          text: workspace.editorTitle,
         }),
         el("span", { attrs: { style: "flex:1" } }),
         el("button", {
           className: "icon-btn",
           attrs: { type: "button", "aria-label": "New file", style: "color:var(--accent)" },
           on: {
-            click: () => {
-              workspace.browsePath = workspace.currentProjectPath;
-              workspace.createFile();
-              paint();
-            },
+            click: showCreate,
           },
           children: [svgIcon(icons.plus, 14)],
         }),
@@ -234,6 +353,12 @@ export function renderEditor(
           attrs: { type: "button", "aria-label": "Share" },
           on: { click: shareFile },
           children: [svgIcon(icons.share, 14)],
+        }),
+        el("button", {
+          className: "format-btn",
+          attrs: { type: "button", "aria-label": "Format code" },
+          text: "FMT",
+          on: { click: formatBuffer },
         }),
         workspace.isRunning
           ? el("button", {
@@ -331,7 +456,7 @@ export function renderEditor(
         el("div", {
           className: "lesson-rail-top",
           children: [
-            hourMeter(progress, lesson.id),
+            lesson.track === "challenge" ? challengeMeter(progress, lesson.id) : hourMeter(progress, lesson.id),
             niceVisible
               ? el("span", {
                   className: "lesson-nice",
@@ -349,7 +474,7 @@ export function renderEditor(
         }),
         el("div", {
           className: "lesson-kicker mono",
-          text: `Lesson ${lesson.number} of ${firstHourCurriculum.lessons.length}`,
+          text: lessonKicker(lesson),
         }),
         el("div", { className: "lesson-title", text: lesson.title }),
         el("div", { className: "lesson-goal", text: lesson.goal }),
@@ -358,51 +483,7 @@ export function renderEditor(
   };
 
   const paintCelebration = (): void => {
-    const existing = screen.querySelector("[data-celebrate]");
-    if (!celebrating) {
-      existing?.remove();
-      return;
-    }
-    if (existing) {
-      return;
-    }
-    screen.append(
-      el("div", {
-        className: "dialog-backdrop",
-        attrs: { role: "dialog", "aria-modal": "true", "data-celebrate": "" },
-        children: [
-          el("div", {
-            className: "dialog",
-            children: [
-              el("div", {
-                className: "celebrate-star",
-                attrs: { "aria-hidden": "true" },
-                text: "★",
-              }),
-              el("h2", { text: "First hour done." }),
-              el("p", { text: "Six tiny programs. The editor is yours." }),
-              el("div", {
-                className: "dialog-actions",
-                children: [
-                  el("button", {
-                    className: "run-btn",
-                    attrs: { type: "button" },
-                    text: "Open editor",
-                    on: {
-                      click: () => {
-                        celebrating = false;
-                        workspace.openFreePlay();
-                        paint();
-                      },
-                    },
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-    );
+    screen.querySelector("[data-celebrate]")?.remove();
   };
 
   const outputPane = (): HTMLElement => {
@@ -430,29 +511,41 @@ export function renderEditor(
       body.addEventListener("click", jumpToError);
     }
 
+    const swipeHandle = el("div", {
+      className: "output-swipe",
+      attrs: {
+        "data-output-swipe": "",
+        role: "presentation",
+        "aria-label": workspace.isRunning
+          ? "Output. Full screen until the program ends"
+          : "Output",
+      },
+      children: [
+        el("div", {
+          className: "mono",
+          attrs: { style: "font-size:11px;font-weight:700;color:var(--accent)" },
+          text: "OUTPUT",
+        }),
+        status,
+      ],
+    });
+    bindOutputSwipe(swipeHandle);
+
     return el("div", {
-      className: "output-pane",
+      className: workspace.isRunning ? "output-pane running" : "output-pane",
       children: [
         el("div", {
           className: "row-between",
           children: [
-            el("div", {
-              className: "row-between",
-              attrs: { style: "justify-content:flex-start;gap:8px" },
-              children: [
-                el("div", {
-                  className: "mono",
-                  attrs: { style: "font-size:11px;font-weight:700;color:var(--accent)" },
-                  text: "OUTPUT",
-                }),
-                status,
-              ],
-            }),
+            swipeHandle,
             el("button", {
               className: "link-btn",
               attrs: { type: "button", style: "color:var(--silver);font-size:10px;font-family:ui-monospace,monospace" },
               on: {
                 click: () => {
+                  if (workspace.isRunning) {
+                    return;
+                  }
                   outputExpanded = !outputExpanded;
                   paint();
                 },
@@ -476,6 +569,28 @@ export function renderEditor(
       ],
     });
   };
+
+  function bindOutputSwipe(handle: HTMLElement): void {
+    let startY = 0;
+    handle.addEventListener("pointerdown", (event) => {
+      startY = event.clientY;
+    });
+    handle.addEventListener("pointerup", (event) => {
+      applyOutputSwipe(event.clientY - startY);
+    });
+  }
+
+  function applyOutputSwipe(translationY: number): void {
+    const next = nextOutputChromeExpanded(translationY, workspace.isRunning, outputChromeExpanded);
+    if (next === outputChromeExpanded) {
+      return;
+    }
+    outputChromeExpanded = next;
+    if (next) {
+      outputExpanded = true;
+    }
+    paint();
+  }
 
   const stdinRow = (): HTMLElement =>
     el("div", {
@@ -531,7 +646,7 @@ export function renderEditor(
         }),
         el("button", {
           className: "indent",
-          attrs: { type: "button", "aria-label": "Format indent" },
+          attrs: { type: "button", "aria-label": "Format code" },
           text: "FMT",
           on: { click: formatBuffer },
         }),
@@ -564,6 +679,7 @@ export function renderEditor(
     hideKeyboard();
     commitName();
     outputExpanded = true;
+    outputChromeExpanded = true;
     void workspace.runCurrentFile();
   }
 
@@ -581,6 +697,8 @@ export function renderEditor(
     const end = editor.selectionEnd;
     editor.setRangeText(value, start, end, "end");
     workspace.updateCurrentCode(editor.value);
+    paintHighlight();
+    syncHighlightScroll();
     editor.focus();
   }
 
@@ -589,6 +707,8 @@ export function renderEditor(
     editor.value = next.text;
     editor.setSelectionRange(next.range.start, next.range.end);
     workspace.updateCurrentCode(editor.value);
+    paintHighlight();
+    syncHighlightScroll();
     editor.focus();
   }
 
@@ -603,6 +723,8 @@ export function renderEditor(
     const nextCaret = Math.min(caret, formatted.length);
     editor.setSelectionRange(nextCaret, nextCaret);
     workspace.updateCurrentCode(editor.value);
+    paintHighlight();
+    syncHighlightScroll();
     editor.focus();
   }
 
@@ -695,8 +817,8 @@ export function renderEditor(
 
   function sharePayload(): SharePayload {
     const file = workspace.currentFile;
-    const lesson = firstHourCurriculum.lessons.find(
-      (item) => file.relativePath === `lessons/${item.fileName}` && file.code === item.source,
+    const lesson = allLessons.find(
+      (item) => file.relativePath === lessonRelativePath(item) && file.code === item.source,
     );
     if (lesson) {
       return { kind: "lesson", id: lesson.id };
@@ -721,14 +843,21 @@ export function renderEditor(
         advanceTimer = undefined;
       }
       niceVisible = outcome.status === "passed";
-      if (outcome.status === "passed") {
+      if (outcome.status === "passed" && !outcome.replay) {
         advanceTimer = setTimeout(() => {
           advanceTimer = undefined;
           niceVisible = false;
           const result = workspace.advanceAfterPass();
           if (result === "celebrate") {
-            celebrating = true;
+            actions.back();
+            return;
           }
+          paint();
+        }, NICE_DELAY_MS);
+      } else if (outcome.status === "passed" && outcome.replay) {
+        advanceTimer = setTimeout(() => {
+          advanceTimer = undefined;
+          niceVisible = false;
           paint();
         }, NICE_DELAY_MS);
       }
@@ -738,8 +867,7 @@ export function renderEditor(
       !workspace.isRunning &&
       !workspace.isWaitingForInput &&
       workspace.selectedFileID === lastFileID &&
-      !niceVisible &&
-      !celebrating
+      !niceVisible
     ) {
       return;
     }
@@ -753,7 +881,7 @@ export function renderEditor(
 export class EditorScreen {
   readonly root: HTMLElement;
 
-  constructor(workspace: LocalCWorkspace, back: () => void) {
-    this.root = renderEditor(workspace, { back });
+  constructor(workspace: LocalCWorkspace, back: () => void, syntaxColoring = false) {
+    this.root = renderEditor(workspace, { back }, { syntaxColoring });
   }
 }

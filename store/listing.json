@@ -1,0 +1,40 @@
+{
+  "name": "lilC",
+  "bundleId": "app.lilc",
+  "sku": "app.lilc",
+  "primaryLocale": "en-US",
+  "version": "0.1.0",
+  "build": "1",
+  "copyright": "2026 GARRETT MICHAEL WOODSIDE",
+  "primaryCategory": "EDUCATION",
+  "secondaryCategory": "DEVELOPER_TOOLS",
+  "ageRating": "4+",
+  "usesNonExemptEncryption": false,
+  "contentRights": false,
+  "pricing": "Free",
+  "availableInAllTerritories": true,
+  "subtitle": "Learn C. Run it on iPhone",
+  "privacyPolicyUrl": "https://garrettmichae1.github.io/lilc/privacy.html",
+  "termsUrl": "https://garrettmichae1.github.io/lilc/terms.html",
+  "supportUrl": "https://garrettmichae1.github.io/lilc/",
+  "supportEmail": "support@lilc.app",
+  "marketingUrl": "https://github.com/garrettmichae1/lilc",
+  "marketingUrlAlt": "https://garrettmichae1.github.io/lilc/web/",
+  "appleIdHint": "garrettiswoodside@gmail.com",
+  "icloudHint": "gmichaelw@icloud.com",
+  "developmentTeam": "3W96U86P58",
+  "appStoreNumericId": "6806824902",
+  "doNotClaim": ["GCC", "Clang as the runtime", "cloud compile", "Copilot", "C Manual", "Agent", "IAP", "subscription"],
+  "screenshots": {
+    "iphone69": "store/screenshots/iphone-6.9 (1320x2868)",
+    "ipad13": "store/screenshots/ipad-13 (2064x2752)",
+    "uploadedToConnect": false
+  },
+  "archive": {
+    "path": "store/archives/lilC.xcarchive",
+    "bundleId": "app.lilc",
+    "version": "0.1.0",
+    "build": "1",
+    "uploaded": false
+  }
+}

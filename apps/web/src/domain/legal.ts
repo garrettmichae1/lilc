@@ -10,11 +10,10 @@ export const LegalURLs = {
 
 export const APP_VERSION = "0.1.0 (web)";
 
-export const PICO_C_EXPLANATION = `lilC runs C in this browser with PicoC, a small interpreter.
+/** Teachers, licenses, and email stay compiled but hidden in this learning release. */
+export const EXTRA_LEGAL_ROWS_VISIBLE = false;
 
-That is different from GCC or Clang on a computer. Those compile C into native machine code.
-
-Most beginner programs work. Some advanced C — a full standard library, or extras only a compiler supports — will not.`;
+export const PICO_C_EXPLANATION = `PicoC is an interpreter, not a compiler. It runs C in this browser. Standard C libraries and extras a desktop compiler provides will not work here.`;
 
 export const LICENSES_BODY = `PicoC
 Copyright (c) 2009-2011, Zik Saleeba

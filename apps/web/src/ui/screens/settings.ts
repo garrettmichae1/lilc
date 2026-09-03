@@ -1,6 +1,6 @@
 import type { ColorWay } from "../../domain/appearance";
 import { titleForColorWay } from "../../domain/appearance";
-import { APP_VERSION, LegalURLs, LICENSES_BODY, PICO_C_EXPLANATION } from "../../domain/legal";
+import { APP_VERSION, EXTRA_LEGAL_ROWS_VISIBLE, LegalURLs, LICENSES_BODY, PICO_C_EXPLANATION } from "../../domain/legal";
 import type { LocalCWorkspace } from "../../domain/workspace";
 import { confirmDialog } from "../components/chrome";
 import { el, icons, svgIcon } from "../dom";
@@ -8,9 +8,11 @@ import { el, icons, svgIcon } from "../dom";
 export function renderSettings(
   workspace: LocalCWorkspace,
   colorWay: ColorWay,
+  syntaxColoring: boolean,
   actions: {
     back: () => void;
     setColorWay: (way: ColorWay) => void;
+    setSyntaxColoring: (on: boolean) => void;
     eraseAll: () => void;
   },
 ): HTMLElement {
@@ -37,17 +39,28 @@ export function renderSettings(
         children: [
           section(
             "Appearance",
-            (["light", "dark"] as const).map((way) =>
+            [
+              ...(["light", "dark"] as const).map((way) =>
+                el("button", {
+                  className: "settings-row",
+                  attrs: { type: "button", "aria-pressed": way === colorWay ? "true" : "false" },
+                  on: { click: () => actions.setColorWay(way) },
+                  children: [
+                    el("span", { text: titleForColorWay(way) }),
+                    way === colorWay ? el("span", { className: "check", text: "✓", attrs: { "aria-hidden": "true" } }) : undefined,
+                  ],
+                }),
+              ),
               el("button", {
                 className: "settings-row",
-                attrs: { type: "button", "aria-pressed": way === colorWay ? "true" : "false" },
-                on: { click: () => actions.setColorWay(way) },
+                attrs: { type: "button", "aria-pressed": syntaxColoring ? "true" : "false" },
+                on: { click: () => actions.setSyntaxColoring(!syntaxColoring) },
                 children: [
-                  el("span", { text: titleForColorWay(way) }),
-                  way === colorWay ? el("span", { className: "check", text: "✓", attrs: { "aria-hidden": "true" } }) : undefined,
+                  el("span", { text: "Syntax Color" }),
+                  el("span", { className: syntaxColoring ? "check" : "muted", text: syntaxColoring ? "On" : "Off" }),
                 ],
               }),
-            ),
+            ],
             "lilC uses Light or Dark everywhere.",
           ),
           section("PicoC", [
@@ -98,24 +111,28 @@ export function renderSettings(
           section(
             "Legal",
             [
-              linkRow("For teachers", LegalURLs.teachers),
+              ...(EXTRA_LEGAL_ROWS_VISIBLE ? [linkRow("For teachers", LegalURLs.teachers)] : []),
               linkRow("Privacy Policy", LegalURLs.privacy),
               linkRow("Terms of Use", LegalURLs.terms),
-              el("button", {
-                className: "settings-row",
-                attrs: { type: "button" },
-                on: {
-                  click: () => {
-                    licensesOpen = true;
-                    paint();
-                  },
-                },
-                children: [
-                  el("span", { text: "Licenses" }),
-                  el("span", { className: "muted", children: [svgIcon(icons.chevronRight, 14)] }),
-                ],
-              }),
-              linkRow("Email Support", LegalURLs.support),
+              ...(EXTRA_LEGAL_ROWS_VISIBLE
+                ? [
+                    el("button", {
+                      className: "settings-row",
+                      attrs: { type: "button" },
+                      on: {
+                        click: () => {
+                          licensesOpen = true;
+                          paint();
+                        },
+                      },
+                      children: [
+                        el("span", { text: "Licenses" }),
+                        el("span", { className: "muted", children: [svgIcon(icons.chevronRight, 14)] }),
+                      ],
+                    }),
+                    linkRow("Email Support", LegalURLs.support),
+                  ]
+                : []),
             ],
             `Version ${APP_VERSION}`,
           ),

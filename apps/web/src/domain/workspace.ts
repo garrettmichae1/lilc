@@ -10,14 +10,13 @@ import {
   fileName,
   folderName,
   folderPath,
-  headerStarter,
   localizedStandardCompare,
   normalizedFolderName,
   normalizedName,
   parentPath,
   pathExtension,
   sizeText,
-  STARTER_CODE,
+  sourceStarter,
   starterFile,
   type LocalBrowserEntry,
   type LocalCFile,
@@ -25,16 +24,24 @@ import {
 } from "./files";
 import { foldersFromFiles, loadPersistedWorkspace, savePersistedWorkspace } from "./storage";
 import { PicoCRunner } from "../pico/runner";
+import { finishConsoleOutput } from "./console-transcript";
 import {
-  firstHourCurriculum,
+  isCurriculumFolder,
   lessonById,
   lessonForPath,
-  nextLesson,
+  lessonKicker,
+  lessonRelativePath,
+  nextIncomplete,
   type FirstHourLesson,
 } from "./curriculum";
-import { markLessonComplete, setCurrentLesson } from "./progress";
+import {
+  allTracksComplete,
+  isLessonComplete,
+  markLessonComplete,
+  setCurrentLesson,
+} from "./progress";
 import { runFirstHourSubset } from "./subset";
-import { appendNotYet, checkLessonWin } from "./win";
+import { appendNotYet, checkLessonWin, completeTheTaskMessage, replacePlaceholderMessage } from "./win";
 
 export interface LessonOutcome {
   token: number;
@@ -42,6 +49,7 @@ export interface LessonOutcome {
   status: "passed" | "missed";
   nextId: string | undefined;
   celebrate: boolean;
+  replay: boolean;
 }
 
 export { codePreview, fileName, folderName, folderPath, sizeText };
@@ -96,7 +104,15 @@ export class LocalCWorkspace {
     return folderPath(this.currentFile);
   }
 
+  get isCurriculumCatalog(): boolean {
+    return isCurriculumFolder(this.currentProjectPath);
+  }
+
+  /** Files shown as editor tabs. Catalog folders are a shelf of standalone programs, so only the open file is a tab. */
   get projectFiles(): LocalCFile[] {
+    if (this.isCurriculumCatalog) {
+      return [this.currentFile];
+    }
     return this.files
       .filter((file) => folderPath(file) === this.currentProjectPath)
       .sort((lhs, rhs) => {
@@ -108,6 +124,16 @@ export class LocalCWorkspace {
         }
         return localizedStandardCompare(fileName(lhs), fileName(rhs));
       });
+  }
+
+  get editorTitle(): string {
+    if (this.isCurriculumCatalog) {
+      return fileName(this.currentFile);
+    }
+    if (this.currentProjectPath === "") {
+      return "lilC";
+    }
+    return this.currentProjectPath.split("/").pop() ?? "lilC";
   }
 
   get recentProjects(): LocalCFolder[] {
@@ -165,7 +191,10 @@ export class LocalCWorkspace {
 
   openProject(folder: LocalCFolder): void {
     this.browsePath = folder.relativePath;
-    if (!this.files.some((file) => folderPath(file) === folder.relativePath)) {
+    if (
+      !isCurriculumFolder(folder.relativePath) &&
+      !this.files.some((file) => folderPath(file) === folder.relativePath)
+    ) {
       this.createFileIn(folder.relativePath, "main.c");
     }
     const members = this.files.filter((file) => folderPath(file) === folder.relativePath);
@@ -290,7 +319,7 @@ export class LocalCWorkspace {
   }
 
   createFile(): void {
-    this.createFileIn(this.browsePath, undefined);
+    this.createFileIn(this.folderForNewFile(this.browsePath), undefined);
   }
 
   createStandaloneFile(): void {
@@ -301,18 +330,18 @@ export class LocalCWorkspace {
   openLesson(lesson: FirstHourLesson): void {
     setCurrentLesson(lesson.id);
     this.lessonOutcome = undefined;
-    const relative = `lessons/${lesson.fileName}`;
+    const relative = lessonRelativePath(lesson);
     const existing = this.files.find((file) => file.relativePath === relative);
     if (existing) {
       this.select(existing);
-      this.output = `Lesson ${lesson.number} of ${firstHourCurriculum.lessons.length} — ${lesson.title}. Press RUN.`;
+      this.output = `${lessonKicker(lesson)} — ${lesson.title}. Press RUN.`;
       this.notify();
       return;
     }
     const file = { relativePath: relative, code: lesson.source, updatedAt: Date.now() };
     this.files.unshift(file);
     this.selectedFileID = file.relativePath;
-    this.output = `Lesson ${lesson.number} of ${firstHourCurriculum.lessons.length} — ${lesson.title}. Press RUN.`;
+    this.output = `${lessonKicker(lesson)} — ${lesson.title}. Press RUN.`;
     this.refreshFolders();
     this.persistSoon();
     this.notify();
@@ -321,7 +350,7 @@ export class LocalCWorkspace {
   advanceAfterPass(): "celebrate" | FirstHourLesson | undefined {
     const outcome = this.lessonOutcome;
     this.lessonOutcome = undefined;
-    if (!outcome || outcome.status !== "passed") {
+    if (!outcome || outcome.status !== "passed" || outcome.replay) {
       return undefined;
     }
     if (outcome.celebrate) {
@@ -336,6 +365,13 @@ export class LocalCWorkspace {
     }
     this.openLesson(next);
     return next;
+  }
+
+  evaluateLessonRun(output: string, failed: boolean): void {
+    this.output = output;
+    this.lastRunFailed = failed;
+    this.applyLessonOutcome(this.currentFile, failed);
+    this.notify();
   }
 
   openFreePlay(): void {
@@ -374,13 +410,15 @@ export class LocalCWorkspace {
   }
 
   createHeader(): void {
-    this.createFileIn(this.browsePath, this.availableFileName("module", "h", this.browsePath));
+    const folder = this.folderForNewFile(this.browsePath);
+    this.createFileIn(folder, this.availableFileName("module", "h", folder));
   }
 
   createFileIn(folder: string, requested: string | undefined): void {
+    folder = this.folderForNewFile(folder);
     const name = requested ?? this.availableFileName("program", "c", folder);
     const relative = folder === "" ? name : `${folder}/${name}`;
-    const code = name.endsWith(".h") ? headerStarter(name) : STARTER_CODE;
+    const code = sourceStarter(name, this.folderContainsMain(folder));
     const file: LocalCFile = { relativePath: relative, code, updatedAt: Date.now() };
     this.files.unshift(file);
     this.selectedFileID = file.relativePath;
@@ -504,8 +542,8 @@ export class LocalCWorkspace {
     this.runner.requestStop();
   }
 
-  private extraSourcesToLink(runFile: LocalCFile): LocalCFile[] {
-    if (this.currentProjectPath === "") {
+  extraSourcesToLink(runFile: LocalCFile): LocalCFile[] {
+    if (this.currentProjectPath === "" || this.isCurriculumCatalog) {
       return [];
     }
     return this.projectFiles.filter(
@@ -516,9 +554,9 @@ export class LocalCWorkspace {
     );
   }
 
-  private fileToCompile(): LocalCFile {
+  fileToCompile(): LocalCFile {
     const current = this.currentFile;
-    if (lessonForPath(current.relativePath)) {
+    if (this.isCurriculumCatalog || lessonForPath(current.relativePath)) {
       return current;
     }
     if (
@@ -543,7 +581,7 @@ export class LocalCWorkspace {
     const projectMains = this.projectFiles.filter(
       (file) => fileName(file).endsWith(".c") && containsMainFunction(file.code),
     );
-    if (!runningLesson && this.currentProjectPath !== "" && projectMains.length > 1) {
+    if (!runningLesson && this.currentProjectPath !== "" && !isCurriculumFolder(this.currentProjectPath) && projectMains.length > 1) {
       this.liveRunID += 1;
       this.isRunning = false;
       this.isWaitingForInput = false;
@@ -557,10 +595,33 @@ export class LocalCWorkspace {
     }
 
     const runFile = this.fileToCompile();
-    const extras = runningLesson ? [] : this.extraSourcesToLink(runFile);
+    if (runFile.code.includes("???")) {
+      this.liveRunID += 1;
+      this.isRunning = false;
+      this.isWaitingForInput = false;
+      this.lastRunFailed = false;
+      this.lastErrorJump = undefined;
+      const lesson = lessonForPath(runFile.relativePath);
+      this.output = lesson ? completeTheTaskMessage(lesson) : replacePlaceholderMessage;
+      this.lessonToken += 1;
+      this.lessonOutcome = lesson
+        ? {
+            token: this.lessonToken,
+            lessonId: lesson.id,
+            status: "missed",
+            nextId: undefined,
+            celebrate: false,
+            replay: false,
+          }
+        : undefined;
+      this.notify();
+      return;
+    }
+    const extras = this.extraSourcesToLink(runFile);
     const projectSnapshot = [...this.projectFiles];
     const extraCode = extras.map((file) => file.code).join("\n");
     const code = extraCode.length === 0 ? runFile.code : `${extraCode}\n${runFile.code}`;
+    const filesForRun = this.filesForInclude(runFile);
     const mainName = fileName(runFile);
     this.liveRunID += 1;
     const runID = this.liveRunID;
@@ -589,7 +650,7 @@ export class LocalCWorkspace {
         source: code,
         mainName,
         includeRoot: this.currentProjectPath === "" ? "/project" : `/project/${this.currentProjectPath}`,
-        files: this.files.map((file) => ({ path: file.relativePath, code: file.code })),
+        files: filesForRun.map((file) => ({ path: file.relativePath, code: file.code })),
         onOutput: (chunk) => {
           if (this.liveRunID !== runID) {
             return;
@@ -631,9 +692,7 @@ export class LocalCWorkspace {
       return;
     }
     const formatted = displayOutput(result);
-    if (formatted.text.length > 0) {
-      this.output = formatted.text;
-    }
+    this.output = finishConsoleOutput(this.output, formatted.text, formatted.failed);
     this.lastRunFailed = formatted.failed;
     if (formatted.failed) {
       const diagnostic = parseDiagnostic(result);
@@ -658,24 +717,53 @@ export class LocalCWorkspace {
     this.lessonToken += 1;
     const passed = !runFailed && checkLessonWin(lesson, this.output, runFile.code);
     if (!passed) {
-      this.output = appendNotYet(this.output, lesson);
+      if (!runFailed || runFile.code.includes("???")) {
+        this.output = appendNotYet(this.output, lesson);
+      }
       this.lessonOutcome = {
         token: this.lessonToken,
         lessonId: lesson.id,
         status: "missed",
         nextId: undefined,
         celebrate: false,
+        replay: false,
       };
       return;
     }
-    markLessonComplete(lesson.id);
-    const next = nextLesson(lesson);
+    if (isLessonComplete(lesson.id)) {
+      this.output = `${this.output.replace(/\n+$/u, "")}\n\nNice.\n`;
+      this.lessonOutcome = {
+        token: this.lessonToken,
+        lessonId: lesson.id,
+        status: "passed",
+        nextId: undefined,
+        celebrate: false,
+        replay: true,
+      };
+      return;
+    }
+    const progress = markLessonComplete(lesson.id);
+    if (allTracksComplete(progress)) {
+      this.output = `${this.output.replace(/\n+$/u, "")}\n\nNice. That was the last challenge.\n`;
+      this.lessonOutcome = {
+        token: this.lessonToken,
+        lessonId: lesson.id,
+        status: "passed",
+        nextId: undefined,
+        celebrate: true,
+        replay: false,
+      };
+      return;
+    }
+    const next = nextIncomplete(lesson.id, progress.completedIds);
+    this.output = `${this.output.replace(/\n+$/u, "")}\n\nNice.\n`;
     this.lessonOutcome = {
       token: this.lessonToken,
       lessonId: lesson.id,
       status: "passed",
       nextId: next?.id,
-      celebrate: next === undefined,
+      celebrate: false,
+      replay: false,
     };
   }
 
@@ -690,6 +778,37 @@ export class LocalCWorkspace {
     }
     current.updatedAt = Date.now();
     this.persistSoon();
+  }
+
+  private folderForNewFile(folder: string): string {
+    if (isCurriculumFolder(folder)) {
+      if (this.browsePath === folder) {
+        this.browsePath = "";
+      }
+      return "";
+    }
+    return folder;
+  }
+
+  private folderContainsMain(folder: string): boolean {
+    if (folder === "") {
+      return false;
+    }
+    return this.files.some(
+      (file) =>
+        folderPath(file) === folder && fileName(file).endsWith(".c") && containsMainFunction(file.code),
+    );
+  }
+
+  private filesForInclude(runFile: LocalCFile): LocalCFile[] {
+    if (!this.isCurriculumCatalog) {
+      return this.files;
+    }
+    return this.files.filter(
+      (file) =>
+        file.relativePath === runFile.relativePath ||
+        (folderPath(file) === this.currentProjectPath && fileName(file).endsWith(".h")),
+    );
   }
 
   private availableFileName(base: string, ext: string, folder: string, ignoring?: string): string {

@@ -6,6 +6,7 @@ export type DiagnosticKind =
   | "NAME ERROR"
   | "TYPE ERROR"
   | "RUNTIME ERROR"
+  | "ARRAY / MEMORY ERROR"
   | "PROJECT ERROR"
   | "NOT SUPPORTED";
 
@@ -377,6 +378,22 @@ function adviceFor(message: string, wholeOutput: string): Advice | undefined {
   if (text.includes("can't initialize") || text.includes("incomplete type")) {
     return type("Incomplete type", "This type is not fully declared yet, so it cannot be created or initialized.", "finish the struct, union, or array declaration before using it.");
   }
+  if (text.includes("no allocated storage")) {
+    const ident = quotedIdentifier(message);
+    const example = ident ? `char ${ident}[20];` : "char grades[20];";
+    const title = ident ? `Array '${ident}' has no allocated storage` : "Array has no allocated storage";
+    const explanation = ident
+      ? `Array '${ident}' has no allocated storage. Empty brackets [] do not create memory you can write into.`
+      : "This array has no allocated storage. Empty brackets [] do not create memory you can write into.";
+    return arrayMemory(title, explanation, `declare the array with a size before writing to it. Example: ${example}`);
+  }
+  if (text.includes("array size must be greater than 0") || text.includes("array size is too large")) {
+    return arrayMemory(
+      "Invalid array size",
+      "An array needs a positive size so lilC can allocate storage for it.",
+      "write a size in the brackets, for example char grades[20];",
+    );
+  }
   if (text.includes("can't define a void")) {
     return type("Void variable", "void means “no value,” so you cannot declare a void variable.", "use a real type such as int, char, or a pointer.");
   }
@@ -466,6 +483,18 @@ function type(title: string, explanation: string, suggestion: string): Advice {
 
 function runtime(title: string, explanation: string, suggestion: string): Advice {
   return { kind: "RUNTIME ERROR", title, explanation, suggestion };
+}
+
+function arrayMemory(title: string, explanation: string, suggestion: string): Advice {
+  return { kind: "ARRAY / MEMORY ERROR", title, explanation, suggestion };
+}
+
+function quotedIdentifier(message: string): string | undefined {
+  const start = message.indexOf("'");
+  if (start < 0) return undefined;
+  const end = message.indexOf("'", start + 1);
+  if (end <= start + 1) return undefined;
+  return message.slice(start + 1, end);
 }
 
 function project(title: string, explanation: string, suggestion: string): Advice {

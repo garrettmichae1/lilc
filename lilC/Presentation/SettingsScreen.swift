@@ -10,7 +10,6 @@ struct SettingsScreen: View {
     @State private var confirmEraseAll = false
     @State private var customKey = ""
     @State private var githubConnected = false
-
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
@@ -28,6 +27,7 @@ struct SettingsScreen: View {
                 if AgentRuntimeConfig.surfacesVisibleInThisRelease {
                     agentSection
                 }
+                rateSection
                 legalSection
             }
             .listStyle(.insetGrouped)
@@ -62,7 +62,10 @@ struct SettingsScreen: View {
 
     private var settingsBar: some View {
         HStack {
-            Button(action: back) {
+            Button(action: {
+                AppHaptics.tap()
+                back()
+            }) {
                 Image(systemName: "chevron.left")
                     .font(.body.weight(.semibold))
             }
@@ -98,11 +101,21 @@ struct SettingsScreen: View {
                     }
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.appHapticSelect)
                 .accessibilityLabel(way.title)
                 .accessibilityAddTraits(appearance.colorWay == way ? [.isSelected] : [])
                 .listRowBackground(AppPalette.card)
             }
+            Toggle(isOn: Binding(
+                get: { appearance.syntaxColoring },
+                set: { appearance.syntaxColoring = $0 }
+            )) {
+                Text("Syntax Color")
+                    .font(.body)
+                    .foregroundStyle(AppPalette.foreground)
+            }
+            .listRowBackground(AppPalette.card)
+            .accessibilityLabel("Syntax Color")
         } header: {
             Text("Appearance")
         } footer: {
@@ -134,6 +147,7 @@ struct SettingsScreen: View {
             .listRowBackground(AppPalette.card)
 
             Button("Erase All Files", role: .destructive) {
+                AppHaptics.tap()
                 confirmEraseAll = true
             }
             .font(.body)
@@ -143,6 +157,22 @@ struct SettingsScreen: View {
             Text("Files")
         } footer: {
             Text("Removes every C file on this iPhone. A starter file is created.")
+        }
+    }
+
+    private var rateSection: some View {
+        Section {
+            if let url = LegalURLs.writeReviewURL() {
+                Link(destination: url) {
+                    settingsLinkLabel("Write a Review")
+                }
+                .appHapticTap()
+                .listRowBackground(AppPalette.card)
+                .accessibilityLabel("Write a Review")
+                .accessibilityIdentifier("write-review")
+            }
+        } footer: {
+            Text("Writing a review helps others discover lilC :)")
         }
     }
 
@@ -200,10 +230,12 @@ struct SettingsScreen: View {
                 if let githubStart = URL(string: AgentRuntimeConfig.gatewayURL + "/auth/github/start") {
                     Link("Connect GitHub", destination: githubStart)
                         .font(.body)
+                        .appHapticTap()
                         .listRowBackground(AppPalette.card)
                 }
                 if githubConnected {
                     Button("Disconnect GitHub", role: .destructive) {
+                        AppHaptics.tap()
                         AgentKeychain.deleteGitHubToken()
                     }
                     .font(.body)
@@ -211,12 +243,14 @@ struct SettingsScreen: View {
                 }
                 if !agentSettings.isSubscribed {
                     Button(agentSettings.isPurchasing ? "Working…" : "Extra Agent Turns") {
+                        AppHaptics.tap()
                         Task { await agentSettings.purchase() }
                     }
                     .font(.body)
                     .disabled(agentSettings.isPurchasing)
                     .listRowBackground(AppPalette.card)
                     Button("Restore Purchases") {
+                        AppHaptics.tap()
                         Task { await agentSettings.restore() }
                     }
                     .font(.body)
@@ -232,12 +266,14 @@ struct SettingsScreen: View {
                     .autocorrectionDisabled()
                     .listRowBackground(AppPalette.card)
                 Button("Save Token") {
+                    AppHaptics.tap()
                     AgentKeychain.saveKey(customKey)
                     customKey = ""
                 }
                 .font(.body)
                 .listRowBackground(AppPalette.card)
                 Button("Remove Key", role: .destructive) {
+                    AppHaptics.tap()
                     AgentKeychain.deleteKey()
                 }
                 .font(.body)
@@ -253,27 +289,36 @@ struct SettingsScreen: View {
 
     private var legalSection: some View {
         Section {
-            Link(destination: LegalURLs.teachers) {
-                settingsLinkLabel("For teachers")
+            if LegalURLs.extraLegalRowsVisibleInThisRelease {
+                Link(destination: LegalURLs.teachers) {
+                    settingsLinkLabel("For teachers")
+                }
+                .appHapticTap()
+                .listRowBackground(AppPalette.card)
+                Link(destination: LegalURLs.webPlayground) {
+                    settingsLinkLabel("Web playground")
+                }
+                .appHapticTap()
+                .listRowBackground(AppPalette.card)
             }
-            .listRowBackground(AppPalette.card)
-            Link(destination: LegalURLs.webPlayground) {
-                settingsLinkLabel("Web playground")
-            }
-            .listRowBackground(AppPalette.card)
             Link(destination: LegalURLs.privacy) {
                 settingsLinkLabel("Privacy Policy")
             }
+            .appHapticTap()
             .listRowBackground(AppPalette.card)
             Link(destination: LegalURLs.terms) {
                 settingsLinkLabel("Terms of Use")
             }
+            .appHapticTap()
             .listRowBackground(AppPalette.card)
-            legalRow("Licenses") { document = .licenses }
-            Link(destination: LegalURLs.support) {
-                settingsLinkLabel("Email Support")
+            if LegalURLs.extraLegalRowsVisibleInThisRelease {
+                legalRow("Licenses") { document = .licenses }
+                Link(destination: LegalURLs.support) {
+                    settingsLinkLabel("Email Support")
+                }
+                .appHapticTap()
+                .listRowBackground(AppPalette.card)
             }
-            .listRowBackground(AppPalette.card)
         } header: {
             Text("Legal")
         } footer: {
@@ -285,7 +330,7 @@ struct SettingsScreen: View {
         Button(action: action) {
             settingsLinkLabel(title)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.appHaptic)
         .listRowBackground(AppPalette.card)
     }
 
@@ -303,13 +348,9 @@ struct SettingsScreen: View {
         .contentShape(Rectangle())
     }
 
-    /// Learner-facing note. PicoC is an on-device interpreter, not GCC/Clang.
+    /// Learner-facing note. PicoC is an on-device interpreter, not a compiler.
     static let picoCExplanation = """
-    lilC runs C on this iPhone with PicoC, a small interpreter.
-
-    That is different from GCC or Clang on a computer. Those compile C into native machine code.
-
-    Most beginner programs work. Some advanced C — a full standard library, or extras only a compiler supports — will not.
+    PicoC is an interpreter, not a compiler. It runs C on this iPhone. Standard C libraries and extras a desktop compiler provides will not work here.
     """
 }
 

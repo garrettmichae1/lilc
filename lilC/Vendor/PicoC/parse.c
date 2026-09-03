@@ -468,6 +468,15 @@ int ParseDeclaration(struct ParseState *Parser, enum LexToken Token)
                 if (Typ == &pc->VoidType && Identifier != pc->StrEmpty)
                     ProgramFail(Parser, "can't define a void variable");
 
+                if (Typ->Base == TypeArray) {
+                    int HasInitializer =
+                        (LexGetToken(Parser, NULL, false) == TokenAssign);
+                    if (TypeIsUnsizedArray(Typ) &&
+                            !(HasInitializer && TypeIsOutermostUnsizedArray(Typ)))
+                        ProgramFail(Parser, "array '%s' has no allocated storage",
+                            Identifier);
+                }
+
                 if (Parser->Mode == RunModeRun || Parser->Mode == RunModeGoto)
                     NewVariable = VariableDefineButIgnoreIdentical(Parser,
                         Identifier, Typ, IsStatic, &FirstVisit);

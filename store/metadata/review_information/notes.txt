@@ -1,0 +1,17 @@
+lilC runs C on this iPhone using PicoC, a small interpreter (not GCC or Clang).
+
+How to test:
+1. Open the app. You should see the home screen with Open editor.
+2. Tap Open editor. hello.c is the starter file.
+3. Tap RUN. Output should include "hello from lilC".
+4. Introduce a syntax error (for example remove a semicolon) and tap RUN. You should see an error in Output; tap ERROR to jump to the line if offered.
+5. Open Settings (home screen). Confirm Light/Dark, the PicoC vs GCC note, and the Privacy / Terms / Support links.
+
+Notes for review:
+- No account. No sign-in. No in-app purchases. No subscription.
+- No network is required to write or run C.
+- Agent-related code is compiled into the binary but hidden in this release. There is no Agent UI, no AI chat, and no Copilot.
+- Encryption: ITSAppUsesNonExemptEncryption is false (exempt).
+- Privacy: https://garrettmichae1.github.io/lilc/privacy.html
+- Terms: https://garrettmichae1.github.io/lilc/terms.html
+- Support: mailto:support@lilc.app or https://garrettmichae1.github.io/lilc/

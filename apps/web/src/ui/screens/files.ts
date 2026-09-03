@@ -1,3 +1,4 @@
+import { dismissFilesFolderTip, FILES_FOLDER_TIP, needsFilesFolderTip } from "../../domain/onboarding";
 import { fileName, type LocalCFile, type LocalCFolder } from "../../domain/files";
 import type { LocalCWorkspace } from "../../domain/workspace";
 import { confirmDialog, fileRow, folderRow, promptDialog } from "../components/chrome";
@@ -54,78 +55,143 @@ export function renderFilesBrowser(
             : undefined,
         ],
       }),
-      searchBar(),
     ];
-    if (mode === "delete") {
-      nodes.push(
-        el("div", {
-          className: "hint",
-          text: "Open a folder to delete files inside it, or delete the folder to remove the whole project.",
-        }),
-      );
-    }
     nodes.push(
       el("div", {
-        className: "scroll file-list",
-        children:
-          matches.length === 0
-            ? [
-                el("div", {
-                  className: "empty",
-                  children: [
+        className: "files-body",
+        children: [
+          searchBar(),
+          mode === "delete"
+            ? el("div", {
+                className: "hint",
+                text: "Open a folder to delete files inside it, or delete the folder to remove the whole project.",
+              })
+            : undefined,
+          el("div", {
+            className: "scroll file-list",
+            children:
+              matches.length === 0
+                ? [
                     el("div", {
-                      className: "title-15",
-                      text: mode === "delete" ? "Nothing here." : "No files found.",
+                      className: "empty",
+                      children: [
+                        el("div", {
+                          className: "title-15",
+                          text: mode === "delete" ? "Nothing here." : "No files found.",
+                        }),
+                        el("div", {
+                          className: "muted mono",
+                          attrs: { style: "font-size:12px;margin-top:10px" },
+                          text:
+                            mode === "delete"
+                              ? "Loose files live at the top level. Projects are folders."
+                              : "Tap + to create a C file, header, or project.",
+                        }),
+                      ],
                     }),
-                    el("div", {
-                      className: "muted mono",
-                      attrs: { style: "font-size:12px;margin-top:10px" },
-                      text:
+                  ]
+                : matches.map((entry) => {
+                    if (entry.kind === "folder") {
+                      const row = folderRow(
+                        entry.folder,
                         mode === "delete"
-                          ? "Loose files live at the top level. Projects are folders."
-                          : "Tap + to create a C file, header, or project.",
-                    }),
-                  ],
-                }),
-              ]
-            : matches.map((entry) => {
-                if (entry.kind === "folder") {
-                  return folderRow(
-                    entry.folder,
-                    mode === "delete"
-                      ? workspace.browsePath === ""
-                        ? "Deletes this project if you choose DELETE"
-                        : "Nested folder"
-                      : workspace.browsePath === ""
-                        ? "Project folder"
-                        : "Folder in this project",
-                    "OPEN",
-                    () => actions.enterFolder(entry.folder),
-                    mode === "delete"
-                      ? () => askDeleteFolder(entry.folder)
-                      : undefined,
-                  );
-                }
-                return fileRow(
-                  entry.file,
-                  mode === "delete" ? "DELETE" : "OPEN",
-                  () => {
-                    if (mode === "delete") {
-                      askDeleteFile(entry.file);
-                    } else {
-                      actions.selectFile(entry.file);
+                          ? workspace.browsePath === ""
+                            ? "Deletes this project if you choose DELETE"
+                            : "Nested folder"
+                          : workspace.browsePath === ""
+                            ? "Project folder"
+                            : "Folder in this project",
+                        "OPEN",
+                        () => actions.enterFolder(entry.folder),
+                        mode === "delete"
+                          ? () => askDeleteFolder(entry.folder)
+                          : undefined,
+                      );
+                      if (mode === "open") {
+                        bindFolderDrop(row, entry.folder);
+                      }
+                      return row;
                     }
-                  },
-                  mode === "delete",
-                );
-              }),
+                    const row = fileRow(
+                      entry.file,
+                      mode === "delete" ? "DELETE" : "OPEN",
+                      () => {
+                        if (mode === "delete") {
+                          askDeleteFile(entry.file);
+                        } else {
+                          actions.selectFile(entry.file);
+                        }
+                      },
+                      mode === "delete",
+                    );
+                    if (mode === "open") {
+                      bindFileDrag(row, entry.file);
+                    }
+                    return row;
+                  }),
+          }),
+        ],
       }),
     );
+    if (mode === "open" && needsFilesFolderTip() && !overlay) {
+      nodes.push(folderTip());
+    }
     screen.replaceChildren(...nodes);
     if (overlay) {
       screen.append(overlay);
     }
   };
+
+  const bindFileDrag = (row: HTMLElement, file: LocalCFile): void => {
+    row.draggable = true;
+    row.addEventListener("dragstart", (event) => {
+      event.dataTransfer?.setData("text/plain", file.relativePath);
+      event.dataTransfer?.setData("application/x-lilc-file", file.relativePath);
+    });
+  };
+
+  const bindFolderDrop = (row: HTMLElement, folder: LocalCFolder): void => {
+    row.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      row.classList.add("drop-target");
+    });
+    row.addEventListener("dragleave", () => {
+      row.classList.remove("drop-target");
+    });
+    row.addEventListener("drop", (event) => {
+      event.preventDefault();
+      row.classList.remove("drop-target");
+      const path =
+        event.dataTransfer?.getData("application/x-lilc-file") ||
+        event.dataTransfer?.getData("text/plain") ||
+        "";
+      const file = workspace.files.find((item) => item.relativePath === path);
+      if (file) {
+        workspace.moveFile(file, folder.relativePath);
+        paint();
+      }
+    });
+  };
+
+  const folderTip = (): HTMLElement =>
+    el("div", {
+      className: "folder-tip",
+      attrs: { "data-folder-tip": "", role: "status" },
+      children: [
+        el("p", { className: "folder-tip-text", text: FILES_FOLDER_TIP }),
+        el("button", {
+          className: "folder-tip-close",
+          attrs: { type: "button", "aria-label": "Dismiss" },
+          on: {
+            click: () => {
+              dismissFilesFolderTip();
+              paint();
+            },
+          },
+          children: [svgIcon(icons.x, 12)],
+        }),
+      ],
+    });
 
   const searchBar = (): HTMLElement => {
     const input = el("input", {

@@ -113,6 +113,29 @@ export function headerStarter(name: string): string {
 `;
 }
 
+export function helperStarter(name: string): string {
+  const stem = deletingPathExtension(name);
+  const ident = Array.from(stem)
+    .map((character) => (/[A-Za-z0-9]/.test(character) ? character : "_"))
+    .join("");
+  const functionName = ident.length === 0 || /^[0-9]/.test(ident) ? "helper" : ident;
+  return `#include <stdio.h>
+
+/* helper — add functions here */
+
+int ${functionName}(void) {
+    return 0;
+}
+`;
+}
+
+export function sourceStarter(name: string, folderHasMain: boolean): string {
+  if (name.endsWith(".h")) {
+    return headerStarter(name);
+  }
+  return folderHasMain ? helperStarter(name) : STARTER_CODE;
+}
+
 export function starterFile(): LocalCFile {
   return {
     relativePath: "hello.c",

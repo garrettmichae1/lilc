@@ -588,6 +588,8 @@ extern struct ValueType *TypeGetMatching(Picoc *pc, struct ParseState *Parser,
 extern struct ValueType *TypeCreateOpaqueStruct(Picoc *pc, struct ParseState *Parser,
     const char *StructName, int Size);
 extern int TypeIsForwardDeclared(struct ParseState *Parser, struct ValueType *Typ);
+extern int TypeIsUnsizedArray(struct ValueType *Typ);
+extern int TypeIsOutermostUnsizedArray(struct ValueType *Typ);
 
 /* heap.c */
 #ifdef DEBUG_HEAP

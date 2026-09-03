@@ -64,18 +64,26 @@ struct ThemePalette {
 @Observable
 final class AppearanceStore {
     static let shared = AppearanceStore()
+    static let syntaxColoringKey = "lilc.editor.syntaxColoring"
 
+    private let defaults: UserDefaults
     private let storageKey = "lilc.appearance.colorway"
 
     var colorWay: AppColorWay {
         didSet {
-            UserDefaults.standard.set(colorWay.rawValue, forKey: storageKey)
+            defaults.set(colorWay.rawValue, forKey: storageKey)
         }
+    }
+
+    /// VS Code-style keyword colors in the editor. Off until the user turns it on.
+    var syntaxColoring: Bool {
+        didSet { defaults.set(syntaxColoring, forKey: Self.syntaxColoringKey) }
     }
 
     var palette: ThemePalette { colorWay.palette }
 
     init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
         let raw = defaults.string(forKey: storageKey)
         if raw == "phosphor" || raw == "original" {
             colorWay = .light
@@ -84,6 +92,7 @@ final class AppearanceStore {
         } else {
             colorWay = .light
         }
+        syntaxColoring = defaults.bool(forKey: Self.syntaxColoringKey)
     }
 }
 

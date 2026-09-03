@@ -6,6 +6,7 @@ struct CRunDiagnostic: Equatable, Sendable {
         case name = "NAME ERROR"
         case type = "TYPE ERROR"
         case runtime = "RUNTIME ERROR"
+        case arrayMemory = "ARRAY / MEMORY ERROR"
         case project = "PROJECT ERROR"
         case unsupported = "NOT SUPPORTED"
     }
@@ -248,6 +249,13 @@ enum CDiagnosticFormatter {
         let text = message.lowercased()
         let all = wholeOutput.lowercased()
 
+        if all.contains("???") || text.contains("???") {
+            return syntax(
+                "Fill in the blank",
+                "??? is a placeholder, not valid C.",
+                "replace ??? with the C this lesson or challenge asks for, then press RUN."
+            )
+        }
         if text.contains("';' expected") || text.contains("semicolon expected") {
             return syntax("Missing semicolon", "C statements normally end with a semicolon.", "add ; at the end of the statement above the caret.")
         }
@@ -356,6 +364,26 @@ enum CDiagnosticFormatter {
         if text.contains("can't initialize") || text.contains("incomplete type") {
             return type("Incomplete type", "This type is not fully declared yet, so it cannot be created or initialized.", "finish the struct, union, or array declaration before using it.")
         }
+        if text.contains("no allocated storage") {
+            let name = Self.quotedIdentifier(in: message)
+            let example = name.map { "char \($0)[20];" } ?? "char grades[20];"
+            let title = name.map { "Array '\($0)' has no allocated storage" } ?? "Array has no allocated storage"
+            let explanation = name.map {
+                "Array '\($0)' has no allocated storage. Empty brackets [] do not create memory you can write into."
+            } ?? "This array has no allocated storage. Empty brackets [] do not create memory you can write into."
+            return arrayMemory(
+                title,
+                explanation,
+                "declare the array with a size before writing to it. Example: \(example)"
+            )
+        }
+        if text.contains("array size must be greater than 0") || text.contains("array size is too large") {
+            return arrayMemory(
+                "Invalid array size",
+                "An array needs a positive size so lilC can allocate storage for it.",
+                "write a size in the brackets, for example char grades[20];"
+            )
+        }
         if text.contains("can't define a void") {
             return type("Void variable", "void means “no value,” so you cannot declare a void variable.", "use a real type such as int, char, or a pointer.")
         }
@@ -445,6 +473,18 @@ enum CDiagnosticFormatter {
 
     private static func runtime(_ title: String, _ explanation: String, _ suggestion: String) -> Advice {
         Advice(kind: .runtime, title: title, explanation: explanation, suggestion: suggestion)
+    }
+
+    private static func arrayMemory(_ title: String, _ explanation: String, _ suggestion: String) -> Advice {
+        Advice(kind: .arrayMemory, title: title, explanation: explanation, suggestion: suggestion)
+    }
+
+    private static func quotedIdentifier(in message: String) -> String? {
+        guard let start = message.firstIndex(of: "'") else { return nil }
+        let after = message.index(after: start)
+        guard after < message.endIndex, let end = message[after...].firstIndex(of: "'") else { return nil }
+        let name = String(message[after..<end])
+        return name.isEmpty ? nil : name
     }
 
     private static func project(_ title: String, _ explanation: String, _ suggestion: String) -> Advice {

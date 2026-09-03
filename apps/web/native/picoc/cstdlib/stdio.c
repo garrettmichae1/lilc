@@ -640,11 +640,15 @@ int StdioBaseScanf(struct ParseState *Parser, FILE *Stream, char *StrIn,
         ThisArg = (struct Value*)((char*)ThisArg +
             MEM_ALIGN(sizeof(struct Value) + TypeStackSizeValue(ThisArg)));
 
-        if (ThisArg->Typ->Base == TypePointer)
+        if (ThisArg->Typ->Base == TypePointer) {
+            if (ThisArg->Val->Pointer == NULL)
+                ProgramFail(Parser, "NULL pointer passed to scanf()");
             ScanfArg[ArgCount] = ThisArg->Val->Pointer;
-        else if (ThisArg->Typ->Base == TypeArray)
+        } else if (ThisArg->Typ->Base == TypeArray) {
+            if (ThisArg->Typ->ArraySize <= 0)
+                ProgramFail(Parser, "array has no allocated storage");
             ScanfArg[ArgCount] = &ThisArg->Val->ArrayMem[0];
-        else
+        } else
             ProgramFail(Parser,
                 "non-pointer argument to scanf() - argument %d after format",
                 ArgCount+1);

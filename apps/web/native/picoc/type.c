@@ -71,7 +71,18 @@ struct ValueType *TypeGetMatching(Picoc *pc, struct ParseState *Parser,
         AlignBytes = PointerAlignBytes;
         break;
     case TypeArray:
-        Sizeof = ArraySize * ParentType->Sizeof;
+        if (ArraySize < 0) {
+            if (Parser != NULL)
+                ProgramFail(Parser, "array size must be greater than 0");
+            Sizeof = 0;
+        } else if (ArraySize > 0 && ParentType->Sizeof > 0 &&
+                ArraySize > 0x7fffffff / ParentType->Sizeof) {
+            if (Parser != NULL)
+                ProgramFail(Parser, "array size is too large");
+            Sizeof = 0;
+        } else {
+            Sizeof = ArraySize * ParentType->Sizeof;
+        }
         AlignBytes = ParentType->AlignBytes;
         break;
     case TypeEnum:
@@ -268,6 +279,9 @@ void TypeParseStruct(struct ParseState *Parser, struct ValueType **Typ,
         TypeParse(Parser, &MemberType, &MemberIdentifier, NULL);
         if (MemberType == NULL || MemberIdentifier == NULL)
             ProgramFail(Parser, "invalid type in struct");
+        if (TypeIsUnsizedArray(MemberType))
+            ProgramFail(Parser, "array '%s' has no allocated storage",
+                MemberIdentifier);
 
         MemberValue = VariableAllocValueAndData(pc, Parser, sizeof(int), false,
             NULL, true);
@@ -505,10 +519,17 @@ struct ValueType *TypeParseBack(struct ParseState *Parser,
         } else {
             /* get a numeric array size */
             enum RunMode OldMode = Parser->Mode;
+            long ParsedSize;
             int ArraySize;
             Parser->Mode = RunModeRun;
-            ArraySize = ExpressionParseInt(Parser);
+            ParsedSize = ExpressionParseInt(Parser);
             Parser->Mode = OldMode;
+
+            if (ParsedSize <= 0)
+                ProgramFail(Parser, "array size must be greater than 0");
+            if (ParsedSize > 0x7fffffff)
+                ProgramFail(Parser, "array size is too large");
+            ArraySize = (int)ParsedSize;
 
             if (LexGetToken(Parser, NULL, true) != TokenRightSquareBracket)
                 ProgramFail(Parser, "']' expected");
@@ -608,4 +629,30 @@ int TypeIsForwardDeclared(struct ParseState *Parser, struct ValueType *Typ)
         return true;
 
     return false;
+}
+
+/* true if any array dimension currently has no usable storage */
+int TypeIsUnsizedArray(struct ValueType *Typ)
+{
+    while (Typ != NULL && Typ->Base == TypeArray) {
+        if (Typ->ArraySize <= 0)
+            return true;
+        Typ = Typ->FromType;
+    }
+    return false;
+}
+
+/* true when only the outermost dimension is unsized, which C allows
+    when an initializer supplies the length: char s[] = "hi"; */
+int TypeIsOutermostUnsizedArray(struct ValueType *Typ)
+{
+    if (Typ == NULL || Typ->Base != TypeArray || Typ->ArraySize > 0)
+        return false;
+    Typ = Typ->FromType;
+    while (Typ != NULL && Typ->Base == TypeArray) {
+        if (Typ->ArraySize <= 0)
+            return false;
+        Typ = Typ->FromType;
+    }
+    return true;
 }

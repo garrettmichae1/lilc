@@ -8,18 +8,27 @@ import {
   type LocalCFile,
   type LocalCFolder,
 } from "../../domain/files";
-import { firstHourCurriculum } from "../../domain/curriculum";
+import {
+  challengeLessons,
+  firstHourLessons,
+  type FirstHourLesson,
+} from "../../domain/curriculum";
 import type { FirstHourProgress } from "../../domain/progress";
 import { el, icons, svgIcon } from "../dom";
 
-export function hourMeter(progress: FirstHourProgress, currentId: string | undefined): HTMLElement {
-  const total = firstHourCurriculum.lessons.length;
-  const done = progress.completedIds.length;
+export function trackMeter(
+  lessons: readonly FirstHourLesson[],
+  progress: FirstHourProgress,
+  currentId: string | undefined,
+  label: string,
+): HTMLElement {
+  const total = lessons.length;
+  const done = lessons.filter((lesson) => progress.completedIds.includes(lesson.id)).length;
   return el("div", {
     className: "hour-meter",
     attrs: {
       role: "progressbar",
-      "aria-label": "First hour",
+      "aria-label": label,
       "aria-valuemin": "0",
       "aria-valuemax": String(total),
       "aria-valuenow": String(done),
@@ -27,7 +36,7 @@ export function hourMeter(progress: FirstHourProgress, currentId: string | undef
     children: [
       el("div", {
         className: "lesson-pips",
-        children: firstHourCurriculum.lessons.map((lesson) => {
+        children: lessons.map((lesson) => {
           const complete = progress.completedIds.includes(lesson.id);
           const current = currentId !== undefined && lesson.id === currentId;
           return el("span", {
@@ -37,15 +46,16 @@ export function hourMeter(progress: FirstHourProgress, currentId: string | undef
         }),
       }),
       el("span", { className: "hour-count mono", text: `${done}/${total}` }),
-      progress.stars > 0
-        ? el("span", {
-            className: "hour-stars",
-            attrs: { "aria-label": `${progress.stars} stars` },
-            text: "★",
-          })
-        : undefined,
     ],
   });
+}
+
+export function hourMeter(progress: FirstHourProgress, currentId: string | undefined): HTMLElement {
+  return trackMeter(firstHourLessons, progress, currentId, "First hour");
+}
+
+export function challengeMeter(progress: FirstHourProgress, currentId: string | undefined): HTMLElement {
+  return trackMeter(challengeLessons, progress, currentId, "Challenges");
 }
 
 export function logoImg(): HTMLImageElement {
@@ -59,7 +69,7 @@ export function chevron(): SVGSVGElement {
   return svgIcon(icons.chevronRight, 13);
 }
 
-export function homeTabIcon(kind: "home" | "files", active: boolean): SVGSVGElement {
+export function homeTabIcon(kind: "home" | "learn" | "files", active: boolean): SVGSVGElement {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("width", "22");
   svg.setAttribute("height", "20");
@@ -75,11 +85,43 @@ export function homeTabIcon(kind: "home" | "files", active: boolean): SVGSVGElem
     "d",
     kind === "home"
       ? "M3 11 L11 3 L19 11 M6 10 V17 H16 V10 M10 17 V13 H13 V17"
-      : "M3 5 H8 L10 8 H19 V16 H3 Z M3 10 H19",
+      : kind === "learn"
+        ? "M4 5 L10 7 V17 L4 15 Z M18 5 L12 7 V17 L18 15 Z"
+        : "M3 5 H8 L10 8 H19 V16 H3 Z M3 10 H19",
   );
   svg.append(path);
   svg.style.color = active ? "var(--accent)" : "var(--silver)";
   return svg;
+}
+
+export function mainTabBar(options: {
+  active: "home" | "learn" | "files";
+  openHome: () => void;
+  openLearn: () => void;
+  openFiles: () => void;
+}): HTMLElement {
+  const tab = (
+    id: "home" | "learn" | "files",
+    label: string,
+    onClick: () => void,
+  ): HTMLButtonElement => {
+    const current = options.active === id;
+    return el("button", {
+      className: current ? "tab active" : "tab",
+      attrs: { type: "button", "aria-current": current ? "page" : undefined },
+      ...(current ? {} : { on: { click: onClick } }),
+      children: [homeTabIcon(id, current), el("span", { text: label })],
+    });
+  };
+  return el("nav", {
+    className: "tabbar",
+    attrs: { "aria-label": "Main" },
+    children: [
+      tab("home", "HOME", options.openHome),
+      tab("files", "FILES", options.openFiles),
+      tab("learn", "LEARN", options.openLearn),
+    ],
+  });
 }
 
 export function folderMark(): HTMLElement {

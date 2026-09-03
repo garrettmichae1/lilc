@@ -38,6 +38,24 @@
                ReferencedContainer = "container:lilC.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "100000000000000000000403"
+               BuildableName = "lilCUITests.xctest"
+               BlueprintName = "lilCUITests"
+               ReferencedContainer = "container:lilC.xcodeproj">
+            </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "StoreScreenshots/testCaptureListingScreens">
+               </Test>
+               <Test
+                  Identifier = "StoreScreenshots/testCaptureSettingsOnly">
+               </Test>
+            </SkippedTests>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
