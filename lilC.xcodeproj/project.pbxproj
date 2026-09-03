@@ -38,7 +38,12 @@
 		100000000000000000000149 /* Presentation/QuizScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000035 /* Presentation/QuizScreen.swift */; };
 		10000000000000000000014A /* Presentation/QuizCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000036 /* Presentation/QuizCards.swift */; };
 		10000000000000000000014C /* Presentation/AppHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000037 /* Presentation/AppHaptics.swift */; };
+		10000000000000000000014D /* Domain/LinuxCourse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000038 /* Domain/LinuxCourse.swift */; };
+		10000000000000000000014E /* Domain/LinuxCourseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000039 /* Domain/LinuxCourseStore.swift */; };
+		10000000000000000000014F /* Presentation/LinuxStudyScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000003C /* Presentation/LinuxStudyScreen.swift */; };
 		10000000000000000000014B /* Domain/quizzes.json in Resources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000032 /* Domain/quizzes.json */; };
+		100000000000000000000151 /* Domain/linux-course.json in Resources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000003A /* Domain/linux-course.json */; };
+		100000000000000000000152 /* Domain/linux-quizzes.json in Resources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000003B /* Domain/linux-quizzes.json */; };
 		100000000000000000000220 /* Vendor/PicoC/table.c in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000120 /* Vendor/PicoC/table.c */; };
 		100000000000000000000221 /* Vendor/PicoC/lex.c in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000121 /* Vendor/PicoC/lex.c */; };
 		100000000000000000000222 /* Vendor/PicoC/parse.c in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000122 /* Vendor/PicoC/parse.c */; };
@@ -114,6 +119,11 @@
 		100000000000000000000035 /* Presentation/QuizScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/QuizScreen.swift; sourceTree = "<group>"; };
 		100000000000000000000036 /* Presentation/QuizCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/QuizCards.swift; sourceTree = "<group>"; };
 		100000000000000000000037 /* Presentation/AppHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/AppHaptics.swift; sourceTree = "<group>"; };
+		100000000000000000000038 /* Domain/LinuxCourse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/LinuxCourse.swift; sourceTree = "<group>"; };
+		100000000000000000000039 /* Domain/LinuxCourseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/LinuxCourseStore.swift; sourceTree = "<group>"; };
+		10000000000000000000003A /* Domain/linux-course.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Domain/linux-course.json; sourceTree = "<group>"; };
+		10000000000000000000003B /* Domain/linux-quizzes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Domain/linux-quizzes.json; sourceTree = "<group>"; };
+		10000000000000000000003C /* Presentation/LinuxStudyScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/LinuxStudyScreen.swift; sourceTree = "<group>"; };
 		100000000000000000000120 /* Vendor/PicoC/table.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Vendor/PicoC/table.c; sourceTree = "<group>"; };
 		100000000000000000000121 /* Vendor/PicoC/lex.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Vendor/PicoC/lex.c; sourceTree = "<group>"; };
 		100000000000000000000122 /* Vendor/PicoC/parse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = Vendor/PicoC/parse.c; sourceTree = "<group>"; };
@@ -188,6 +198,7 @@
 				10000000000000000000002E /* Presentation/LessonCards.swift */,
 				100000000000000000000036 /* Presentation/QuizCards.swift */,
 				100000000000000000000035 /* Presentation/QuizScreen.swift */,
+				10000000000000000000003C /* Presentation/LinuxStudyScreen.swift */,
 				100000000000000000000030 /* Presentation/OnboardingView.swift */,
 				100000000000000000000029 /* Presentation/CCodeEditor.swift */,
 				10000000000000000000001B /* Presentation/SettingsScreen.swift */,
@@ -203,6 +214,10 @@
 				100000000000000000000033 /* Domain/CQuiz.swift */,
 				100000000000000000000034 /* Domain/QuizProgress.swift */,
 				100000000000000000000032 /* Domain/quizzes.json */,
+				100000000000000000000038 /* Domain/LinuxCourse.swift */,
+				100000000000000000000039 /* Domain/LinuxCourseStore.swift */,
+				10000000000000000000003A /* Domain/linux-course.json */,
+				10000000000000000000003B /* Domain/linux-quizzes.json */,
 				10000000000000000000002F /* Domain/OnboardingStore.swift */,
 				100000000000000000000028 /* Domain/LegalURLs.swift */,
 				10000000000000000000001C /* Domain/AgentModels.swift */,
@@ -372,6 +387,8 @@
 				100000000000000000000138 /* Resources/Assets.xcassets in Resources */,
 				100000000000000000000139 /* Resources/PrivacyInfo.xcprivacy in Resources */,
 				10000000000000000000014B /* Domain/quizzes.json in Resources */,
+				100000000000000000000151 /* Domain/linux-course.json in Resources */,
+				100000000000000000000152 /* Domain/linux-quizzes.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -407,6 +424,9 @@
 				100000000000000000000146 /* Domain/CSyntax.swift in Sources */,
 				100000000000000000000147 /* Domain/CQuiz.swift in Sources */,
 				100000000000000000000148 /* Domain/QuizProgress.swift in Sources */,
+				10000000000000000000014D /* Domain/LinuxCourse.swift in Sources */,
+				10000000000000000000014E /* Domain/LinuxCourseStore.swift in Sources */,
+				10000000000000000000014F /* Presentation/LinuxStudyScreen.swift in Sources */,
 				100000000000000000000149 /* Presentation/QuizScreen.swift in Sources */,
 				10000000000000000000014A /* Presentation/QuizCards.swift in Sources */,
 				10000000000000000000013F /* Domain/CIndentFormatter.swift in Sources */,

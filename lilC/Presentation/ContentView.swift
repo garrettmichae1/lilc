@@ -7,8 +7,10 @@ struct ContentView: View {
     @State private var localWorkspace = LocalCWorkspace()
     @State private var appearance = AppearanceStore.shared
     @State private var agentSettings = AgentSettingsStore.shared
+    @State private var linuxCourse = LinuxCourseStore.shared
     @State private var activeScreen: AppScreen = .home
     @State private var activeQuizID: String?
+    @State private var activeLinuxModuleID: String?
     @State private var quizStartInReview = false
     @State private var editorReturn: AppScreen = .home
     @State private var filesReturn: AppScreen = .home
@@ -59,6 +61,18 @@ struct ContentView: View {
                         quizStartInReview = review
                         activeScreen = .quiz
                     },
+                    linuxCourse: linuxCourse,
+                    openLinuxModule: { module in
+                        guard linuxCourse.isOwned else { return }
+                        activeLinuxModuleID = module.id
+                        activeScreen = .linuxStudy
+                    },
+                    unlockLinux: {
+                        Task { await linuxCourse.purchase() }
+                    },
+                    restoreLinux: {
+                        Task { await linuxCourse.restore() }
+                    },
                     openAgent: { activeScreen = .agent },
                     agentsVisible: agentSettings.showsAgentSurfaces
                 )
@@ -79,7 +93,12 @@ struct ContentView: View {
                     activeScreen = .home
                 }
             case .settings:
-                SettingsScreen(workspace: localWorkspace, appearance: appearance, agentSettings: agentSettings) {
+                SettingsScreen(
+                    workspace: localWorkspace,
+                    appearance: appearance,
+                    agentSettings: agentSettings,
+                    linuxCourse: linuxCourse
+                ) {
                     activeScreen = .home
                 }
             case .agent:
@@ -91,7 +110,7 @@ struct ContentView: View {
                     activeScreen = .agent
                 }
             case .quiz:
-                if let id = activeQuizID, let quiz = CQuizCatalog.quiz(id: id) {
+                if let id = activeQuizID, let quiz = QuizLookup.quiz(id: id, linuxOwned: linuxCourse.isOwned) {
                     QuizScreen(
                         quiz: quiz,
                         progress: localWorkspace.quizProgress,
@@ -99,6 +118,23 @@ struct ContentView: View {
                         back: {
                             activeScreen = .learn
                             activeQuizID = nil
+                        }
+                    )
+                } else {
+                    Color.clear.onAppear { activeScreen = .learn }
+                }
+            case .linuxStudy:
+                if let id = activeLinuxModuleID, linuxCourse.isOwned, let module = LinuxCourseCatalog.module(id: id) {
+                    LinuxStudyScreen(
+                        module: module,
+                        back: {
+                            activeScreen = .learn
+                            activeLinuxModuleID = nil
+                        },
+                        takeQuiz: {
+                            activeQuizID = module.quizId
+                            quizStartInReview = false
+                            activeScreen = .quiz
                         }
                     )
                 } else {
@@ -113,6 +149,7 @@ struct ContentView: View {
         .onAppear { AppHaptics.prepare() }
         }
         .task {
+            await linuxCourse.loadStore()
             if AgentRuntimeConfig.surfacesVisibleInThisRelease {
                 await agentSettings.loadStore()
             }
@@ -150,6 +187,7 @@ private enum AppScreen {
     case local
     case agent
     case quiz
+    case linuxStudy
 }
 
 private struct HomeScreen: View {
@@ -244,6 +282,10 @@ private struct LearnScreen: View {
     let openFiles: () -> Void
     let openLesson: (FirstHourLesson) -> Void
     let openQuiz: (CQuiz, Bool) -> Void
+    let linuxCourse: LinuxCourseStore
+    let openLinuxModule: (LinuxCourseModule) -> Void
+    let unlockLinux: () -> Void
+    let restoreLinux: () -> Void
     let openAgent: () -> Void
     let agentsVisible: Bool
 
@@ -273,6 +315,20 @@ private struct LearnScreen: View {
                             quizzes: CQuizCatalog.quizzes,
                             progress: workspace.quizProgress,
                             open: openQuiz
+                        )
+                    }
+                    if linuxCourse.isOwned {
+                        LinuxModuleDeck(
+                            modules: LinuxCourseCatalog.modules,
+                            progress: workspace.quizProgress,
+                            open: openLinuxModule
+                        )
+                    } else {
+                        LinuxCoursePaywallCard(
+                            course: LinuxCourseCatalog.course,
+                            store: linuxCourse,
+                            restore: restoreLinux,
+                            unlock: unlockLinux
                         )
                     }
                 }

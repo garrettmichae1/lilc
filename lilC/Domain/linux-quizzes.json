@@ -1,0 +1,2686 @@
+{
+  "title": "Linux quizzes",
+  "questionsPerQuiz": 20,
+  "quizzes": [
+    {
+      "id": "linux-quiz-01",
+      "number": 1,
+      "title": "Unix to Linux",
+      "goal": "Easy facts: kernel versus distro, history, licenses.",
+      "questions": [
+        {
+          "id": "linux-quiz-01-q01",
+          "title": "Year",
+          "prompt": "Unix work at Bell Labs is usually dated to around which year?",
+          "choices": [
+            "1969",
+            "1983",
+            "1991",
+            "2001"
+          ],
+          "correctIndex": 0,
+          "explanation": "Thompson and Ritchie were building Unix at Bell Labs around 1969."
+        },
+        {
+          "id": "linux-quiz-01-q02",
+          "title": "Kernel",
+          "prompt": "In the strict sense, Linux is which of the following?",
+          "choices": [
+            "A complete operating system distribution",
+            "A kernel",
+            "A shell",
+            "A window system"
+          ],
+          "correctIndex": 1,
+          "explanation": "Linux is the kernel. Distributions bundle it with userland and packaging."
+        },
+        {
+          "id": "linux-quiz-01-q03",
+          "title": "GNU",
+          "prompt": "GNU's historical gap, which Linux filled, was mainly:",
+          "choices": [
+            "A C compiler",
+            "A kernel",
+            "A text editor",
+            "A package manager"
+          ],
+          "correctIndex": 1,
+          "explanation": "GNU had userland tools but not a finished kernel. Linux supplied one."
+        },
+        {
+          "id": "linux-quiz-01-q04",
+          "title": "Distro",
+          "prompt": "Ubuntu is best described as:",
+          "choices": [
+            "The Linux kernel with a different name",
+            "A distribution that includes a Linux kernel",
+            "A POSIX standard",
+            "A GNU project compiler"
+          ],
+          "correctIndex": 1,
+          "explanation": "Ubuntu is a distro: kernel plus userland plus packaging and defaults."
+        },
+        {
+          "id": "linux-quiz-01-q05",
+          "title": "People",
+          "prompt": "Who announced the Linux kernel in 1991?",
+          "choices": [
+            "Dennis Ritchie",
+            "Richard Stallman",
+            "Linus Torvalds",
+            "Ken Thompson"
+          ],
+          "correctIndex": 2,
+          "explanation": "Linus Torvalds announced the kernel he was writing for his 386."
+        },
+        {
+          "id": "linux-quiz-01-q06",
+          "title": "C",
+          "prompt": "Unix was rewritten in C primarily because:",
+          "choices": [
+            "C hid all hardware details",
+            "C made the system more portable than assembly",
+            "POSIX required C",
+            "Linux required C in 1969"
+          ],
+          "correctIndex": 1,
+          "explanation": "C let Unix be structured and ported without staying in assembly."
+        },
+        {
+          "id": "linux-quiz-01-q07",
+          "title": "Pipe",
+          "prompt": "A Unix pipe connects:",
+          "choices": [
+            "Two kernels on a network",
+            "Standard output of one process to standard input of another",
+            "A hard disk to /usr",
+            "The shell to the firmware"
+          ],
+          "correctIndex": 1,
+          "explanation": "The kernel copies bytes from one process's stdout to the next stdin."
+        },
+        {
+          "id": "linux-quiz-01-q08",
+          "title": "POSIX",
+          "prompt": "POSIX is best described as:",
+          "choices": [
+            "A Linux distro",
+            "A portable Unix-like API and utility contract",
+            "A filesystem format",
+            "A bootloader"
+          ],
+          "correctIndex": 1,
+          "explanation": "POSIX is a standard for Unix-like interfaces, not a kernel."
+        },
+        {
+          "id": "linux-quiz-01-q09",
+          "title": "GPL",
+          "prompt": "The Linux kernel's GPLv2 license is an example of:",
+          "choices": [
+            "Public domain",
+            "Copyleft",
+            "A proprietary EULA",
+            "A trademark only"
+          ],
+          "correctIndex": 1,
+          "explanation": "GPL is copyleft: distributed modifications must offer corresponding source."
+        },
+        {
+          "id": "linux-quiz-01-q10",
+          "title": "Permissive",
+          "prompt": "An MIT or BSD license typically allows:",
+          "choices": [
+            "No commercial use",
+            "Closed-source derivatives",
+            "Only GPL combined works",
+            "Use only on Linux"
+          ],
+          "correctIndex": 1,
+          "explanation": "Permissive licenses allow proprietary derivatives, unlike GPL copyleft."
+        },
+        {
+          "id": "linux-quiz-01-q11",
+          "title": "Philosophy",
+          "prompt": "The Unix philosophy emphasizes:",
+          "choices": [
+            "One large program that does everything",
+            "Small programs that compose over text streams",
+            "GUI-only administration",
+            "A single vendor kernel"
+          ],
+          "correctIndex": 1,
+          "explanation": "McIlroy's summary: small tools, composition, text streams."
+        },
+        {
+          "id": "linux-quiz-01-q12",
+          "title": "Name fight",
+          "prompt": "People say GNU/Linux when they want to stress that:",
+          "choices": [
+            "GNU wrote the Linux kernel",
+            "Much of the userland is GNU, while Linux is the kernel",
+            "POSIX certified every distro",
+            "bash is the kernel"
+          ],
+          "correctIndex": 1,
+          "explanation": "The phrase highlights GNU userland plus the Linux kernel."
+        },
+        {
+          "id": "linux-quiz-01-q13",
+          "title": "Bell",
+          "prompt": "Unix originated at:",
+          "choices": [
+            "MIT's GNU project",
+            "Bell Labs",
+            "Red Hat",
+            "CERN"
+          ],
+          "correctIndex": 1,
+          "explanation": "Bell Labs is the origin of Unix."
+        },
+        {
+          "id": "linux-quiz-01-q14",
+          "title": "Not VM",
+          "prompt": "lilC's Linux course teaches Linux ideas without:",
+          "choices": [
+            "Quizzes",
+            "Bundled study pages",
+            "Shipping a remote Linux VM in the app",
+            "Mentioning the kernel"
+          ],
+          "correctIndex": 2,
+          "explanation": "The app does not include SSH or a VM. Study is offline content."
+        },
+        {
+          "id": "linux-quiz-01-q15",
+          "title": "Ritchie",
+          "prompt": "Dennis Ritchie is closely associated with:",
+          "choices": [
+            "systemd",
+            "The C language and early Unix",
+            "apt",
+            "The first Linux distro"
+          ],
+          "correctIndex": 1,
+          "explanation": "Ritchie designed C and co-created Unix."
+        },
+        {
+          "id": "linux-quiz-01-q16",
+          "title": "Variant",
+          "prompt": "Vendor Unix variants in the 1980s helped motivate:",
+          "choices": [
+            "POSIX",
+            "USB",
+            "IPv6",
+            "systemd"
+          ],
+          "correctIndex": 0,
+          "explanation": "Splintered Unix APIs were a reason to write POSIX."
+        },
+        {
+          "id": "linux-quiz-01-q17",
+          "title": "Userland",
+          "prompt": "bash and coreutils are typically:",
+          "choices": [
+            "Part of the Linux kernel binary",
+            "Userspace programs",
+            "Firmware",
+            "CPU instructions"
+          ],
+          "correctIndex": 1,
+          "explanation": "They run in user space. The kernel is a separate artifact."
+        },
+        {
+          "id": "linux-quiz-01-q18",
+          "title": "apt",
+          "prompt": "If a tutorial says apt install, it is assuming:",
+          "choices": [
+            "Any Unix",
+            "A Debian-family distro",
+            "Only the raw Linux kernel",
+            "macOS"
+          ],
+          "correctIndex": 1,
+          "explanation": "apt is Debian/Ubuntu packaging, not a kernel feature."
+        },
+        {
+          "id": "linux-quiz-01-q19",
+          "title": "Kernel job",
+          "prompt": "Which task is the kernel's, not bash's?",
+          "choices": [
+            "Expanding *.c",
+            "Scheduling processes on the CPU",
+            "Parsing single quotes",
+            "Looking up aliases"
+          ],
+          "correctIndex": 1,
+          "explanation": "Scheduling is kernel work. Globbing and quotes are shell work."
+        },
+        {
+          "id": "linux-quiz-01-q20",
+          "title": "Distractor",
+          "prompt": "Which statement is false?",
+          "choices": [
+            "Linux is a kernel",
+            "A distro includes a kernel and much more",
+            "Linux is another name for GNU coreutils",
+            "Unix predates Linux"
+          ],
+          "correctIndex": 2,
+          "explanation": "coreutils is userland. Linux is not a synonym for GNU tools."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-02",
+      "number": 2,
+      "title": "Kernel and userspace",
+      "goal": "Easy\u2013medium: syscalls, layers, isolation.",
+      "questions": [
+        {
+          "id": "linux-quiz-02-q01",
+          "title": "Mode",
+          "prompt": "User processes normally cannot program devices directly because:",
+          "choices": [
+            "C forbids it",
+            "The CPU privilege split and kernel mediation prevent it",
+            "POSIX banned hardware",
+            "bash owns the devices"
+          ],
+          "correctIndex": 1,
+          "explanation": "Hardware access is privileged. The kernel mediates via drivers and syscalls."
+        },
+        {
+          "id": "linux-quiz-02-q02",
+          "title": "Syscall",
+          "prompt": "Which of these is a system call rather than a libc convenience?",
+          "choices": [
+            "printf",
+            "scanf",
+            "write",
+            "strlen"
+          ],
+          "correctIndex": 2,
+          "explanation": "write is a syscall (or a very thin wrapper). printf formats then may write."
+        },
+        {
+          "id": "linux-quiz-02-q03",
+          "title": "printf",
+          "prompt": "printf typically reaches the kernel by eventually calling:",
+          "choices": [
+            "openat on /proc",
+            "a write-family system call",
+            "chmod",
+            "mount"
+          ],
+          "correctIndex": 1,
+          "explanation": "Formatted output is buffered in user space, then written."
+        },
+        {
+          "id": "linux-quiz-02-q04",
+          "title": "Process",
+          "prompt": "A Linux process includes:",
+          "choices": [
+            "Only a program counter",
+            "An address space, credentials, and file descriptors",
+            "The entire kernel heap",
+            "All other users' memory"
+          ],
+          "correctIndex": 1,
+          "explanation": "Isolation is the point: private memory, own fd table, own uid."
+        },
+        {
+          "id": "linux-quiz-02-q05",
+          "title": "pid1",
+          "prompt": "pid 1 is conventionally:",
+          "choices": [
+            "The first user login shell",
+            "The init/systemd process",
+            "The bootloader",
+            "The NIC driver"
+          ],
+          "correctIndex": 1,
+          "explanation": "The kernel starts userspace at pid 1."
+        },
+        {
+          "id": "linux-quiz-02-q06",
+          "title": "VFS",
+          "prompt": "The virtual filesystem exists so that:",
+          "choices": [
+            "Only ext4 can be used",
+            "Disks, pipes, and /proc can share open/read/write",
+            "Userspace can rewrite page tables",
+            "The shell can schedule threads"
+          ],
+          "correctIndex": 1,
+          "explanation": "VFS is the common file API over many backends."
+        },
+        {
+          "id": "linux-quiz-02-q07",
+          "title": "proc",
+          "prompt": "/proc/cpuinfo is best described as:",
+          "choices": [
+            "A real file stored on the root disk inode for CPU firmware",
+            "A kernel-generated file-like interface",
+            "A bash builtin",
+            "A POSIX-required disk partition"
+          ],
+          "correctIndex": 1,
+          "explanation": "/proc is a kernel filesystem, not a place you store documents."
+        },
+        {
+          "id": "linux-quiz-02-q08",
+          "title": "malloc",
+          "prompt": "malloc gets more memory from the OS using:",
+          "choices": [
+            "Direct access to another process's heap",
+            "Kernel interfaces such as brk or mmap",
+            "The bootloader",
+            "chmod"
+          ],
+          "correctIndex": 1,
+          "explanation": "The allocator asks the kernel for address space."
+        },
+        {
+          "id": "linux-quiz-02-q09",
+          "title": "Driver",
+          "prompt": "Most hardware drivers run in:",
+          "choices": [
+            "The login shell",
+            "Kernel space",
+            "The DNS resolver",
+            "/etc"
+          ],
+          "correctIndex": 1,
+          "explanation": "Drivers typically need privileged hardware access."
+        },
+        {
+          "id": "linux-quiz-02-q10",
+          "title": "Root",
+          "prompt": "A root process (uid 0) is:",
+          "choices": [
+            "The kernel",
+            "A user process with all-powerful credentials",
+            "Firmware",
+            "Always systemd"
+          ],
+          "correctIndex": 1,
+          "explanation": "Root is still userspace, with uid 0."
+        },
+        {
+          "id": "linux-quiz-02-q11",
+          "title": "Socket",
+          "prompt": "Sending a TCP packet is performed by:",
+          "choices": [
+            "The process writing directly to the NIC registers in portable C",
+            "The kernel network stack on behalf of a socket",
+            "The C preprocessor",
+            "ls"
+          ],
+          "correctIndex": 1,
+          "explanation": "The process uses a socket; the kernel owns the stack."
+        },
+        {
+          "id": "linux-quiz-02-q12",
+          "title": "strace",
+          "prompt": "strace shows:",
+          "choices": [
+            "Only bash aliases",
+            "System calls a process actually makes",
+            "Compiler warnings",
+            "GPTP"
+          ],
+          "correctIndex": 1,
+          "explanation": "strace traces the kernel boundary."
+        },
+        {
+          "id": "linux-quiz-02-q13",
+          "title": "Layer",
+          "prompt": "'Command not found' is usually a failure of:",
+          "choices": [
+            "The MMU",
+            "The shell and PATH",
+            "The NIC firmware",
+            "VFS journaling"
+          ],
+          "correctIndex": 1,
+          "explanation": "The shell could not resolve an executable name."
+        },
+        {
+          "id": "linux-quiz-02-q14",
+          "title": "Layer2",
+          "prompt": "'Permission denied' on open is decided by:",
+          "choices": [
+            "The C standard's printf rules",
+            "Kernel credential checks on a VFS object",
+            "The bootloader password",
+            "DNS"
+          ],
+          "correctIndex": 1,
+          "explanation": "The kernel enforces file permissions."
+        },
+        {
+          "id": "linux-quiz-02-q15",
+          "title": "ABI",
+          "prompt": "The Linux syscall ABI is closest to which language's data model?",
+          "choices": [
+            "Prolog",
+            "C integers, pointers, and structs",
+            "HTML",
+            "SQL"
+          ],
+          "correctIndex": 1,
+          "explanation": "The kernel interface is C-shaped."
+        },
+        {
+          "id": "linux-quiz-02-q16",
+          "title": "Isolate",
+          "prompt": "Virtual memory's user-facing purpose is:",
+          "choices": [
+            "To make disks slower",
+            "To give each process a private address space",
+            "To replace the shell",
+            "To store /etc"
+          ],
+          "correctIndex": 1,
+          "explanation": "Isolation and a convenient linear address space."
+        },
+        {
+          "id": "linux-quiz-02-q17",
+          "title": "libc",
+          "prompt": "glibc sits:",
+          "choices": [
+            "Below the kernel",
+            "In user space, wrapping syscalls",
+            "In firmware",
+            "Inside the CPU cache"
+          ],
+          "correctIndex": 1,
+          "explanation": "libc is userland."
+        },
+        {
+          "id": "linux-quiz-02-q18",
+          "title": "ioctl",
+          "prompt": "Device-specific operations often go through:",
+          "choices": [
+            "ioctl or similar kernel interfaces",
+            "ls -l",
+            "POSIX timers only",
+            "the C preprocessor"
+          ],
+          "correctIndex": 0,
+          "explanation": "ioctl is the classic grab-bag for device ops."
+        },
+        {
+          "id": "linux-quiz-02-q19",
+          "title": "Not kernel",
+          "prompt": "Which is not a kernel job?",
+          "choices": [
+            "Scheduling",
+            "Expanding unquoted globs in a command line",
+            "Paging",
+            "Handling page faults"
+          ],
+          "correctIndex": 1,
+          "explanation": "Globbing is shell parsing."
+        },
+        {
+          "id": "linux-quiz-02-q20",
+          "title": "Cake",
+          "prompt": "From the bottom, a fair layering is:",
+          "choices": [
+            "apps, shell, libc, kernel, hardware",
+            "hardware, kernel, libc, shell, apps",
+            "shell, hardware, kernel, apps, libc",
+            "libc, hardware, apps, kernel, shell"
+          ],
+          "correctIndex": 1,
+          "explanation": "Hardware, then kernel, then libc, then shell, then applications."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-03",
+      "number": 3,
+      "title": "Files and FHS",
+      "goal": "Where files live, inodes, mounts.",
+      "questions": [
+        {
+          "id": "linux-quiz-03-q01",
+          "title": "Root",
+          "prompt": "The root of the Linux directory tree is written:",
+          "choices": [
+            "C:\\",
+            "/",
+            "~",
+            "."
+          ],
+          "correctIndex": 1,
+          "explanation": "One tree, rooted at /."
+        },
+        {
+          "id": "linux-quiz-03-q02",
+          "title": "etc",
+          "prompt": "Machine-wide configuration conventionally lives in:",
+          "choices": [
+            "/home",
+            "/etc",
+            "/proc",
+            "/tmp"
+          ],
+          "correctIndex": 1,
+          "explanation": "/etc is host configuration."
+        },
+        {
+          "id": "linux-quiz-03-q03",
+          "title": "var",
+          "prompt": "Log files conventionally live under:",
+          "choices": [
+            "/var/log",
+            "/bin",
+            "/boot/efi",
+            "/dev"
+          ],
+          "correctIndex": 0,
+          "explanation": "/var is variable data, including logs."
+        },
+        {
+          "id": "linux-quiz-03-q04",
+          "title": "home",
+          "prompt": "A student's own files usually belong in:",
+          "choices": [
+            "/usr/bin",
+            "/home/<user>",
+            "/sbin",
+            "/sys"
+          ],
+          "correctIndex": 1,
+          "explanation": "/home is for people."
+        },
+        {
+          "id": "linux-quiz-03-q05",
+          "title": "proc",
+          "prompt": "/proc is primarily:",
+          "choices": [
+            "A scratch disk for compilers",
+            "A kernel interface mounted as files",
+            "The FHS location for games",
+            "A required GPT partition name"
+          ],
+          "correctIndex": 1,
+          "explanation": "/proc is not for storing homework."
+        },
+        {
+          "id": "linux-quiz-03-q06",
+          "title": "inode",
+          "prompt": "A directory entry stores:",
+          "choices": [
+            "The entire file contents always",
+            "A name and a pointer to an inode",
+            "The CPU routing table",
+            "A Windows drive letter"
+          ],
+          "correctIndex": 1,
+          "explanation": "The inode holds metadata and data locations."
+        },
+        {
+          "id": "linux-quiz-03-q07",
+          "title": "Hard",
+          "prompt": "A hard link:",
+          "choices": [
+            "Always crosses filesystems",
+            "Is a second name for the same inode on one filesystem",
+            "Is another name for a mount",
+            "Deletes the inode immediately"
+          ],
+          "correctIndex": 1,
+          "explanation": "Hard links share an inode and stay on one filesystem."
+        },
+        {
+          "id": "linux-quiz-03-q08",
+          "title": "Soft",
+          "prompt": "A symbolic link stores:",
+          "choices": [
+            "A duplicate inode of the target",
+            "A pathname to follow",
+            "A uid mapping",
+            "A pipe buffer"
+          ],
+          "correctIndex": 1,
+          "explanation": "A symlink is a path, which may dangle."
+        },
+        {
+          "id": "linux-quiz-03-q09",
+          "title": "rm",
+          "prompt": "rm on a file name:",
+          "choices": [
+            "Always wipes the disk platter",
+            "Removes a directory entry; data lasts until last link and last fd go",
+            "Sends SIGKILL to the inode",
+            "Formats /"
+          ],
+          "correctIndex": 1,
+          "explanation": "Unlink removes a name, not necessarily the data yet."
+        },
+        {
+          "id": "linux-quiz-03-q10",
+          "title": "bin",
+          "prompt": "User command binaries commonly live in:",
+          "choices": [
+            "/etc",
+            "/usr/bin or /bin",
+            "/var/log",
+            "/proc/1"
+          ],
+          "correctIndex": 1,
+          "explanation": "Commands live in bin directories."
+        },
+        {
+          "id": "linux-quiz-03-q11",
+          "title": "dev",
+          "prompt": "/dev/null is:",
+          "choices": [
+            "A log file",
+            "A device node, still opened as a file descriptor",
+            "A shell builtin",
+            "An inode in /home"
+          ],
+          "correctIndex": 1,
+          "explanation": "Device nodes are VFS objects."
+        },
+        {
+          "id": "linux-quiz-03-q12",
+          "title": "abs",
+          "prompt": "Which path is absolute?",
+          "choices": [
+            "../etc/passwd",
+            "/etc/passwd",
+            "etc/passwd",
+            "./passwd"
+          ],
+          "correctIndex": 1,
+          "explanation": "Absolute paths start with /."
+        },
+        {
+          "id": "linux-quiz-03-q13",
+          "title": "dot",
+          "prompt": ". in a pathname means:",
+          "choices": [
+            "The parent",
+            "The current directory",
+            "The root",
+            "A hidden kernel"
+          ],
+          "correctIndex": 1,
+          "explanation": ". is cwd."
+        },
+        {
+          "id": "linux-quiz-03-q14",
+          "title": "traverse",
+          "prompt": "Execute permission on a directory means:",
+          "choices": [
+            "The directory is a program",
+            "You may traverse to a known name inside it",
+            "You may always list all names",
+            "You own the inode"
+          ],
+          "correctIndex": 1,
+          "explanation": "Directory +x is search/traverse."
+        },
+        {
+          "id": "linux-quiz-03-q15",
+          "title": "mount",
+          "prompt": "Mounting a filesystem:",
+          "choices": [
+            "Copies every file into RAM",
+            "Attaches that filesystem at a directory in the tree",
+            "Deletes /etc",
+            "Changes PATH"
+          ],
+          "correctIndex": 1,
+          "explanation": "Mount grafts a tree onto a directory."
+        },
+        {
+          "id": "linux-quiz-03-q16",
+          "title": "tmp",
+          "prompt": "/tmp is for:",
+          "choices": [
+            "The kernel image",
+            "Scratch files that may disappear",
+            "Password hashes",
+            "Bootloaders"
+          ],
+          "correctIndex": 1,
+          "explanation": "/tmp is temporary."
+        },
+        {
+          "id": "linux-quiz-03-q17",
+          "title": "sys",
+          "prompt": "/sys is closest to:",
+          "choices": [
+            "User movies",
+            "A kernel/driver interface tree",
+            "The default home",
+            "A package database"
+          ],
+          "correctIndex": 1,
+          "explanation": "/sys is sysfs."
+        },
+        {
+          "id": "linux-quiz-03-q18",
+          "title": "local",
+          "prompt": "Locally built software is conventionally placed in:",
+          "choices": [
+            "/usr/local or /opt",
+            "/proc",
+            "/dev",
+            "/boot only"
+          ],
+          "correctIndex": 0,
+          "explanation": "/usr/local and /opt are for local additions."
+        },
+        {
+          "id": "linux-quiz-03-q19",
+          "title": "bytes",
+          "prompt": "A regular file is:",
+          "choices": [
+            "Always line-oriented records",
+            "A sequence of bytes",
+            "Always executable",
+            "Always UTF-8 text"
+          ],
+          "correctIndex": 1,
+          "explanation": "No record format in the filesystem."
+        },
+        {
+          "id": "linux-quiz-03-q20",
+          "title": "Mixup",
+          "prompt": "Where does a typical system log belong?",
+          "choices": [
+            "/home/log",
+            "/var/log",
+            "/usr/log",
+            "/proc/log"
+          ],
+          "correctIndex": 1,
+          "explanation": "Logs are variable data under /var."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-04",
+      "number": 4,
+      "title": "The shell",
+      "goal": "PATH, quoting, globbing, status.",
+      "questions": [
+        {
+          "id": "linux-quiz-04-q01",
+          "title": "What",
+          "prompt": "The shell is:",
+          "choices": [
+            "The kernel",
+            "A user program that runs other programs",
+            "Firmware",
+            "The VFS"
+          ],
+          "correctIndex": 1,
+          "explanation": "bash and friends are processes."
+        },
+        {
+          "id": "linux-quiz-04-q02",
+          "title": "PATH",
+          "prompt": "A command name with no slash is found via:",
+          "choices": [
+            "The inode of /",
+            "PATH",
+            "DNS",
+            "umask"
+          ],
+          "correctIndex": 1,
+          "explanation": "PATH is a list of directories to search."
+        },
+        {
+          "id": "linux-quiz-04-q03",
+          "title": "slash",
+          "prompt": "./tool skips PATH because:",
+          "choices": [
+            "It is a builtin",
+            "The name contains a slash",
+            "The kernel forbids PATH",
+            "POSIX requires it to be bash"
+          ],
+          "correctIndex": 1,
+          "explanation": "A slash means it is a pathname, not a PATH search."
+        },
+        {
+          "id": "linux-quiz-04-q04",
+          "title": "cd",
+          "prompt": "cd must be a shell builtin because:",
+          "choices": [
+            "The kernel cannot change directories",
+            "Only the shell process's cwd should change",
+            "POSIX forbids /usr/bin/cd",
+            "cd is a syscall"
+          ],
+          "correctIndex": 1,
+          "explanation": "An external cd would only change a child."
+        },
+        {
+          "id": "linux-quiz-04-q05",
+          "title": "argv",
+          "prompt": "After the shell parses the line, the program receives:",
+          "choices": [
+            "The raw quotes",
+            "An argument vector of strings",
+            "The entire PATH as argv[0]",
+            "Kernel registers"
+          ],
+          "correctIndex": 1,
+          "explanation": "Quotes are shell syntax, not program input."
+        },
+        {
+          "id": "linux-quiz-04-q06",
+          "title": "single",
+          "prompt": "Single quotes around a string:",
+          "choices": [
+            "Still expand $HOME",
+            "Inhibit expansion and pass characters literally",
+            "Enable globbing",
+            "Force PATH search"
+          ],
+          "correctIndex": 1,
+          "explanation": "Single quotes are the literal shield."
+        },
+        {
+          "id": "linux-quiz-04-q07",
+          "title": "double",
+          "prompt": "In bash, \"$file\" is preferred over $file because:",
+          "choices": [
+            "It runs faster",
+            "It prevents word-splitting and globbing of the value",
+            "It disables PATH",
+            "It makes the variable an integer"
+          ],
+          "correctIndex": 1,
+          "explanation": "Quote expansions that are filenames or data."
+        },
+        {
+          "id": "linux-quiz-04-q08",
+          "title": "glob",
+          "prompt": "*.c is expanded by:",
+          "choices": [
+            "grep",
+            "The kernel VFS",
+            "The shell, before exec",
+            "the C compiler"
+          ],
+          "correctIndex": 2,
+          "explanation": "Globs are shell filename expansion."
+        },
+        {
+          "id": "linux-quiz-04-q09",
+          "title": "status",
+          "prompt": "Exit status 0 conventionally means:",
+          "choices": [
+            "Out of memory",
+            "Success",
+            "Permission denied",
+            "Command not found"
+          ],
+          "correctIndex": 1,
+          "explanation": "Zero is success."
+        },
+        {
+          "id": "linux-quiz-04-q10",
+          "title": "qmark",
+          "prompt": "In the shell, $? is:",
+          "choices": [
+            "The pid of pid 1",
+            "The last command's exit status",
+            "The umask",
+            "The current inode"
+          ],
+          "correctIndex": 1,
+          "explanation": "$? is the status."
+        },
+        {
+          "id": "linux-quiz-04-q11",
+          "title": "man1",
+          "prompt": "man ls is typically section:",
+          "choices": [
+            "2, system calls",
+            "1, user commands",
+            "4, devices",
+            "8, only kernel internals"
+          ],
+          "correctIndex": 1,
+          "explanation": "Section 1 is commands."
+        },
+        {
+          "id": "linux-quiz-04-q12",
+          "title": "man2",
+          "prompt": "man 2 open documents:",
+          "choices": [
+            "A bash builtin",
+            "The open system call",
+            "A distro package",
+            "fstab"
+          ],
+          "correctIndex": 1,
+          "explanation": "Section 2 is syscalls."
+        },
+        {
+          "id": "linux-quiz-04-q13",
+          "title": "not found",
+          "prompt": "command not found usually means:",
+          "choices": [
+            "The disk is in kernel mode",
+            "No executable matched PATH or the name was wrong",
+            "stdin is closed",
+            "The inode table is full"
+          ],
+          "correctIndex": 1,
+          "explanation": "Resolution failed."
+        },
+        {
+          "id": "linux-quiz-04-q14",
+          "title": "builtin",
+          "prompt": "Which is typically a shell builtin?",
+          "choices": [
+            "gcc",
+            "cd",
+            "python3",
+            "sshd"
+          ],
+          "correctIndex": 1,
+          "explanation": "cd must change the shell itself."
+        },
+        {
+          "id": "linux-quiz-04-q15",
+          "title": "hidden",
+          "prompt": "A glob * does not match names starting with . unless:",
+          "choices": [
+            "You are root",
+            "The pattern itself starts with a dot (or you set options to include them)",
+            "The kernel is Linux 2.6",
+            "The file is executable"
+          ],
+          "correctIndex": 1,
+          "explanation": "Dotfiles are excluded from * by default."
+        },
+        {
+          "id": "linux-quiz-04-q16",
+          "title": "IFS",
+          "prompt": "Unquoted $var is split using:",
+          "choices": [
+            "Only newlines always",
+            "IFS",
+            "PATH",
+            "the inode size"
+          ],
+          "correctIndex": 1,
+          "explanation": "IFS controls field splitting."
+        },
+        {
+          "id": "linux-quiz-04-q17",
+          "title": "type",
+          "prompt": "In bash, type ls tells you:",
+          "choices": [
+            "The filesystem UUID",
+            "Whether ls is an alias, builtin, or file",
+            "The man section",
+            "The uid of /bin"
+          ],
+          "correctIndex": 1,
+          "explanation": "type is the honest lookup."
+        },
+        {
+          "id": "linux-quiz-04-q18",
+          "title": "child",
+          "prompt": "The executed program does not see your quotes because:",
+          "choices": [
+            "The kernel strips ASCII 34",
+            "The shell parsed the line first",
+            "C cannot store quotes",
+            "POSIX forbids quotes in argv"
+          ],
+          "correctIndex": 1,
+          "explanation": "Parsing is the shell's job."
+        },
+        {
+          "id": "linux-quiz-04-q19",
+          "title": "pwd",
+          "prompt": "pwd prints:",
+          "choices": [
+            "PATH",
+            "The current working directory",
+            "The parent of /",
+            "The shell version only"
+          ],
+          "correctIndex": 1,
+          "explanation": "pwd is cwd."
+        },
+        {
+          "id": "linux-quiz-04-q20",
+          "title": "Trap",
+          "prompt": "echo $files when files='a b' (unquoted) becomes:",
+          "choices": [
+            "One argument a b",
+            "Two arguments a and b, after splitting",
+            "A glob of hidden files",
+            "A syntax error always"
+          ],
+          "correctIndex": 1,
+          "explanation": "Unquoted expansion splits on IFS."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-05",
+      "number": 5,
+      "title": "Everyday tools",
+      "goal": "Which command for which job.",
+      "questions": [
+        {
+          "id": "linux-quiz-05-q01",
+          "title": "pwd",
+          "prompt": "You want to know where you are. You run:",
+          "choices": [
+            "whoami",
+            "pwd",
+            "chmod",
+            "df"
+          ],
+          "correctIndex": 1,
+          "explanation": "pwd prints the working directory."
+        },
+        {
+          "id": "linux-quiz-05-q02",
+          "title": "list",
+          "prompt": "Long listing with permissions is:",
+          "choices": [
+            "ls -l",
+            "cat -l",
+            "cd -l",
+            "man -l"
+          ],
+          "correctIndex": 0,
+          "explanation": "ls -l is the long form."
+        },
+        {
+          "id": "linux-quiz-05-q03",
+          "title": "dot",
+          "prompt": "ls -a is needed because:",
+          "choices": [
+            "The kernel hides encrypted files",
+            "Names starting with . are omitted from default ls",
+            "PATH is empty",
+            "Directories cannot be listed otherwise"
+          ],
+          "correctIndex": 1,
+          "explanation": "Dotfiles are a listing convention."
+        },
+        {
+          "id": "linux-quiz-05-q04",
+          "title": "page",
+          "prompt": "To page through a long file, prefer:",
+          "choices": [
+            "cat",
+            "less",
+            "rm",
+            "chmod"
+          ],
+          "correctIndex": 1,
+          "explanation": "less is a pager. cat dumps everything."
+        },
+        {
+          "id": "linux-quiz-05-q05",
+          "title": "tail",
+          "prompt": "tail -f is for:",
+          "choices": [
+            "Deleting the last line",
+            "Following a file as it grows",
+            "Changing cwd",
+            "Sorting"
+          ],
+          "correctIndex": 1,
+          "explanation": "Follow mode for logs."
+        },
+        {
+          "id": "linux-quiz-05-q06",
+          "title": "mkdirp",
+          "prompt": "mkdir -p a/b/c:",
+          "choices": [
+            "Fails if a exists",
+            "Creates parents as needed",
+            "Formats a",
+            "Moves b to c"
+          ],
+          "correctIndex": 1,
+          "explanation": "-p is parents."
+        },
+        {
+          "id": "linux-quiz-05-q07",
+          "title": "touch",
+          "prompt": "touch file can:",
+          "choices": [
+            "Compile file",
+            "Create file if missing and update timestamps",
+            "Change ownership to root",
+            "Mount file"
+          ],
+          "correctIndex": 1,
+          "explanation": "That's touch."
+        },
+        {
+          "id": "linux-quiz-05-q08",
+          "title": "cp",
+          "prompt": "Copy a directory tree with:",
+          "choices": [
+            "cp -r src dest",
+            "mv -r src dest",
+            "rm -r src dest",
+            "cd -r src dest"
+          ],
+          "correctIndex": 0,
+          "explanation": "cp -r recurses."
+        },
+        {
+          "id": "linux-quiz-05-q09",
+          "title": "mv",
+          "prompt": "On the same filesystem, mv is often:",
+          "choices": [
+            "A full byte copy plus delete",
+            "A directory-entry rename",
+            "A format",
+            "A mount"
+          ],
+          "correctIndex": 1,
+          "explanation": "Rename is cheap on one fs."
+        },
+        {
+          "id": "linux-quiz-05-q10",
+          "title": "rm",
+          "prompt": "rm without -r on a directory:",
+          "choices": [
+            "Always deletes the tree",
+            "Typically refuses because the name is a directory",
+            "Formats the parent",
+            "Kills processes using it"
+          ],
+          "correctIndex": 1,
+          "explanation": "Need -r to recurse."
+        },
+        {
+          "id": "linux-quiz-05-q11",
+          "title": "wc",
+          "prompt": "wc -l counts:",
+          "choices": [
+            "Letters",
+            "Lines",
+            "Inodes in /",
+            "Users"
+          ],
+          "correctIndex": 1,
+          "explanation": "Line count."
+        },
+        {
+          "id": "linux-quiz-05-q12",
+          "title": "file",
+          "prompt": "The file command inspects:",
+          "choices": [
+            "Only the suffix",
+            "Content to guess a type",
+            "PATH only",
+            "DNS"
+          ],
+          "correctIndex": 1,
+          "explanation": "Magic, not suffix."
+        },
+        {
+          "id": "linux-quiz-05-q13",
+          "title": "echo",
+          "prompt": "echo writes:",
+          "choices": [
+            "To the inode table",
+            "Its arguments to standard output",
+            "Always to /var/log",
+            "To the kernel log only"
+          ],
+          "correctIndex": 1,
+          "explanation": "stdout."
+        },
+        {
+          "id": "linux-quiz-05-q14",
+          "title": "which",
+          "prompt": "which python3 answers:",
+          "choices": [
+            "Who owns the file",
+            "Which PATH hit would run",
+            "The man section",
+            "The umask"
+          ],
+          "correctIndex": 1,
+          "explanation": "PATH lookup."
+        },
+        {
+          "id": "linux-quiz-05-q15",
+          "title": "hyphen",
+          "prompt": "A file named -r should be referred to as:",
+          "choices": [
+            "-r only, always",
+            "./-r or after --",
+            "/dev/-r",
+            "only via sudo"
+          ],
+          "correctIndex": 1,
+          "explanation": "Stop option parsing."
+        },
+        {
+          "id": "linux-quiz-05-q16",
+          "title": "spaces",
+          "prompt": "A name with a space should be:",
+          "choices": [
+            "Split into two arguments",
+            "Quoted",
+            "Stored in /proc",
+            "Illegal on Linux"
+          ],
+          "correctIndex": 1,
+          "explanation": "Quote it."
+        },
+        {
+          "id": "linux-quiz-05-q17",
+          "title": "head",
+          "prompt": "head by default shows:",
+          "choices": [
+            "The whole file",
+            "The first 10 lines",
+            "The inode",
+            "The last 10 lines"
+          ],
+          "correctIndex": 1,
+          "explanation": "Default 10."
+        },
+        {
+          "id": "linux-quiz-05-q18",
+          "title": "lessq",
+          "prompt": "In less, q:",
+          "choices": [
+            "Quits",
+            "Queries DNS",
+            "Quotes the file",
+            "Sends SIGKILL"
+          ],
+          "correctIndex": 0,
+          "explanation": "q quits."
+        },
+        {
+          "id": "linux-quiz-05-q19",
+          "title": "rhythm",
+          "prompt": "Before a wide rm glob, a cheap check is:",
+          "choices": [
+            "reboot",
+            "pwd and ls",
+            "mkfs",
+            "chmod 777 /"
+          ],
+          "correctIndex": 1,
+          "explanation": "See where you are."
+        },
+        {
+          "id": "linux-quiz-05-q20",
+          "title": "rename",
+          "prompt": "You mean to rename a.c to b.c. Prefer:",
+          "choices": [
+            "cp a.c b.c && rm a.c always, even on one filesystem",
+            "mv a.c b.c",
+            "touch a.c b.c",
+            "less a.c > b.c"
+          ],
+          "correctIndex": 1,
+          "explanation": "mv is rename."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-06",
+      "number": 6,
+      "title": "Permissions and processes",
+      "goal": "chmod arithmetic, signals, credentials.",
+      "questions": [
+        {
+          "id": "linux-quiz-06-q01",
+          "title": "id",
+          "prompt": "id prints:",
+          "choices": [
+            "The machine's IPv6 address",
+            "User and group numbers (and names)",
+            "The inode of .",
+            "PATH"
+          ],
+          "correctIndex": 1,
+          "explanation": "Credentials."
+        },
+        {
+          "id": "linux-quiz-06-q02",
+          "title": "bits",
+          "prompt": "The nine rwx bits are grouped as:",
+          "choices": [
+            "uid, pid, ppid",
+            "owner, group, other",
+            "read, PATH, root",
+            "stdin, stdout, stderr"
+          ],
+          "correctIndex": 1,
+          "explanation": "Three triples."
+        },
+        {
+          "id": "linux-quiz-06-q03",
+          "title": "755",
+          "prompt": "Mode 755 is:",
+          "choices": [
+            "rwxrwxrwx",
+            "rwxr-xr-x",
+            "rw-r--r--",
+            "r-x--x--x"
+          ],
+          "correctIndex": 1,
+          "explanation": "7=rwx, 5=r-x, 5=r-x."
+        },
+        {
+          "id": "linux-quiz-06-q04",
+          "title": "644",
+          "prompt": "Mode 644 is:",
+          "choices": [
+            "rwxr-xr-x",
+            "rw-r--r--",
+            "rwxrwxrwx",
+            "------rwx"
+          ],
+          "correctIndex": 1,
+          "explanation": "6=rw, 4=r, 4=r."
+        },
+        {
+          "id": "linux-quiz-06-q05",
+          "title": "octal",
+          "prompt": "In chmod octal, execute is worth:",
+          "choices": [
+            "4",
+            "2",
+            "1",
+            "7"
+          ],
+          "correctIndex": 2,
+          "explanation": "r=4 w=2 x=1."
+        },
+        {
+          "id": "linux-quiz-06-q06",
+          "title": "dirx",
+          "prompt": "Without execute on a directory, you typically cannot:",
+          "choices": [
+            "Know that the directory exists if you already have its name? wait \u2014 you cannot traverse into it",
+            "Ping the NIC",
+            "Run pid 1",
+            "Mount NFS"
+          ],
+          "correctIndex": 0,
+          "explanation": "Directory +x is required to traverse."
+        },
+        {
+          "id": "linux-quiz-06-q07",
+          "title": "dirr",
+          "prompt": "Read permission on a directory lets you:",
+          "choices": [
+            "Exec binaries inside without traverse",
+            "List names",
+            "Change uid",
+            "Write the kernel"
+          ],
+          "correctIndex": 1,
+          "explanation": "Listing names needs +r."
+        },
+        {
+          "id": "linux-quiz-06-q08",
+          "title": "chmod",
+          "prompt": "chmod changes:",
+          "choices": [
+            "Ownership",
+            "Permission bits",
+            "The filesystem type",
+            "The process umask of pid 1"
+          ],
+          "correctIndex": 1,
+          "explanation": "Mode, not owner."
+        },
+        {
+          "id": "linux-quiz-06-q09",
+          "title": "chown",
+          "prompt": "chown is usually restricted because:",
+          "choices": [
+            "It rewrites PATH",
+            "Giving away or taking files is a privileged operation",
+            "It is a bash builtin that cannot fail",
+            "POSIX forbids it"
+          ],
+          "correctIndex": 1,
+          "explanation": "Ownership changes are sensitive."
+        },
+        {
+          "id": "linux-quiz-06-q10",
+          "title": "umask",
+          "prompt": "A umask of 022 applied to a default file mode 666 yields:",
+          "choices": [
+            "777",
+            "644",
+            "000",
+            "755"
+          ],
+          "correctIndex": 1,
+          "explanation": "022 clears group/other write."
+        },
+        {
+          "id": "linux-quiz-06-q11",
+          "title": "sudo",
+          "prompt": "sudo runs a command:",
+          "choices": [
+            "Inside the kernel",
+            "As another user, often root, according to policy",
+            "Without a process",
+            "Only on Debian"
+          ],
+          "correctIndex": 1,
+          "explanation": "Policy in sudoers."
+        },
+        {
+          "id": "linux-quiz-06-q12",
+          "title": "kill",
+          "prompt": "kill pid with no signal name sends:",
+          "choices": [
+            "KILL",
+            "TERM",
+            "STOP",
+            "CHLD"
+          ],
+          "correctIndex": 1,
+          "explanation": "Default TERM."
+        },
+        {
+          "id": "linux-quiz-06-q13",
+          "title": "nine",
+          "prompt": "SIGKILL (9) is different because:",
+          "choices": [
+            "It is catchable like TERM",
+            "It cannot be caught or ignored",
+            "It only works on directories",
+            "It unmounts /"
+          ],
+          "correctIndex": 1,
+          "explanation": "KILL is forced."
+        },
+        {
+          "id": "linux-quiz-06-q14",
+          "title": "zombie",
+          "prompt": "A zombie process is:",
+          "choices": [
+            "Still running user code",
+            "Dead, waiting for the parent to collect its status",
+            "A kernel thread",
+            "An extra hard link"
+          ],
+          "correctIndex": 1,
+          "explanation": "Reap with wait."
+        },
+        {
+          "id": "linux-quiz-06-q15",
+          "title": "ps",
+          "prompt": "ps lists:",
+          "choices": [
+            "Mounted disks only",
+            "Processes",
+            "Users in /etc/passwd only",
+            "Packages"
+          ],
+          "correctIndex": 1,
+          "explanation": "Process snapshot."
+        },
+        {
+          "id": "linux-quiz-06-q16",
+          "title": "ctrlc",
+          "prompt": "Ctrl-C in an interactive shell typically sends:",
+          "choices": [
+            "SIGKILL",
+            "SIGINT",
+            "SIGHUP",
+            "SIGCHLD"
+          ],
+          "correctIndex": 1,
+          "explanation": "INT."
+        },
+        {
+          "id": "linux-quiz-06-q17",
+          "title": "bg",
+          "prompt": "Placing & at the end of a command:",
+          "choices": [
+            "Deletes the process",
+            "Starts it in the background",
+            "Raises its niceness to 19 always",
+            "Runs it as root"
+          ],
+          "correctIndex": 1,
+          "explanation": "Job control."
+        },
+        {
+          "id": "linux-quiz-06-q18",
+          "title": "export",
+          "prompt": "export VAR=value:",
+          "choices": [
+            "Writes VAR to /etc",
+            "Marks VAR for inheritance by child processes",
+            "Is a syscall",
+            "Sets the umask to VAR"
+          ],
+          "correctIndex": 1,
+          "explanation": "Environment."
+        },
+        {
+          "id": "linux-quiz-06-q19",
+          "title": "least",
+          "prompt": "Editing a file you own in $HOME should:",
+          "choices": [
+            "Require sudo",
+            "Not require sudo",
+            "Require chmod 000 first",
+            "Require chown root"
+          ],
+          "correctIndex": 1,
+          "explanation": "Least privilege."
+        },
+        {
+          "id": "linux-quiz-06-q20",
+          "title": "type char",
+          "prompt": "In ls -l, a leading d means:",
+          "choices": [
+            "device",
+            "directory",
+            "dangling symlink",
+            "deleted"
+          ],
+          "correctIndex": 1,
+          "explanation": "d is directory."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-07",
+      "number": 7,
+      "title": "Streams and pipes",
+      "goal": "File descriptors, 2>&1 order, filters.",
+      "questions": [
+        {
+          "id": "linux-quiz-07-q01",
+          "title": "stdin",
+          "prompt": "File descriptor 0 is:",
+          "choices": [
+            "stderr",
+            "stdin",
+            "stdout",
+            "the cwd"
+          ],
+          "correctIndex": 1,
+          "explanation": "0 stdin."
+        },
+        {
+          "id": "linux-quiz-07-q02",
+          "title": "stdout",
+          "prompt": "File descriptor 1 is:",
+          "choices": [
+            "stdin",
+            "stdout",
+            "stderr",
+            "a socket always"
+          ],
+          "correctIndex": 1,
+          "explanation": "1 stdout."
+        },
+        {
+          "id": "linux-quiz-07-q03",
+          "title": "stderr",
+          "prompt": "File descriptor 2 is:",
+          "choices": [
+            "stderr",
+            "stdin",
+            "the root inode",
+            "PATH"
+          ],
+          "correctIndex": 0,
+          "explanation": "2 stderr."
+        },
+        {
+          "id": "linux-quiz-07-q04",
+          "title": "trunc",
+          "prompt": "cmd > out.txt:",
+          "choices": [
+            "Appends stdout to out.txt",
+            "Truncates or creates out.txt and sends stdout there",
+            "Sends stderr only",
+            "Deletes out.txt after"
+          ],
+          "correctIndex": 1,
+          "explanation": "> truncates."
+        },
+        {
+          "id": "linux-quiz-07-q05",
+          "title": "app",
+          "prompt": ">> means:",
+          "choices": [
+            "Pipe",
+            "Append stdout",
+            "Duplicate stderr onto stdin",
+            "Close fd 0"
+          ],
+          "correctIndex": 1,
+          "explanation": "Append."
+        },
+        {
+          "id": "linux-quiz-07-q06",
+          "title": "in",
+          "prompt": "< file:",
+          "choices": [
+            "Writes stdout to file",
+            "Opens file as stdin",
+            "Is a comment",
+            "Sets PATH"
+          ],
+          "correctIndex": 1,
+          "explanation": "Redirect input."
+        },
+        {
+          "id": "linux-quiz-07-q07",
+          "title": "order",
+          "prompt": ">out 2>&1 sends:",
+          "choices": [
+            "Only stdout to out",
+            "stdout and stderr to out",
+            "Only stderr to out",
+            "Nothing; syntax error"
+          ],
+          "correctIndex": 1,
+          "explanation": "stdout goes to out, then stderr copies that fd."
+        },
+        {
+          "id": "linux-quiz-07-q08",
+          "title": "order2",
+          "prompt": "2>&1 >out sends stderr to:",
+          "choices": [
+            "out",
+            "The original stdout (often the terminal), not out",
+            "/dev/null",
+            "stdin"
+          ],
+          "correctIndex": 1,
+          "explanation": "stderr is duplicated first, then stdout is moved."
+        },
+        {
+          "id": "linux-quiz-07-q09",
+          "title": "pipe",
+          "prompt": "a | b connects:",
+          "choices": [
+            "a's stderr to b's stdin always",
+            "a's stdout to b's stdin",
+            "a and b to the same inode",
+            "a to pid 1"
+          ],
+          "correctIndex": 1,
+          "explanation": "stdout to stdin."
+        },
+        {
+          "id": "linux-quiz-07-q10",
+          "title": "both run",
+          "prompt": "In a pipeline, the processes:",
+          "choices": [
+            "Always run strictly one after the other with no overlap",
+            "Run concurrently, connected by a kernel buffer",
+            "Share one address space",
+            "Must be builtins"
+          ],
+          "correctIndex": 1,
+          "explanation": "Concurrent."
+        },
+        {
+          "id": "linux-quiz-07-q11",
+          "title": "grep",
+          "prompt": "grep selects:",
+          "choices": [
+            "Files by inode number only",
+            "Lines matching a pattern",
+            "Processes by uid",
+            "Mounts"
+          ],
+          "correctIndex": 1,
+          "explanation": "Line filter."
+        },
+        {
+          "id": "linux-quiz-07-q12",
+          "title": "glob vs re",
+          "prompt": "Which is true?",
+          "choices": [
+            "*.c is a regular expression evaluated by grep by default",
+            "*.c is a shell glob for filenames",
+            "grep expands globs instead of the shell",
+            "find cannot use names"
+          ],
+          "correctIndex": 1,
+          "explanation": "Globs are filenames; regex is text."
+        },
+        {
+          "id": "linux-quiz-07-q13",
+          "title": "uniq",
+          "prompt": "uniq collapses duplicates only when they are:",
+          "choices": [
+            "Anywhere in the file",
+            "Adjacent",
+            "On even lines",
+            "Owner by root"
+          ],
+          "correctIndex": 1,
+          "explanation": "Sort first."
+        },
+        {
+          "id": "linux-quiz-07-q14",
+          "title": "sortuniq",
+          "prompt": "To count distinct lines, a usual pipeline is:",
+          "choices": [
+            "uniq | sort",
+            "sort | uniq",
+            "cat | cat",
+            "ls | chmod"
+          ],
+          "correctIndex": 1,
+          "explanation": "sort then uniq."
+        },
+        {
+          "id": "linux-quiz-07-q15",
+          "title": "find",
+          "prompt": "find searches:",
+          "choices": [
+            "File contents like grep -r always",
+            "A directory tree by name and inode properties",
+            "Only PATH",
+            "DNS"
+          ],
+          "correctIndex": 1,
+          "explanation": "Tree walk."
+        },
+        {
+          "id": "linux-quiz-07-q16",
+          "title": "quote find",
+          "prompt": "find . -name '*.c' quotes the pattern so that:",
+          "choices": [
+            "grep sees it",
+            "The shell does not expand the glob first",
+            "The kernel skips /proc",
+            "chmod runs"
+          ],
+          "correctIndex": 1,
+          "explanation": "Let find glob."
+        },
+        {
+          "id": "linux-quiz-07-q17",
+          "title": "tee",
+          "prompt": "tee:",
+          "choices": [
+            "Deletes stdout",
+            "Copies stdout to a file and still passes it along",
+            "Is a mount option",
+            "Sets uid"
+          ],
+          "correctIndex": 1,
+          "explanation": "T-junction."
+        },
+        {
+          "id": "linux-quiz-07-q18",
+          "title": "diag",
+          "prompt": "Progress messages in a filter should go to:",
+          "choices": [
+            "stdout, always",
+            "stderr, so pipes still carry data",
+            "/etc",
+            "the shebang"
+          ],
+          "correctIndex": 1,
+          "explanation": "Keep fd 1 clean."
+        },
+        {
+          "id": "linux-quiz-07-q19",
+          "title": "ls loop",
+          "prompt": "Parsing ls in a script is frowned on because:",
+          "choices": [
+            "ls is a builtin",
+            "ls output is for humans and breaks on odd names",
+            "ls cannot list directories",
+            "POSIX forbids ls"
+          ],
+          "correctIndex": 1,
+          "explanation": "Use globs/find."
+        },
+        {
+          "id": "linux-quiz-07-q20",
+          "title": "pipefail",
+          "prompt": "Without pipefail, bash's pipeline status is:",
+          "choices": [
+            "The first command",
+            "The last command",
+            "Always 0",
+            "The kernel's uid"
+          ],
+          "correctIndex": 1,
+          "explanation": "Last command wins unless pipefail."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-08",
+      "number": 8,
+      "title": "Boot and packages",
+      "goal": "Units, apt, df versus du.",
+      "questions": [
+        {
+          "id": "linux-quiz-08-q01",
+          "title": "firmware",
+          "prompt": "After power on, the first software to run is typically:",
+          "choices": [
+            "bash",
+            "Firmware (BIOS/UEFI)",
+            "apt",
+            "python"
+          ],
+          "correctIndex": 1,
+          "explanation": "Firmware then bootloader."
+        },
+        {
+          "id": "linux-quiz-08-q02",
+          "title": "grub",
+          "prompt": "GRUB's job is to:",
+          "choices": [
+            "Schedule user processes at runtime",
+            "Load a kernel (and usually initramfs)",
+            "Replace VFS",
+            "Implement TCP"
+          ],
+          "correctIndex": 1,
+          "explanation": "Bootloader."
+        },
+        {
+          "id": "linux-quiz-08-q03",
+          "title": "pid1",
+          "prompt": "After the kernel mounts the real root, it starts:",
+          "choices": [
+            "A random getty first always",
+            "pid 1 (init/systemd)",
+            "apt update",
+            "X11"
+          ],
+          "correctIndex": 1,
+          "explanation": "Init."
+        },
+        {
+          "id": "linux-quiz-08-q04",
+          "title": "unit",
+          "prompt": "A systemd unit is:",
+          "choices": [
+            "Always exactly one process",
+            "A configuration object: service, socket, mount, timer, ...",
+            "A filesystem type",
+            "A man section"
+          ],
+          "correctIndex": 1,
+          "explanation": "Units are not just processes."
+        },
+        {
+          "id": "linux-quiz-08-q05",
+          "title": "enable",
+          "prompt": "systemctl enable means:",
+          "choices": [
+            "Start now only",
+            "Start at boot (install the wants/requires links)",
+            "Delete the unit",
+            "Recompile the kernel"
+          ],
+          "correctIndex": 1,
+          "explanation": "Enable is persistence."
+        },
+        {
+          "id": "linux-quiz-08-q06",
+          "title": "start",
+          "prompt": "systemctl start means:",
+          "choices": [
+            "Start now",
+            "Start at next year's cron",
+            "Always enable",
+            "Format the journal"
+          ],
+          "correctIndex": 0,
+          "explanation": "Now."
+        },
+        {
+          "id": "linux-quiz-08-q07",
+          "title": "pkg",
+          "prompt": "A package manager's job includes:",
+          "choices": [
+            "Replacing the MMU",
+            "Tracking files, versions, and dependencies",
+            "Writing firmware",
+            "Owning TCP"
+          ],
+          "correctIndex": 1,
+          "explanation": "A database of installed software."
+        },
+        {
+          "id": "linux-quiz-08-q08",
+          "title": "update",
+          "prompt": "On Debian family, apt update:",
+          "choices": [
+            "Upgrades every package immediately",
+            "Refreshes the index of available packages",
+            "Reboots",
+            "Edits fstab"
+          ],
+          "correctIndex": 1,
+          "explanation": "Index, not upgrade."
+        },
+        {
+          "id": "linux-quiz-08-q09",
+          "title": "dnf",
+          "prompt": "dnf is associated with:",
+          "choices": [
+            "Debian",
+            "Fedora/RHEL family",
+            "Only BusyBox",
+            "UEFI"
+          ],
+          "correctIndex": 1,
+          "explanation": "RPM world."
+        },
+        {
+          "id": "linux-quiz-08-q10",
+          "title": "df",
+          "prompt": "df reports:",
+          "choices": [
+            "Per-path apparent sizes only",
+            "Free space on mounted filesystems",
+            "CPU frequency",
+            "uids"
+          ],
+          "correctIndex": 1,
+          "explanation": "Filesystem free space."
+        },
+        {
+          "id": "linux-quiz-08-q11",
+          "title": "du",
+          "prompt": "du reports:",
+          "choices": [
+            "Space used under a path",
+            "NIC speed",
+            "The number of users",
+            "Open ports"
+          ],
+          "correctIndex": 0,
+          "explanation": "Sum of files."
+        },
+        {
+          "id": "linux-quiz-08-q12",
+          "title": "ghost",
+          "prompt": "A deleted log still using space often means:",
+          "choices": [
+            "The inode is in /proc",
+            "A process still has the file open",
+            "GRUB is running",
+            "DNS cache"
+          ],
+          "correctIndex": 1,
+          "explanation": "Unlinked but open."
+        },
+        {
+          "id": "linux-quiz-08-q13",
+          "title": "fstab",
+          "prompt": "/etc/fstab lists:",
+          "choices": [
+            "Users",
+            "Filesystems to mount at boot",
+            "systemd timers only",
+            "PATH"
+          ],
+          "correctIndex": 1,
+          "explanation": "Persistent mounts."
+        },
+        {
+          "id": "linux-quiz-08-q14",
+          "title": "uuid",
+          "prompt": "fstab prefers UUIDs because:",
+          "choices": [
+            "They look nicer",
+            "/dev/sdX names can reorder",
+            "UUID is a systemd unit type",
+            "POSIX requires it"
+          ],
+          "correctIndex": 1,
+          "explanation": "Stable identity."
+        },
+        {
+          "id": "linux-quiz-08-q15",
+          "title": "usrlocal",
+          "prompt": "Hand-built tools belong in:",
+          "choices": [
+            "/usr/local or /opt, not randomly in /usr",
+            "/proc",
+            "/dev",
+            "/boot/grub only"
+          ],
+          "correctIndex": 0,
+          "explanation": "Keep distro /usr clean."
+        },
+        {
+          "id": "linux-quiz-08-q16",
+          "title": "journal",
+          "prompt": "journalctl reads:",
+          "choices": [
+            "Only Apache logs on Debian",
+            "the systemd journal",
+            "GRUB config",
+            "inode bitmaps"
+          ],
+          "correctIndex": 1,
+          "explanation": "Journal."
+        },
+        {
+          "id": "linux-quiz-08-q17",
+          "title": "block",
+          "prompt": "A disk partition is typically a:",
+          "choices": [
+            "Character socket",
+            "Block device under /dev",
+            "Directory in /etc",
+            "Shell builtin"
+          ],
+          "correctIndex": 1,
+          "explanation": "Block devices."
+        },
+        {
+          "id": "linux-quiz-08-q18",
+          "title": "mount dir",
+          "prompt": "You mount a filesystem on:",
+          "choices": [
+            "A running process",
+            "A directory",
+            "A uid",
+            "A man page"
+          ],
+          "correctIndex": 1,
+          "explanation": "Mount point."
+        },
+        {
+          "id": "linux-quiz-08-q19",
+          "title": "distro",
+          "prompt": "A distro is more than a kernel tarball because it also provides:",
+          "choices": [
+            "Only firmware",
+            "Userland, packages, defaults, installer",
+            "Only POSIX text",
+            "Only GRUB"
+          ],
+          "correctIndex": 1,
+          "explanation": "The whole OS product."
+        },
+        {
+          "id": "linux-quiz-08-q20",
+          "title": "fail",
+          "prompt": "A machine that dies at boot is often diagnosed first with:",
+          "choices": [
+            "Random new packages",
+            "pid 1 status and the journal, not immediate reboot loops that wipe evidence",
+            "chmod 777 /",
+            "Deleting /etc"
+          ],
+          "correctIndex": 1,
+          "explanation": "Read logs."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-09",
+      "number": 9,
+      "title": "Network concepts",
+      "goal": "IP, port, DNS, ICMP, SSH as an idea.",
+      "questions": [
+        {
+          "id": "linux-quiz-09-q01",
+          "title": "IP",
+          "prompt": "An IPv4 address identifies:",
+          "choices": [
+            "A TCP port",
+            "An interface address on a network",
+            "A user",
+            "An inode"
+          ],
+          "correctIndex": 1,
+          "explanation": "Address, not port."
+        },
+        {
+          "id": "linux-quiz-09-q02",
+          "title": "port",
+          "prompt": "A TCP port distinguishes:",
+          "choices": [
+            "Filesystems",
+            "Conversations on one IP",
+            "UIDs",
+            "man sections"
+          ],
+          "correctIndex": 1,
+          "explanation": "Transport multiplexing."
+        },
+        {
+          "id": "linux-quiz-09-q03",
+          "title": "22",
+          "prompt": "Port 22 is the conventional port for:",
+          "choices": [
+            "HTTP",
+            "SSH",
+            "DNS",
+            "ICMP"
+          ],
+          "correctIndex": 1,
+          "explanation": "Convention, not a law."
+        },
+        {
+          "id": "linux-quiz-09-q04",
+          "title": "80",
+          "prompt": "Port 80 is conventional for:",
+          "choices": [
+            "SSH",
+            "HTTP",
+            "SMTP",
+            "NTP"
+          ],
+          "correctIndex": 1,
+          "explanation": "HTTP."
+        },
+        {
+          "id": "linux-quiz-09-q05",
+          "title": "DNS",
+          "prompt": "DNS maps:",
+          "choices": [
+            "Inodes to names on one disk",
+            "Names to addresses (among other records)",
+            "UIDs to ports",
+            "PIDs to files"
+          ],
+          "correctIndex": 1,
+          "explanation": "Names are not IPs."
+        },
+        {
+          "id": "linux-quiz-09-q06",
+          "title": "hosts",
+          "prompt": "/etc/hosts can:",
+          "choices": [
+            "Replace the kernel",
+            "Override a few name-to-address mappings locally",
+            "Allocate TCP ports",
+            "Store passwords"
+          ],
+          "correctIndex": 1,
+          "explanation": "Local name table."
+        },
+        {
+          "id": "linux-quiz-09-q07",
+          "title": "loop",
+          "prompt": "127.0.0.1 is:",
+          "choices": [
+            "The default gateway of the internet",
+            "This host's loopback",
+            "A public DNS root",
+            "The SSH well-known address"
+          ],
+          "correctIndex": 1,
+          "explanation": "Localhost."
+        },
+        {
+          "id": "linux-quiz-09-q08",
+          "title": "ping",
+          "prompt": "ping uses:",
+          "choices": [
+            "TCP 80",
+            "ICMP echo",
+            "SSH",
+            "DNS only"
+          ],
+          "correctIndex": 1,
+          "explanation": "ICMP, not your app protocol."
+        },
+        {
+          "id": "linux-quiz-09-q09",
+          "title": "ping fail",
+          "prompt": "A failed ping always means:",
+          "choices": [
+            "TCP 443 is down",
+            "Not necessarily; ICMP may be dropped while TCP works",
+            "DNS is fine",
+            "sshd is running"
+          ],
+          "correctIndex": 1,
+          "explanation": "ICMP is not the whole story."
+        },
+        {
+          "id": "linux-quiz-09-q10",
+          "title": "ss",
+          "prompt": "ss -lnt is used to see:",
+          "choices": [
+            "Listening TCP sockets",
+            "Disk usage",
+            "Permission bits",
+            "GRUB entries"
+          ],
+          "correctIndex": 0,
+          "explanation": "Socket tables."
+        },
+        {
+          "id": "linux-quiz-09-q11",
+          "title": "bind",
+          "prompt": "Ports below 1024 often require:",
+          "choices": [
+            "No special permission",
+            "Privileged credentials to bind",
+            "A GPT disk",
+            "IPv6 only"
+          ],
+          "correctIndex": 1,
+          "explanation": "Historical privileged ports."
+        },
+        {
+          "id": "linux-quiz-09-q12",
+          "title": "ssh",
+          "prompt": "SSH is:",
+          "choices": [
+            "A Linux kernel subsystem required to boot",
+            "A protocol for encrypted remote login and tunnels",
+            "A filesystem",
+            "A POSIX-required GUI"
+          ],
+          "correctIndex": 1,
+          "explanation": "A protocol. lilC does not session it."
+        },
+        {
+          "id": "linux-quiz-09-q13",
+          "title": "lilc",
+          "prompt": "lilC includes:",
+          "choices": [
+            "An SSH session to a hidden VM",
+            "No remote Linux VM; this module is conceptual",
+            "A bundled QEMU",
+            "A kernel build"
+          ],
+          "correctIndex": 1,
+          "explanation": "Promise preserved."
+        },
+        {
+          "id": "linux-quiz-09-q14",
+          "title": "listen",
+          "prompt": "A closed port from the outside can mean:",
+          "choices": [
+            "Only that RAM is full",
+            "Nothing is listening, or a firewall dropped the packet",
+            "That DNS works",
+            "That uid 0 is missing"
+          ],
+          "correctIndex": 1,
+          "explanation": "Listen vs policy."
+        },
+        {
+          "id": "linux-quiz-09-q15",
+          "title": "daemon",
+          "prompt": "sshd is typically:",
+          "choices": [
+            "A bootloader",
+            "A long-lived process that binds a socket",
+            "A man page",
+            "A glob"
+          ],
+          "correctIndex": 1,
+          "explanation": "A service."
+        },
+        {
+          "id": "linux-quiz-09-q16",
+          "title": "nft",
+          "prompt": "nftables/iptables configure:",
+          "choices": [
+            "GRUB colors",
+            "Kernel packet filter policy",
+            "ext4 journal size only",
+            "bash aliases"
+          ],
+          "correctIndex": 1,
+          "explanation": "Netfilter."
+        },
+        {
+          "id": "linux-quiz-09-q17",
+          "title": "resolve",
+          "prompt": "If a name does not resolve, you should suspect:",
+          "choices": [
+            "ext4 first",
+            "DNS/resolver configuration",
+            "chmod on /bin/ls",
+            "the shebang"
+          ],
+          "correctIndex": 1,
+          "explanation": "Names vs addresses."
+        },
+        {
+          "id": "linux-quiz-09-q18",
+          "title": "layer",
+          "prompt": "Your HTTP client fails, ping works. Likely:",
+          "choices": [
+            "The NIC does not exist",
+            "ICMP works but the HTTP service or port may not",
+            "The kernel has no IP stack",
+            "PATH is empty"
+          ],
+          "correctIndex": 1,
+          "explanation": "Different probes."
+        },
+        {
+          "id": "linux-quiz-09-q19",
+          "title": "socket",
+          "prompt": "A socket is owned by:",
+          "choices": [
+            "Firmware",
+            "A process, via the kernel",
+            "the FHS",
+            "less"
+          ],
+          "correctIndex": 1,
+          "explanation": "Process + kernel tables."
+        },
+        {
+          "id": "linux-quiz-09-q20",
+          "title": "split",
+          "prompt": "Which pairing is correct?",
+          "choices": [
+            "IP = conversation ID on a host, port = machine identity",
+            "IP = machine/interface identity, port = service conversation",
+            "Port = DNS name, IP = inode",
+            "DNS = ICMP"
+          ],
+          "correctIndex": 1,
+          "explanation": "Keep address and port distinct."
+        }
+      ]
+    },
+    {
+      "id": "linux-quiz-10",
+      "number": 10,
+      "title": "Scripts and synthesis",
+      "goal": "Shebang, tests, and combining layers.",
+      "questions": [
+        {
+          "id": "linux-quiz-10-q01",
+          "title": "shebang",
+          "prompt": "#!/bin/sh on line 1 tells:",
+          "choices": [
+            "bash to ignore the file",
+            "the kernel which interpreter to exec",
+            "apt which package to install",
+            "the NIC which port to bind"
+          ],
+          "correctIndex": 1,
+          "explanation": "Shebang is a kernel convention."
+        },
+        {
+          "id": "linux-quiz-10-q02",
+          "title": "plusx",
+          "prompt": "A script with a shebang still needs:",
+          "choices": [
+            "A .sh suffix, always",
+            "Execute permission to be exec'd as a program",
+            "uid 0",
+            "to live in /proc"
+          ],
+          "correctIndex": 1,
+          "explanation": "Mode +x."
+        },
+        {
+          "id": "linux-quiz-10-q03",
+          "title": "env",
+          "prompt": "#!/usr/bin/env bash is used to:",
+          "choices": [
+            "Avoid PATH",
+            "Find bash on PATH portably",
+            "Disable set -e",
+            "Run in the kernel"
+          ],
+          "correctIndex": 1,
+          "explanation": "env looks up the interpreter."
+        },
+        {
+          "id": "linux-quiz-10-q04",
+          "title": "assign",
+          "prompt": "In POSIX sh, VAR = 1:",
+          "choices": [
+            "Assigns 1 to VAR",
+            "Tries to run a command named VAR",
+            "Sets the umask",
+            "Is arithmetic"
+          ],
+          "correctIndex": 1,
+          "explanation": "Spaces break assignment."
+        },
+        {
+          "id": "linux-quiz-10-q05",
+          "title": "arith",
+          "prompt": "Shell arithmetic is written:",
+          "choices": [
+            "$VAR++ only",
+            "$(( ... ))",
+            "as in C, with int types",
+            "using chmod"
+          ],
+          "correctIndex": 1,
+          "explanation": "Arithmetic expansion."
+        },
+        {
+          "id": "linux-quiz-10-q06",
+          "title": "test",
+          "prompt": "if [ -f \"$file\" ]; then checks:",
+          "choices": [
+            "Whether file is a directory",
+            "Whether the named regular file exists",
+            "Whether PATH contains file",
+            "Whether the inode is pid 1"
+          ],
+          "correctIndex": 1,
+          "explanation": "Test -f."
+        },
+        {
+          "id": "linux-quiz-10-q07",
+          "title": "spaces [",
+          "prompt": "Spaces inside [ ] are:",
+          "choices": [
+            "Optional style",
+            "Required; [ is a command with arguments",
+            "Forbidden",
+            "Only for bash arrays"
+          ],
+          "correctIndex": 1,
+          "explanation": "[ is a command."
+        },
+        {
+          "id": "linux-quiz-10-q08",
+          "title": "quote if",
+          "prompt": "if [ -f $file ] without quotes is dangerous because:",
+          "choices": [
+            "It always returns true",
+            "Splitting can change how many arguments [ sees",
+            "It formats the disk",
+            "It disables globbing forever"
+          ],
+          "correctIndex": 1,
+          "explanation": "Word splitting."
+        },
+        {
+          "id": "linux-quiz-10-q09",
+          "title": "for",
+          "prompt": "for f in *.c; do iterates:",
+          "choices": [
+            "Bytes in each file",
+            "Names after glob expansion",
+            "PIDs",
+            "Users"
+          ],
+          "correctIndex": 1,
+          "explanation": "Words from the glob."
+        },
+        {
+          "id": "linux-quiz-10-q10",
+          "title": "ls parse",
+          "prompt": "A synthesis red flag is:",
+          "choices": [
+            "Using find -print",
+            "Parsing ls in a for-loop",
+            "Quoting \"$f\"",
+            "Reading the man page"
+          ],
+          "correctIndex": 1,
+          "explanation": "ls is not an API."
+        },
+        {
+          "id": "linux-quiz-10-q11",
+          "title": "set -e",
+          "prompt": "set -e asks the shell to:",
+          "choices": [
+            "Ignore errors",
+            "Exit when a command fails (with sharp edges)",
+            "Enable globstar only",
+            "Run as root"
+          ],
+          "correctIndex": 1,
+          "explanation": "Fail loud, with caveats."
+        },
+        {
+          "id": "linux-quiz-10-q12",
+          "title": "pipefail",
+          "prompt": "pipefail is about:",
+          "choices": [
+            "Mount options",
+            "A pipeline's exit status reflecting failures before the last command",
+            "TCP windows",
+            "umask"
+          ],
+          "correctIndex": 1,
+          "explanation": "Pipeline status."
+        },
+        {
+          "id": "linux-quiz-10-q13",
+          "title": "cron",
+          "prompt": "cron jobs often fail because:",
+          "choices": [
+            "They have a thin PATH and are non-interactive",
+            "The kernel disables cron on Linux",
+            "Shebangs cannot run from cron",
+            "cron cannot use absolute paths"
+          ],
+          "correctIndex": 0,
+          "explanation": "Use absolute paths."
+        },
+        {
+          "id": "linux-quiz-10-q14",
+          "title": "logs",
+          "prompt": "A permission denied in a timer job should send you to:",
+          "choices": [
+            "Rewriting the kernel",
+            "Logs/journal and the mode bits on the path",
+            "Deleting /var",
+            "Disabling DNS"
+          ],
+          "correctIndex": 1,
+          "explanation": "Layers: perms + logs."
+        },
+        {
+          "id": "linux-quiz-10-q15",
+          "title": "c vs sh",
+          "prompt": "A tight inner loop over bytes is usually better in:",
+          "choices": [
+            "An unquoted shell for-loop",
+            "C (or another real language), not a giant shell script",
+            "fstab",
+            "a symlink farm"
+          ],
+          "correctIndex": 1,
+          "explanation": "Pick the layer."
+        },
+        {
+          "id": "linux-quiz-10-q16",
+          "title": "glue",
+          "prompt": "The shell is at its best as:",
+          "choices": [
+            "A replacement for the MMU",
+            "Glue among programs, files, and processes",
+            "A typed numeric language",
+            "A bootloader"
+          ],
+          "correctIndex": 1,
+          "explanation": "Glue."
+        },
+        {
+          "id": "linux-quiz-10-q17",
+          "title": "combo",
+          "prompt": "A 644 directory you cannot cd into fails because:",
+          "choices": [
+            "644 includes traverse for other",
+            "Directories need execute (search) to traverse; 644 is rw-r--r--",
+            "644 is rwx for owner",
+            "cd does not use permissions"
+          ],
+          "correctIndex": 1,
+          "explanation": "644 lacks x. 755 is the usual dir."
+        },
+        {
+          "id": "linux-quiz-10-q18",
+          "title": "combo2",
+          "prompt": "grep never sees a glob if:",
+          "choices": [
+            "You always pass -F",
+            "The shell expanded *.log into names first",
+            "PATH is empty",
+            "stderr is merged"
+          ],
+          "correctIndex": 1,
+          "explanation": "Expansion order."
+        },
+        {
+          "id": "linux-quiz-10-q19",
+          "title": "combo3",
+          "prompt": "A pipeline that 'loses' errors often:",
+          "choices": [
+            "Used 2>&1 after merging correctly",
+            "Left diagnostics on stdout or ignored status without pipefail",
+            "Used chmod 644 on the script",
+            "Mounted /proc"
+          ],
+          "correctIndex": 1,
+          "explanation": "Status and fd 2."
+        },
+        {
+          "id": "linux-quiz-10-q20",
+          "title": "mastery",
+          "prompt": "Undergraduate mastery here means:",
+          "choices": [
+            "Memorizing every GNU flag",
+            "Predicting kernel, shell, and FHS behavior",
+            "Shipping a VM inside lilC",
+            "Replacing C with YAML"
+          ],
+          "correctIndex": 1,
+          "explanation": "The model, not the flag encyclopedia."
+        }
+      ]
+    }
+  ]
+}

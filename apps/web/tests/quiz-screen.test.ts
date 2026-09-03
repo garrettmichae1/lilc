@@ -79,6 +79,7 @@ describe("quiz screens", () => {
     expect(learn.textContent).toContain("Lessons");
     expect(learn.textContent).toContain("Challenges");
     expect(learn.textContent).toContain("Quizzes");
+    expect(learn.querySelector(".linux-course-teaser")?.textContent).toContain("Linux");
     expect(learn.textContent).not.toContain("Past quizzes");
     expect(learn.querySelectorAll("[data-quiz-id]").length).toBe(quizzes.length);
     expect(learn.querySelector('[data-quiz-id="c-quiz-10"]')?.textContent).toContain("Start");

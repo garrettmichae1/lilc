@@ -1,6 +1,8 @@
 lilC is a free C editor for iPhone and iPad. Write a program, press Run, and PicoC interprets it on this device. There is no cloud compiler and no Linux VM.
 
-No account. No in-app purchases. Files stay on your iPhone or iPad. You do not need a network connection to write or run C. This version has no AI.
+No account. Zero ads. Files stay on your iPhone or iPad. You do not need a network connection to write or run C. This version has no AI.
+
+C lessons, challenges, and C quizzes stay free. An optional one-time Linux course ($2.99) unlocks offline study modules on Unix, the kernel, and the shell. It is reading and quizzes on this device, not a remote machine.
 
 FIRST HOUR
 Six lessons, then twelve challenges. Each is an almost-complete C program with one ??? blank. Fill in the blank, press RUN, and see the output on the same screen.
@@ -13,6 +15,7 @@ WHAT YOU CAN DO
 • Read diagnostics written for learners, not only raw PicoC jargon
 • Keep files and projects on this device, including erase-all
 • Choose Light or Dark appearance
+• Optionally unlock a Linux study course (non-consumable)
 
 HONEST LIMITS
 lilC runs C with PicoC, a small on-device interpreter. It is not GCC, not Clang, and not a full ISO C compiler. Most beginner programs work. A complete standard library, or extras only a desktop toolchain supports, will not.

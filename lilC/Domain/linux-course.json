@@ -1,0 +1,1011 @@
+{
+  "id": "linux-course",
+  "title": "Linux",
+  "subtitle": "Unix, the kernel, and the shell",
+  "priceLabel": "$2.99",
+  "productID": "lilc.linux.course",
+  "goal": "History, the kernel, the filesystem, and the shell. Offline study, then a quiz after each module.",
+  "modules": [
+    {
+      "id": "linux-01",
+      "number": 1,
+      "title": "Unix to Linux",
+      "goal": "How Unix, GNU, and a kernel named Linux became the system people mean when they say Linux.",
+      "quizId": "linux-quiz-01",
+      "pages": [
+        {
+          "id": "linux-01-p01",
+          "kicker": "Origin",
+          "title": "A telephone company's computer",
+          "body": [
+            "Unix began at Bell Labs around 1969. Ken Thompson, Dennis Ritchie, and colleagues needed a small, flexible system after the large Multics project receded. They built something they could actually finish, on a PDP-7 and then a PDP-11.",
+            "The result was not a product pitch. It was a programmer's operating system: processes, a hierarchical file tree, and a command language that treated files as streams of bytes."
+          ]
+        },
+        {
+          "id": "linux-01-p02",
+          "kicker": "Philosophy",
+          "title": "Small tools, text streams",
+          "body": [
+            "Doug McIlroy's Unix philosophy is still the right first lecture: write programs that do one thing well, work together, and handle text streams as a universal interface.",
+            "That is why a pipeline like count | sort | uniq feels native. The shell composes programs the kernel already knows how to run. You will use that composition for the rest of this course."
+          ]
+        },
+        {
+          "id": "linux-01-p03",
+          "kicker": "Language",
+          "title": "C and Unix grew up together",
+          "body": [
+            "Unix was rewritten in C. That was unusual. Operating systems had been assembly. C gave the kernel portable structure without hiding the machine.",
+            "This is the honest link to lilC. C is the language of the Unix interface: pointers, integers, file descriptors, and a thin library over system calls. You do not need a Linux VM on this phone to understand that contract."
+          ]
+        },
+        {
+          "id": "linux-01-p04",
+          "kicker": "Pipes",
+          "title": "The idea that scaled",
+          "body": [
+            "A pipe connects the standard output of one process to the standard input of the next. The kernel copies bytes. Neither program has to know the other exists.",
+            "Pipes turned a pile of tiny utilities into a programming environment. Later modules return to file descriptors 0, 1, and 2. Here, remember the history: composition was designed in, not bolted on."
+          ]
+        },
+        {
+          "id": "linux-01-p05",
+          "kicker": "Standard",
+          "title": "POSIX is a contract",
+          "body": [
+            "Unix splintered into vendor variants. POSIX (IEEE 1003) described a portable subset: process control, a shell, and a filesystem API. If a program is POSIX-ish, it has a chance to run on Linux, BSD, and macOS.",
+            "Linux is not POSIX-certified in the general case. It is POSIX-shaped. Commands, pathnames, and signals you learn here transfer because of that shared contract, not because every distro is identical."
+          ]
+        },
+        {
+          "id": "linux-01-p06",
+          "kicker": "GNU",
+          "title": "Userland is not the kernel",
+          "body": [
+            "Richard Stallman's GNU project set out to build a free Unix-like system. The compiler, libc, coreutils, and bash are GNU work. For years GNU lacked a finished kernel of its own.",
+            "When people say Linux they often mean GNU/Linux: Linux kernel plus GNU userland plus a distro's packaging. The name fight is less important than the split. Kernel and user programs are different layers."
+          ]
+        },
+        {
+          "id": "linux-01-p07",
+          "kicker": "1991",
+          "title": "Linus ships a kernel",
+          "body": [
+            "In 1991 Linus Torvalds announced a free kernel for 386 PCs, written for his own machine, released under a license that became GPL. It spoke the Unix dialect: processes, a filesystem, system calls.",
+            "Linux is that kernel. Ubuntu, Fedora, and Debian are distributions: kernel plus userland plus an installer plus a package database. Confusing the two is the first exam trick in this course."
+          ]
+        },
+        {
+          "id": "linux-01-p08",
+          "kicker": "Distro",
+          "title": "What you actually install",
+          "body": [
+            "A distribution chooses a kernel version, a package manager, default services, and a release cadence. Same kernel family, different opinions about systemd, glibc, musl, and where files live.",
+            "When a tutorial says run apt, it is speaking Debian-family. dnf is Fedora-family. pacman is Arch. This course teaches the model, then names the tools. The model survives the brand."
+          ]
+        },
+        {
+          "id": "linux-01-p09",
+          "kicker": "License",
+          "title": "GPL versus permissive",
+          "body": [
+            "The Linux kernel is GPLv2: if you distribute a modified kernel, you must offer the corresponding source under the same license. That is copyleft.",
+            "MIT and BSD licenses are permissive: you can close the source of a derived program. Both are free software in the broad sense. They answer a different question about what later authors owe the original."
+          ],
+          "diagram": "unixTimeline"
+        },
+        {
+          "id": "linux-01-p10",
+          "kicker": "Scope",
+          "title": "Study, not a shell on this phone",
+          "body": [
+            "lilC does not SSH into a server and does not ship a Linux VM. C still runs here with PicoC. This course is the missing systems lecture: what the OS is, what the shell is, what the commands mean.",
+            "Read the pages. Take the quiz. Then use a real Linux box, a campus lab, or a VM you control when you want to type the commands. The ideas travel. The promise of this app does not change."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linux-02",
+      "number": 2,
+      "title": "What Linux controls",
+      "goal": "Kernel versus userspace, system calls, and the hardware the kernel actually owns.",
+      "quizId": "linux-quiz-02",
+      "pages": [
+        {
+          "id": "linux-02-p01",
+          "kicker": "Split",
+          "title": "Two worlds on one CPU",
+          "body": [
+            "The processor runs in a privileged mode (kernel) and a restricted mode (user). Linux uses that split. The kernel may program devices and rewrite page tables. A user process may not.",
+            "When your program calls read, it does not talk to the disk. It asks the kernel. The kernel checks the file descriptor, copies bytes, and returns. That jump is a system call."
+          ]
+        },
+        {
+          "id": "linux-02-p02",
+          "kicker": "Syscall",
+          "title": "The real API of Linux",
+          "body": [
+            "Linux's user-visible API is a set of system calls: open, close, read, write, fork, execve, mmap, ioctl, and dozens more. libc (usually glibc) wraps them in C functions.",
+            "printf is not a system call. It formats a buffer in user space, then write may send it. Confusing library calls with syscalls is how people misread strace. The kernel only sees the syscall."
+          ]
+        },
+        {
+          "id": "linux-02-p03",
+          "kicker": "Process",
+          "title": "The unit of work",
+          "body": [
+            "A process is an address space plus at least one thread of execution plus a table of open file descriptors plus credentials (uid, gid). The kernel schedules it, isolates its memory, and reaps it when it exits.",
+            "pid 1 is special: the first userspace process, historically init, commonly systemd. If it dies, the machine is not in a normal state. Everything else is a descendant, by fork and exec."
+          ]
+        },
+        {
+          "id": "linux-02-p04",
+          "kicker": "Memory",
+          "title": "Virtual addresses",
+          "body": [
+            "Each process believes it has a private linear address space. The kernel maps those virtual pages onto physical RAM or onto disk (swap, file-backed mmap). Page faults are how the illusion is maintained.",
+            "You do not manage RAM by poking hardware from a normal program. malloc asks the allocator; the allocator asks the kernel (brk or mmap). Isolation is the point. One buggy process should not paint another process's bytes."
+          ]
+        },
+        {
+          "id": "linux-02-p05",
+          "kicker": "VFS",
+          "title": "Every file is a file",
+          "body": [
+            "The virtual filesystem (VFS) is the kernel's common face for disks, /proc, pipes, and sockets. open returns a file descriptor. The object behind it might be an ext4 inode, a TCP connection, or a kernel counter.",
+            "That is why cat /proc/cpuinfo works. /proc is not a disk folder. It is a kernel interface mounted to look like files. Unix's 'everything is a file' is a VFS design, not a metaphor about spinning rust."
+          ]
+        },
+        {
+          "id": "linux-02-p06",
+          "kicker": "Devices",
+          "title": "Drivers live in the kernel",
+          "body": [
+            "Hardware is reached through drivers: USB, NVMe, NICs, GPUs. Most drivers run in kernel space because they need privileged access and interrupt handling.",
+            "/dev nodes are the userspace door. Opening /dev/null or a tty is still a file descriptor. The driver implements the operations. You rarely talk to a device register from a shell script, and that is by design."
+          ]
+        },
+        {
+          "id": "linux-02-p07",
+          "kicker": "Network",
+          "title": "Packets are kernel work",
+          "body": [
+            "The kernel owns the protocol stack: Ethernet, IP, TCP, routing tables, firewall hooks. A process binds a socket. The NIC interrupt is not the process's problem.",
+            "Userspace can filter and shape (iptables, nftables, user programs on sockets). The bytes still enter and leave through the kernel. Module 9 returns to ports and DNS. Here, remember who owns the wire."
+          ]
+        },
+        {
+          "id": "linux-02-p08",
+          "kicker": "C",
+          "title": "Why C keeps showing up",
+          "body": [
+            "The Linux kernel is written in C (with some assembly, and newer optional Rust). The syscall ABI is C-shaped: integers, pointers, structs with a stable layout.",
+            "That is why this course sits next to lilC. Learning C pointers and ints is not a detour from Linux. It is the language of the boundary. You will not compile the kernel in this app. You will understand the call."
+          ],
+          "diagram": "layerStack"
+        },
+        {
+          "id": "linux-02-p09",
+          "kicker": "Userland",
+          "title": "Everything above the call",
+          "body": [
+            "Userland is the rest: libc, dynamic linker, shell, daemons, your program. It runs with the process's credentials. It must ask for anything privileged.",
+            "Root (uid 0) is still a user process. It is a powerful one. The kernel still mediates. sudo does not turn you into the kernel. It starts a process as uid 0."
+          ]
+        },
+        {
+          "id": "linux-02-p10",
+          "kicker": "Picture",
+          "title": "Five layers to keep straight",
+          "body": [
+            "Bottom to top: hardware, kernel, libc, shell, applications. Each layer may only use the one below through a defined interface.",
+            "If a command 'does not work', ask which layer failed. Disk full is kernel and filesystem. Command not found is shell and PATH. Permission denied is credentials on a VFS object. Name the layer before you guess a flag."
+          ],
+          "diagram": "layerStack"
+        }
+      ]
+    },
+    {
+      "id": "linux-03",
+      "number": 3,
+      "title": "Files and FHS",
+      "goal": "The directory tree, inodes versus names, and where Unix expects programs and configuration to live.",
+      "quizId": "linux-quiz-03",
+      "pages": [
+        {
+          "id": "linux-03-p01",
+          "kicker": "Tree",
+          "title": "One root, slash",
+          "body": [
+            "Linux has a single directory tree. The root is /. There are no drive letters. Other disks are mounted onto empty directories in that tree.",
+            "A pathname is a walk from / or from the process's current directory. Absolute paths start with /. Relative paths do not. . is the current directory. .. is the parent."
+          ]
+        },
+        {
+          "id": "linux-03-p02",
+          "kicker": "FHS",
+          "title": "A map, not a suggestion",
+          "body": [
+            "The Filesystem Hierarchy Standard describes conventional locations. Distros vary, but the map is stable enough to learn.",
+            "/bin and /usr/bin hold user commands. /sbin and /usr/sbin hold administration commands. /etc is configuration. /home is people. /var is changing data: logs, spool, caches. /tmp is scratch."
+          ]
+        },
+        {
+          "id": "linux-03-p03",
+          "kicker": "usr",
+          "title": "Why /usr looks duplicated",
+          "body": [
+            "Historically /bin had tools needed to mount /usr from another disk. Today many systems merge /bin into /usr/bin. You still see both names.",
+            "Treat /usr as the bulk of the operating system's programs and libraries. Treat / as the skeleton that must exist even early in boot. The merge is a packaging choice. The distinction still appears in docs."
+          ]
+        },
+        {
+          "id": "linux-03-p04",
+          "kicker": "Kernel doors",
+          "title": "/proc, /sys, /dev",
+          "body": [
+            "/proc exposes processes and kernel knobs as files. /proc/self is the calling process. /proc/cpuinfo and /proc/meminfo are status. /proc/<pid> is a live process.",
+            "/sys is the modern driver and device tree. /dev is device nodes. These directories are not where you store homework. Writing the wrong file under /sys can change hardware state."
+          ]
+        },
+        {
+          "id": "linux-03-p05",
+          "kicker": "Inode",
+          "title": "The file is not the name",
+          "body": [
+            "A directory entry is a name pointing at an inode number. The inode holds type, permissions, timestamps, and where the data blocks are. The name is a link.",
+            "Two names can point at the same inode (hard link), as long as they are on the same filesystem. rm removes a name. The data lasts until the last link and the last open file descriptor are gone."
+          ]
+        },
+        {
+          "id": "linux-03-p06",
+          "kicker": "Symlink",
+          "title": "A path as a file",
+          "body": [
+            "A symbolic link is a tiny file whose contents are a pathname. The kernel follows it (with limits). It can cross filesystems. It can dangle if the target is missing.",
+            "ls -l shows the arrow. Most commands follow the link and operate on the target. Some, like ln and rm on the link itself, operate on the link. Know which you mean before you delete."
+          ]
+        },
+        {
+          "id": "linux-03-p07",
+          "kicker": "Bytes",
+          "title": "No record format",
+          "body": [
+            "A regular file is a sequence of bytes. Newlines are convention, not a filesystem type. An executable is bytes with a header the kernel understands (ELF on Linux).",
+            "Permission bits decide who may read, write, or execute those bytes. Execute on a directory means you may traverse it, not that the directory is a program. Module 6 returns to the bits."
+          ]
+        },
+        {
+          "id": "linux-03-p08",
+          "kicker": "Where",
+          "title": "Logs, configs, homes",
+          "body": [
+            "Configuration for the machine: /etc. Per-user config often hides in the home directory as dotfiles. Logs: /var/log. Spool: /var/spool. Libraries: /lib, /usr/lib.",
+            "If you cannot find a file, ask what kind of file it is. A binary you installed with a package is almost never in /home. A password hash is in /etc, not in the program. The tree is documentation."
+          ],
+          "diagram": "fhsTree"
+        },
+        {
+          "id": "linux-03-p09",
+          "kicker": "Mount",
+          "title": "Grafting another tree",
+          "body": [
+            "mount attaches a filesystem to a directory. After mount /dev/sdb1 /mnt, /mnt/readme is a file on that disk. The old contents of /mnt are hidden until unmount.",
+            "df shows mounted filesystems and space. du shows usage under a path. They answer different questions. Filling /var can freeze a machine even if /home is empty."
+          ]
+        },
+        {
+          "id": "linux-03-p10",
+          "kicker": "Practice",
+          "title": "Read the tree like a map",
+          "body": [
+            "Before you install random files in /, ask which FHS slot they belong in. Before you delete, ask whether you are holding a name or the last link to an inode.",
+            "The quiz will put a log, a user binary, a kernel interface, and a home file in front of you. Pick the directory. That is undergraduate Unix literacy, not trivia."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linux-04",
+      "number": 4,
+      "title": "The shell",
+      "goal": "The shell is a program that runs other programs. PATH, quoting, globbing, and exit status are its job.",
+      "quizId": "linux-quiz-04",
+      "pages": [
+        {
+          "id": "linux-04-p01",
+          "kicker": "Process",
+          "title": "bash is not the kernel",
+          "body": [
+            "The shell is a user program. Common ones: bash, dash, zsh, fish. A login session starts a shell. Scripts name a shell in the shebang.",
+            "When you type ls, the shell finds an executable, forks, and execs it. The kernel runs ls. The shell waits (unless you background it). Confusing the shell with Linux is like confusing a receptionist with the building."
+          ],
+          "diagram": "shellProcess"
+        },
+        {
+          "id": "linux-04-p02",
+          "kicker": "argv",
+          "title": "Words, not magic",
+          "body": [
+            "A command line becomes an argument vector. argv[0] is the name used to invoke the program. The rest are arguments. The program never sees your quotes. It sees the strings after the shell parsed them.",
+            "That is why quoting matters. The shell eats syntax. The program receives bytes. If you get this backwards you will fight spaces in filenames for years."
+          ]
+        },
+        {
+          "id": "linux-04-p03",
+          "kicker": "PATH",
+          "title": "Where commands come from",
+          "body": [
+            "If you type a name with no slash, the shell searches PATH, a colon-separated list of directories, usually /usr/local/bin:/usr/bin:/bin.",
+            "which and type show what the shell would run. A command not found is a PATH miss or a typo, not a broken kernel. A name with a slash (./tool or /usr/bin/ls) skips PATH."
+          ]
+        },
+        {
+          "id": "linux-04-p04",
+          "kicker": "cwd",
+          "title": "Relative names need a place",
+          "body": [
+            "Each process has a current working directory. cd is a shell builtin because it must change the shell's own cwd. An external cd program would only change a child.",
+            "pwd prints it. Relative paths start here. Scripts that assume they were started from a particular directory are fragile. Prefer explicit paths or a documented cd at the top."
+          ]
+        },
+        {
+          "id": "linux-04-p05",
+          "kicker": "Builtins",
+          "title": "Some words never search PATH",
+          "body": [
+            "cd, export, umask, read, and the control keywords are builtins. They have to be. They change the shell itself.",
+            "help in bash documents builtins. man cd may show a POSIX page that is not your bash. When a builtin and a /usr/bin tool share a name, the builtin wins unless you give a path."
+          ]
+        },
+        {
+          "id": "linux-04-p06",
+          "kicker": "Quotes",
+          "title": "Three kinds of protection",
+          "body": [
+            "Double quotes keep spaces together but still expand $vars and `command` (and some escapes). Single quotes pass everything literally except the closing quote.",
+            "No quotes means the shell splits on whitespace (subject to IFS) and expands globs. Always quote variable expansions you do not intend to split: \"$file\". This is not style. It is correctness."
+          ]
+        },
+        {
+          "id": "linux-04-p07",
+          "kicker": "Glob",
+          "title": "The shell expands names",
+          "body": [
+            "*.c is expanded by the shell into a list of matching names in the current directory, then passed as arguments. grep never sees the asterisk if matches exist.",
+            "If nothing matches, bash usually passes the literal *.c (unless nullglob is set). Hidden files starting with . are not matched by * unless the pattern starts with a dot. Globs are not regular expressions."
+          ]
+        },
+        {
+          "id": "linux-04-p08",
+          "kicker": "Status",
+          "title": "Zero means success",
+          "body": [
+            "When a process exits, it returns an 8-bit status. By convention 0 is success, nonzero is failure. The shell stores it in $?. Pipelines and if tests use that number.",
+            "man pages document exit codes. A program that always exits 0 is lying to scripts. A script that ignores $? will keep going through a failed rm."
+          ]
+        },
+        {
+          "id": "linux-04-p09",
+          "kicker": "man",
+          "title": "The local textbook",
+          "body": [
+            "man ls is section 1, user commands. man 2 open is system calls. man 3 printf is library functions. man man explains the sections.",
+            "apropos searches names and short descriptions. The pager is usually less: space to page, q to quit. Reading the SYNOPSIS line is a professional habit."
+          ]
+        },
+        {
+          "id": "linux-04-p10",
+          "kicker": "Parse",
+          "title": "Order of operations",
+          "body": [
+            "Roughly: the shell reads a line, expands aliases, braces, tildes, parameters, command substitutions, arithmetic, then splits words, then expands globs, then runs redirections and the command.",
+            "You do not need to recite the entire POSIX expansion order on day one. You do need to know that quoting happens before globbing, and that the child process never sees your quotes."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linux-05",
+      "number": 5,
+      "title": "Everyday tools",
+      "goal": "The core toolbox: navigate, inspect, copy, and count without reaching for a GUI.",
+      "quizId": "linux-quiz-05",
+      "pages": [
+        {
+          "id": "linux-05-p01",
+          "kicker": "Look",
+          "title": "ls, pwd, cd",
+          "body": [
+            "pwd prints the working directory. cd changes it. ls lists names. ls -l is the long form: type, permissions, links, owner, group, size, time, name.",
+            "ls -a includes names that start with a dot. Those are not secretly encrypted. The tools simply hide them from the default listing so your home directory is readable."
+          ],
+          "diagram": "lsListing"
+        },
+        {
+          "id": "linux-05-p02",
+          "kicker": "Read",
+          "title": "cat, less, head, tail",
+          "body": [
+            "cat writes files to standard output. It is for concatenation and small files. less pages. You can search in less with / and quit with q.",
+            "head and tail take the first or last lines (default 10). tail -f follows a growing log. These are inspection tools. They do not edit."
+          ]
+        },
+        {
+          "id": "linux-05-p03",
+          "kicker": "Create",
+          "title": "touch, mkdir, echo",
+          "body": [
+            "mkdir creates a directory. mkdir -p creates parents as needed. touch updates timestamps and creates an empty file if needed.",
+            "echo writes its arguments, then a newline, to standard output. It is not a file editor. Combined with redirection (next module but one) it can create a short file. Prefer a real editor for anything you care about."
+          ]
+        },
+        {
+          "id": "linux-05-p04",
+          "kicker": "Copy",
+          "title": "cp, mv, rm",
+          "body": [
+            "cp copies. cp -r copies a directory tree. mv renames or moves, and is usually a directory-entry change if the destination is on the same filesystem.",
+            "rm removes names. rm -r walks a tree. There is no standard undelete. -i prompts. Aliasing rm to rm -i is a local habit, not a guarantee on someone else's machine."
+          ]
+        },
+        {
+          "id": "linux-05-p05",
+          "kicker": "Count",
+          "title": "wc",
+          "body": [
+            "wc counts lines, words, and bytes. wc -l is the line count, a workhorse in pipelines.",
+            "A word here is a whitespace-separated token, not an English dictionary word. Bytes are not characters in UTF-8. Read the man page when the count looks 'wrong'."
+          ]
+        },
+        {
+          "id": "linux-05-p06",
+          "kicker": "Identity",
+          "title": "file, which, type",
+          "body": [
+            "file guesses a file's type from content, not from the suffix. An ELF binary named notes.txt is still a binary.",
+            "which prints a PATH hit. type in bash tells you alias, builtin, or file. Use them when two machines disagree about what 'python' is."
+          ]
+        },
+        {
+          "id": "linux-05-p07",
+          "kicker": "Help",
+          "title": "man, --help",
+          "body": [
+            "Most GNU tools accept --help for a short flag list. man is the full page. info exists for some GNU programs and is denser than beginners want.",
+            "Do not memorize every ls flag. Memorize that the page exists, that SYNOPSIS shows required versus optional arguments, and that EXIT STATUS is a real section."
+          ]
+        },
+        {
+          "id": "linux-05-p08",
+          "kicker": "Safety",
+          "title": "Wildcards and rm",
+          "body": [
+            "rm *.o deletes names that match in the current directory. rm * with a surprising cwd is a classic accident. Pause when the glob is wide.",
+            "Tab completion is not decoration. It confirms the name before you commit. If completion does not find the file, maybe you are not where you think you are. pwd is cheap."
+          ]
+        },
+        {
+          "id": "linux-05-p09",
+          "kicker": "Names",
+          "title": "Spaces and hyphens",
+          "body": [
+            "A file named -r can look like a flag. Pass -- before names, or use ./-r. Quote names with spaces.",
+            "The toolbox is simple. The filesystem is not a GUI. Treat names as data. The shell will try to interpret them as syntax if you let it."
+          ]
+        },
+        {
+          "id": "linux-05-p10",
+          "kicker": "Rhythm",
+          "title": "Inspect, then change",
+          "body": [
+            "A working habit: ls or less before rm, diff or ls -l before overwriting, pwd before a wide glob. The cheap commands prevent the expensive mistakes.",
+            "The quiz asks which tool to reach for. There is usually one honest answer. Reach for less, not cat, when the file might be long. Reach for mv, not cp plus rm, when you mean rename."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linux-06",
+      "number": 6,
+      "title": "People, bits, processes",
+      "goal": "Users, permission bits, umask, and how to see and stop processes.",
+      "quizId": "linux-quiz-06",
+      "pages": [
+        {
+          "id": "linux-06-p01",
+          "kicker": "Who",
+          "title": "uid and gid",
+          "body": [
+            "The kernel stores numbers: uid, gid, supplementary groups. /etc/passwd and /etc/group map names to those numbers (or a directory service does).",
+            "id prints your numbers. whoami prints the name. A file's owner and group are inode fields. Permission checks use the caller's credentials against those fields."
+          ]
+        },
+        {
+          "id": "linux-06-p02",
+          "kicker": "Bits",
+          "title": "rwx, three times",
+          "body": [
+            "Nine permission bits: owner, group, other, each with read, write, execute. ls -l shows them as rwxr-xr-- and so on. The leading character is the type: - file, d directory, l symlink.",
+            "On a file, x means you may exec it (if the kernel also finds a valid format or shebang). On a directory, r means you may list names, x means you may traverse to a known name, w means you may create or delete names."
+          ],
+          "diagram": "permissionGrid"
+        },
+        {
+          "id": "linux-06-p03",
+          "kicker": "Octal",
+          "title": "755 and 644",
+          "body": [
+            "People write modes in octal. r=4, w=2, x=1. 7 is rwx, 6 is rw, 5 is rx, 4 is r. 755 is rwxr-xr-x. 644 is rw-r--r--.",
+            "chmod 755 tool.sh is common for scripts you intend to run. chmod 644 notes.txt is common for data. chmod does not change ownership. chown and chgrp do, and they are usually root operations."
+          ]
+        },
+        {
+          "id": "linux-06-p04",
+          "kicker": "umask",
+          "title": "Default bits",
+          "body": [
+            "New files are created with a default mode minus the umask. A common umask 022 turns 666 into 644 for files and 777 into 755 for directories (creation defaults differ for files versus directories).",
+            "umask is a process property, often set in the shell profile. It is why a file you just created is not world-writable. Check it before you blame chmod."
+          ]
+        },
+        {
+          "id": "linux-06-p05",
+          "kicker": "sudo",
+          "title": "Root for one command",
+          "body": [
+            "Root is uid 0. sudo runs a command as root (or another user) after policy in /etc/sudoers. It is not the kernel, and it is not always installed on every Unix.",
+            "Use the least privilege that works. Editing a file in your home should not need sudo. If it does, the ownership is already wrong. sudo is not a hammer for permission confusion."
+          ]
+        },
+        {
+          "id": "linux-06-p06",
+          "kicker": "ps",
+          "title": "A snapshot of processes",
+          "body": [
+            "ps lists processes. ps aux and ps -ef are the two common wide listings. Columns include pid, user, cpu, memory, and the command line.",
+            "The listing is a snapshot. Processes appear and die. pgrep matches by name. Read the command column before you kill. Many names look similar."
+          ]
+        },
+        {
+          "id": "linux-06-p07",
+          "kicker": "Signals",
+          "title": "kill does not mean murder",
+          "body": [
+            "kill sends a signal. Default is TERM (15): please exit. KILL (9) is not catchable. HUP, INT, and STOP are others. The number is not a severity scale. It is a named message.",
+            "A process that ignores TERM needs diagnosis, not an instant -9 reflex. Zombies are already dead; they wait for the parent to wait(2). Killing a zombie does nothing useful. Kill or fix the parent."
+          ]
+        },
+        {
+          "id": "linux-06-p08",
+          "kicker": "Jobs",
+          "title": "Foreground and background",
+          "body": [
+            "In an interactive shell, Ctrl-C sends INT to the foreground process group. Ctrl-Z sends TSTP. bg and fg resume. & starts a job in the background.",
+            "This is shell job control, built on kernel process groups and terminals. It is not systemd. A background job still dies if the terminal wants it to, unless you disown or nohup."
+          ]
+        },
+        {
+          "id": "linux-06-p09",
+          "kicker": "env",
+          "title": "Name=value inherited",
+          "body": [
+            "The environment is a list of strings inherited across exec, unless you change it. PATH, HOME, USER, LANG are common. export VAR=value marks it for children.",
+            "env prints the environment. A missing variable is a common reason two shells behave differently. Do not put secrets in environment variables you will later dump in a log."
+          ]
+        },
+        {
+          "id": "linux-06-p10",
+          "kicker": "top",
+          "title": "A living view",
+          "body": [
+            "top and htop refresh process stats. They are for watching load, not for rewriting the permission model.",
+            "When the machine is slow, look at who is running, then at disk and memory. Kill is a last step. The quiz will mix chmod arithmetic with 'which signal' and 'who may traverse this directory'."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linux-07",
+      "number": 7,
+      "title": "Streams",
+      "goal": "File descriptors, redirection, pipes, and filters that compose.",
+      "quizId": "linux-quiz-07",
+      "pages": [
+        {
+          "id": "linux-07-p01",
+          "kicker": "Three fds",
+          "title": "0, 1, and 2",
+          "body": [
+            "Every process starts with three file descriptors unless it closed them: 0 stdin, 1 stdout, 2 stderr. They are numbers in a table, not mystical channels.",
+            "A library call like printf writes to stdout. Diagnostics should go to stderr so they do not vanish into a pipe meant for data. That split is why 2> exists."
+          ]
+        },
+        {
+          "id": "linux-07-p02",
+          "kicker": "Redirect",
+          "title": "> >> <",
+          "body": [
+            ">file opens file for write, truncating, and points stdout at it. >> appends. <file points stdin at a file.",
+            "The shell sets this up before the program starts. The program thinks it is writing to fd 1. It does not know about your filename. That is the point."
+          ]
+        },
+        {
+          "id": "linux-07-p03",
+          "kicker": "stderr",
+          "title": "2> and the merge",
+          "body": [
+            "2>err.txt sends stderr to a file. 2>&1 points stderr at whatever stdout currently is. Order matters: >out 2>&1 sends both to out. 2>&1 >out does not, because stderr copied the old stdout first.",
+            "This is the medium-hard exam item. Draw the fd table. Do not memorize a slogan without the order."
+          ]
+        },
+        {
+          "id": "linux-07-p04",
+          "kicker": "Pipe",
+          "title": "Kernel buffer, two processes",
+          "body": [
+            "cmd1 | cmd2 attaches cmd1's stdout to cmd2's stdin through a pipe. Both run concurrently. The kernel buffers bytes. If the reader is slow, the writer blocks.",
+            "stderr still goes to the terminal unless you redirect it. A pipeline's exit status, in bash, is the last command unless pipefail is set. Know which convention you are in."
+          ],
+          "diagram": "pipeBoxes"
+        },
+        {
+          "id": "linux-07-p05",
+          "kicker": "grep",
+          "title": "Select lines",
+          "body": [
+            "grep PATTERN prints lines that match. grep -F is literal. grep -E is extended regex. grep -v inverts. grep -r walks a tree (careful with huge trees and binaries).",
+            "The pattern is not a glob. Globs are for filenames in the shell. Regular expressions are for text. Mixing them is a weekly error in first systems courses."
+          ]
+        },
+        {
+          "id": "linux-07-p06",
+          "kicker": "sort uniq",
+          "title": "Order and collapse",
+          "body": [
+            "sort orders lines. sort -n is numeric. sort -k picks a field. uniq collapses adjacent duplicates, so you almost always sort first: sort | uniq.",
+            "uniq -c counts. Together they answer 'how many of each'. That pipeline is older than Linux and still the right tool."
+          ]
+        },
+        {
+          "id": "linux-07-p07",
+          "kicker": "find",
+          "title": "Walk a tree",
+          "body": [
+            "find PATH TESTS ACTIONS walks from PATH. find . -name '*.c' -print is the usual shape. The shell may expand the glob first unless you quote it.",
+            "find can -exec. It can also delete. Test with -print before you add -delete. find is not grep. grep searches content. find searches names and inode properties."
+          ]
+        },
+        {
+          "id": "linux-07-p08",
+          "kicker": "Filters",
+          "title": "One job each",
+          "body": [
+            "cut, tr, tee, xargs, awk, and sed are the next ring. tee copies stdout to a file and still passes it along. xargs turns lines into arguments, with quoting pitfalls.",
+            "You do not need all of them today. You need to expect that a missing filter is probably a small POSIX tool, not a reason to write a Python file yet."
+          ]
+        },
+        {
+          "id": "linux-07-p09",
+          "kicker": "Composition",
+          "title": "Build a sentence",
+          "body": [
+            "A Unix command line is often a sentence: select, transform, count. Example: find, grep, wc. Each program stays small because the pipe is the join.",
+            "If you are writing a for-loop to parse ls, stop. You are probably composing the wrong nouns. ls is for humans. find and globs are for programs."
+          ]
+        },
+        {
+          "id": "linux-07-p10",
+          "kicker": "Discipline",
+          "title": "Data on 1, talk on 2",
+          "body": [
+            "Keep progress messages on stderr. Keep the bytes you intend to pipe on stdout. Then other people can attach your program to a pipeline without scraping logs.",
+            "The quiz will include 2>&1 order, grep versus find, and a pipeline that needs sort before uniq. Draw it. Then pick the answer."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linux-08",
+      "number": 8,
+      "title": "Boot, packages, disks",
+      "goal": "How a machine gets to a prompt, why packages exist, and how disks appear in the tree.",
+      "quizId": "linux-quiz-08",
+      "pages": [
+        {
+          "id": "linux-08-p01",
+          "kicker": "Boot",
+          "title": "Firmware, then a loader",
+          "body": [
+            "Power on: firmware (BIOS or UEFI) initializes hardware and loads a bootloader from disk. GRUB is a common Linux bootloader. It loads a kernel and an initramfs.",
+            "The kernel unpacks, finds the real root filesystem, mounts it, and starts pid 1. You do not boot 'bash'. You boot a kernel, then a policy process."
+          ],
+          "diagram": "bootSequence"
+        },
+        {
+          "id": "linux-08-p02",
+          "kicker": "init",
+          "title": "systemd is pid 1 on many boxes",
+          "body": [
+            "systemd (or another init) starts services in an order described by unit files. A unit is not a process. A service unit often has a process. Sockets, mounts, and timers are units too.",
+            "systemctl status, start, and enable are the usual verbs. enable means start at boot. start means now. Confusing them is a help-desk classic."
+          ]
+        },
+        {
+          "id": "linux-08-p03",
+          "kicker": "Packages",
+          "title": "The distro's truth",
+          "body": [
+            "A package manager records which files belong to which package, versions, and dependencies. apt (Debian/Ubuntu), dnf (Fedora), pacman (Arch) are front ends to that database.",
+            "Copying a binary into /usr/local/bin can work. It will not be updated, verified, or removed cleanly. On a real system, prefer the package, then a documented third-party repo, then a local prefix."
+          ]
+        },
+        {
+          "id": "linux-08-p04",
+          "kicker": "Install",
+          "title": "What apt is doing",
+          "body": [
+            "apt update refreshes the index of available packages. apt install copies files and runs maintainer scripts. The index and the installed set are different. Update does not upgrade.",
+            "This course will not make you a Debian developer. It will stop you from treating apt get as a single magic word. There is no standard apt on Fedora. The idea of a package database is the portable part."
+          ]
+        },
+        {
+          "id": "linux-08-p05",
+          "kicker": "Disks",
+          "title": "Block devices",
+          "body": [
+            "Disks show up as block devices under /dev, names like /dev/nvme0n1p2 or /dev/sda1. A partition holds a filesystem. The filesystem is what you mount on a directory.",
+            "lsblk is a readable map. fdisk and friends can destroy data. This module is conceptual: names, mount points, and space. Partitioning a live root by guesswork is not undergraduate homework."
+          ]
+        },
+        {
+          "id": "linux-08-p06",
+          "kicker": "Space",
+          "title": "df versus du",
+          "body": [
+            "df reports free space per mounted filesystem. du sums file sizes under a path. A full / filesystem with a huge /var/log is a df problem you diagnose with du.",
+            "Deleted files that a process still has open still occupy space until the process closes them. That surprise shows up on servers after log rotation. lsof can find the ghost."
+          ]
+        },
+        {
+          "id": "linux-08-p07",
+          "kicker": "fstab",
+          "title": "Mounts that return at boot",
+          "body": [
+            "/etc/fstab lists filesystems to mount at boot: device or UUID, mount point, type, options. systemd also generates mounts from it.",
+            "A wrong fstab can make a machine fail to boot to a prompt. That is why people use UUIDs instead of /dev/sdX names, which can reorder. Treat fstab as a loaded gun with a label."
+          ]
+        },
+        {
+          "id": "linux-08-p08",
+          "kicker": "Logs",
+          "title": "Journal and /var/log",
+          "body": [
+            "systemd's journal is queried with journalctl. Traditional text logs still live under /var/log: syslog, auth, dpkg. Permissions on log files are part of the security story.",
+            "When a service fails at boot, pid 1's status and the journal are the first reading, not a random reboot. Reboot clears evidence."
+          ]
+        },
+        {
+          "id": "linux-08-p09",
+          "kicker": "Why /usr",
+          "title": "Shareable, mostly static",
+          "body": [
+            "FHS treats /usr as shareable read-only-ish programs and data. /var is variable. /etc is host-specific config. The split exists so a host can be reconstructed from config plus packages.",
+            "If you dump state into /usr by hand, you have hidden state where the next package upgrade may walk. Put local software in /usr/local or /opt by convention."
+          ]
+        },
+        {
+          "id": "linux-08-p10",
+          "kicker": "Picture",
+          "title": "From power button to shell",
+          "body": [
+            "Firmware, bootloader, kernel, initramfs, real root, pid 1, service units, getty or display manager, login, shell. Skip a step in your mental model and boot bugs become superstition.",
+            "The quiz asks unit versus process, update versus install, df versus du, and why a distro is more than a kernel tarball."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linux-09",
+      "number": 9,
+      "title": "Network, conceptually",
+      "goal": "Addresses, ports, names, and what SSH is \u2014 without turning lilC into a remote machine.",
+      "quizId": "linux-quiz-09",
+      "pages": [
+        {
+          "id": "linux-09-p01",
+          "kicker": "Stack",
+          "title": "Host, NIC, kernel, process",
+          "body": [
+            "A host has interfaces. A NIC (or a virtual one) sends frames. The kernel runs IP and TCP. A process owns a socket.",
+            "If ping works and your program does not, the wire is not the whole story. Maybe nothing is listening. Maybe a firewall hook dropped you. Name the layer."
+          ],
+          "diagram": "networkStack"
+        },
+        {
+          "id": "linux-09-p02",
+          "kicker": "IP",
+          "title": "An address on an interface",
+          "body": [
+            "IPv4 addresses are 32-bit numbers written dotted. IPv6 is 128-bit. An address is bound to an interface, plus a prefix length that says what is local.",
+            "ip addr (or the older ifconfig) shows this. 127.0.0.1 is the loopback on the same host. Reaching localhost does not prove the NIC works."
+          ]
+        },
+        {
+          "id": "linux-09-p03",
+          "kicker": "Port",
+          "title": "A number on a transport",
+          "body": [
+            "TCP and UDP ports distinguish conversations on one IP. 22 is the conventional SSH port, 80 HTTP, 443 HTTPS. Conventions, not laws. A service can listen elsewhere.",
+            "ss -lnt (or netstat) lists listening TCP sockets. A closed port means nothing accepted the handshake. It is not the same as 'the internet is down'."
+          ]
+        },
+        {
+          "id": "linux-09-p04",
+          "kicker": "DNS",
+          "title": "Names are not addresses",
+          "body": [
+            "DNS maps names to addresses (and more). /etc/hosts can override for a few names. /etc/resolv.conf points at resolvers, unless systemd-resolved is mediating.",
+            "A name can change. An address can be shared. Debugging 'site down' starts with: does the name resolve, does the address answer, does the port answer."
+          ]
+        },
+        {
+          "id": "linux-09-p05",
+          "kicker": "ping",
+          "title": "ICMP, not your app",
+          "body": [
+            "ping sends ICMP echo. Firewalls drop ICMP. A failed ping does not prove TCP 443 is dead. A successful ping does not prove your HTTP server is up.",
+            "Use ping as one probe, not as the definition of reachability. traceroute (where allowed) shows hops. Both are diagnostic, not configuration."
+          ]
+        },
+        {
+          "id": "linux-09-p06",
+          "kicker": "ss",
+          "title": "Sockets on this machine",
+          "body": [
+            "ss shows socket state. Listening versus established. Local address versus peer. It is the truth of this kernel's tables, not of the entire internet.",
+            "If you cannot bind a port, something else may already own it, or you may lack permission for ports below 1024 (a historical rule still common)."
+          ]
+        },
+        {
+          "id": "linux-09-p07",
+          "kicker": "SSH",
+          "title": "A protocol, not a product",
+          "body": [
+            "SSH encrypts a login and can tunnel ports. ssh user@host runs a remote shell using a server that is listening, usually on 22. Keys and passwords are authentication.",
+            "lilC does not include an SSH client session to a VM. You still need to know what SSH is, because every honest Linux course mentions it. Use a real computer when you practice it."
+          ]
+        },
+        {
+          "id": "linux-09-p08",
+          "kicker": "Firewall",
+          "title": "Policy in the kernel",
+          "body": [
+            "Netfilter hooks can drop or accept packets before a process sees them. nftables or iptables are the userland languages. Distros wrap them (ufw, firewalld).",
+            "A listening socket plus a dropping firewall looks like a dead port from the outside. Check policy before you rewrite the application."
+          ]
+        },
+        {
+          "id": "linux-09-p09",
+          "kicker": "Services",
+          "title": "Daemons bind",
+          "body": [
+            "sshd, nginx, and similar programs are long-lived processes started by init. They bind sockets and wait. systemctl status is how you ask whether the daemon is the one you think it is.",
+            "Opening a port in a tutorial without a service is cargo cult. Bind, listen, then probe. The quiz will split IP, port, DNS, and ICMP on purpose."
+          ]
+        },
+        {
+          "id": "linux-09-p10",
+          "kicker": "Promise",
+          "title": "No remote Linux in this app",
+          "body": [
+            "This module is conceptual on purpose. The editor on this iPhone still runs C locally. There is no hidden SSH to a campus server behind a button.",
+            "When you sit at a real Linux machine, the same nouns apply: address, port, name, socket, daemon. That is the transfer. That is the product boundary."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "linux-10",
+      "number": 10,
+      "title": "Scripts and synthesis",
+      "goal": "Shebangs, control flow, exit status, logs, and when to write C instead of a script.",
+      "quizId": "linux-quiz-10",
+      "pages": [
+        {
+          "id": "linux-10-p01",
+          "kicker": "Shebang",
+          "title": "The kernel reads the first line",
+          "body": [
+            "A text file that starts with #!/bin/sh tells the kernel to exec that interpreter with the script path as an argument. The file also needs execute permission.",
+            "#!/usr/bin/env bash is a portable way to find bash on PATH. A missing shebang plus chmod +x may still run in a shell that tries to interpret it, and fail elsewhere. Write the line."
+          ],
+          "diagram": "scriptExec"
+        },
+        {
+          "id": "linux-10-p02",
+          "kicker": "Variables",
+          "title": "Strings unless you say otherwise",
+          "body": [
+            "In the POSIX shell, variables are strings. count=5 is not an integer type. Arithmetic is explicit: $((count + 1)). Quote expansions: \"$name\".",
+            "Spaces around = make a command name, not an assignment. VAR = 1 tries to run a command named VAR. This is the first syntax bruise everyone earns."
+          ]
+        },
+        {
+          "id": "linux-10-p03",
+          "kicker": "Test",
+          "title": "if, [, and exit status",
+          "body": [
+            "if cmd; then ...; fi runs cmd and branches on its exit status. [ is a command (and a builtin) that sets status from a test. [[ is bash-specific.",
+            "Write if [ -f \"$file\" ]; then. The spaces inside [ ] are required. if [ -f $file ] without quotes breaks on spaces and can become a security bug."
+          ]
+        },
+        {
+          "id": "linux-10-p04",
+          "kicker": "Loops",
+          "title": "for and while",
+          "body": [
+            "for f in *.c; do ...; done iterates words. Quote if those words are filenames you already expanded carefully. while read is for lines, with its own IFS pitfalls.",
+            "A loop over ls output is still the wrong pattern. Globs and find are the right nouns. The shell is glue. It is a clumsy data language."
+          ]
+        },
+        {
+          "id": "linux-10-p05",
+          "kicker": "set -e",
+          "title": "Failing loud",
+          "body": [
+            "set -e tells the shell to exit when a command fails, with exceptions that have surprised experts. set -u treats unset variables as errors. set -o pipefail matters for pipelines.",
+            "None of these make a large shell program elegant. They do make a 40-line deploy script less silent. For serious logic, consider a language with types. C is sitting in the other tab of this app."
+          ]
+        },
+        {
+          "id": "linux-10-p06",
+          "kicker": "cron",
+          "title": "Time as an event",
+          "body": [
+            "cron runs commands from a crontab at scheduled times. systemd timers are the other common mechanism. Output that nobody redirects can vanish into email or the journal.",
+            "A cron job is a non-interactive shell. It may have a thin PATH. Always use absolute paths in scheduled jobs, and write logs you can find under /var/log or a file you chose."
+          ]
+        },
+        {
+          "id": "linux-10-p07",
+          "kicker": "Logs",
+          "title": "Read before you rewrite",
+          "body": [
+            "journalctl -u name and files under /var/log are how you debug a machine you cannot see. Permission denied, disk full, and missing PATH show up there more often than 'Linux is broken'.",
+            "Least privilege applies to log files too. World-readable logs with tokens in them are a self-inflicted incident. Module 6's permission bits were not a side quest."
+          ]
+        },
+        {
+          "id": "linux-10-p08",
+          "kicker": "C versus shell",
+          "title": "Pick the boundary",
+          "body": [
+            "Shell: glue, files, processes, one-liners, boot hooks. C: data structures, tight loops, talking to the syscall API with types, anything you must reason about at the byte level.",
+            "Rewriting grep in a shell loop is a category error. Calling out to seven unquoted find commands from C can be the inverse error. The undergraduate skill is choosing the layer."
+          ]
+        },
+        {
+          "id": "linux-10-p09",
+          "kicker": "Synthesis",
+          "title": "A whole machine, named",
+          "body": [
+            "You now have names for history, the kernel/user split, FHS, the shell parser, the toolbox, permission bits, file descriptors, boot, and sockets.",
+            "A typical failure is several layers at once: a script with an unquoted variable, a 644 directory you cannot traverse, a pipeline that swallowed stderr. Diagnose with the layer cake, not with folklore."
+          ]
+        },
+        {
+          "id": "linux-10-p10",
+          "kicker": "After",
+          "title": "What mastery looks like here",
+          "body": [
+            "Mastery at this level is not memorizing every GNU flag. It is predicting what the kernel will do, what the shell will expand, and where a file belongs.",
+            "Take the last quiz. Then use a real Linux system. lilC will still be the free C editor. This course stays the optional lecture that belongs next to it."
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -129,7 +129,7 @@ struct lilCTests {
         #expect(OnboardingCopy.page1Headline == "Write C. Press Run.")
         #expect(OnboardingCopy.page1Line == "lilC runs your code locally")
         #expect(OnboardingCopy.continueTitle == "Continue")
-        #expect(OnboardingCopy.page2Headline == "Always free. Zero ads.")
+        #expect(OnboardingCopy.page2Headline == "C stays free. Zero ads.")
         #expect(OnboardingCopy.page2Line == "For students and developers.")
         #expect(OnboardingCopy.getStartedTitle == "Get Started")
         #expect(OnboardingCopy.skipTitle == "Skip")
@@ -425,6 +425,69 @@ struct lilCTests {
         #expect(CQuizCatalog.quizzes.count == 10)
         #expect(CQuizCatalog.quizzes.allSatisfy { $0.questions.count == 20 && $0.isReady })
         #expect(CQuizCatalog.quiz(id: "c-quiz-10") != nil)
+        #expect(CQuizCatalog.quiz(id: "linux-quiz-01") == nil)
+    }
+
+    @Test func linuxCourseCatalogHasTenModulesAndDiagrams() {
+        #expect(LinuxCourseCatalog.productID == "lilc.linux.course")
+        #expect(LinuxCourseStore.productID == "lilc.linux.course")
+        #expect(LinuxCourseCatalog.course.productID == "lilc.linux.course")
+        #expect(LinuxCourseCatalog.course.priceLabel == "$2.99")
+        #expect(LinuxCourseCatalog.modules.count == 10)
+        #expect(Set(LinuxCourseCatalog.modules.map(\.id)).count == 10)
+        #expect(Set(LinuxCourseCatalog.modules.map(\.quizId)).count == 10)
+        for module in LinuxCourseCatalog.modules {
+            #expect(module.pages.count >= 8)
+            #expect(module.pages.count <= 12)
+            #expect(module.quizId == "linux-quiz-\(String(format: "%02d", module.number))")
+            #expect(LinuxCourseCatalog.module(id: module.id)?.id == module.id)
+            #expect(LinuxCourseCatalog.module(quizId: module.quizId)?.id == module.id)
+            for page in module.pages {
+                #expect(page.body.isEmpty == false)
+                #expect(page.title.isEmpty == false)
+            }
+        }
+        let kinds = Set(LinuxCourseCatalog.modules.flatMap(\.pages).compactMap(\.diagram))
+        #expect(kinds == Set(LinuxCourseDiagram.allCases))
+        #expect(FirstHourCurriculum.firstHour.count == 20)
+        #expect(FirstHourCurriculum.challenges.count == 12)
+        #expect(CQuizCatalog.quizzes.count == 10)
+    }
+
+    @Test func linuxQuizzesAreTwentyEachAndNamespaced() throws {
+        #expect(LinuxQuizCatalog.quizzes.count == 10)
+        #expect(LinuxQuizCatalog.quizzes.allSatisfy { $0.questions.count == 20 && $0.isReady })
+        for quiz in LinuxQuizCatalog.quizzes {
+            #expect(quiz.id.hasPrefix("linux-quiz-"))
+            #expect(quiz.questions.allSatisfy { $0.explanation?.isEmpty == false })
+            #expect(Set(quiz.questions.map(\.id)).count == 20)
+            let score = quiz.score(selectedIndexes: quiz.questions.map(\.correctIndex))
+            #expect(score == 20)
+        }
+        #expect(LinuxQuizCatalog.quiz(id: "linux-quiz-10") != nil)
+        #expect(LinuxQuizCatalog.quiz(id: "c-quiz-01") == nil)
+    }
+
+    @Test func linuxQuizLookupStaysGatedUntilOwned() {
+        #expect(QuizLookup.quiz(id: "c-quiz-01", linuxOwned: false) != nil)
+        #expect(QuizLookup.quiz(id: "linux-quiz-01", linuxOwned: false) == nil)
+        #expect(QuizLookup.quiz(id: "linux-quiz-01", linuxOwned: true)?.id == "linux-quiz-01")
+    }
+
+    @MainActor
+    @Test func linuxCourseStartsLockedAndDebugUnlocks() async {
+        let suite = UserDefaults(suiteName: "lilc-linux-\(UUID().uuidString)")!
+        let locked = LinuxCourseStore(defaults: suite)
+        await locked.refreshEntitlements()
+        #expect(locked.isOwned == false)
+        suite.set(true, forKey: LinuxCourseStore.debugUnlockKey)
+        let unlocked = LinuxCourseStore(defaults: suite)
+        await unlocked.refreshEntitlements()
+        #if DEBUG
+        #expect(unlocked.isOwned)
+        #else
+        #expect(unlocked.isOwned == false)
+        #endif
     }
 
     @Test func invalidParensOutputDoesNotPassValidParens() {

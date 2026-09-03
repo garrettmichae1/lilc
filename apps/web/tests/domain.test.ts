@@ -415,7 +415,7 @@ describe("onboarding", () => {
     expect(ONBOARDING_COPY.pageCount).toBe(2);
     expect(ONBOARDING_COPY.page1Headline).toBe("Write C. Press Run.");
     expect(ONBOARDING_COPY.page1Line).toBe("lilC runs your code locally");
-    expect(ONBOARDING_COPY.page2Headline).toBe("Always free. Zero ads.");
+    expect(ONBOARDING_COPY.page2Headline).toBe("C stays free. Zero ads.");
     expect(ONBOARDING_COPY.page2Line).toBe("For students and developers.");
     expect(ONBOARDING_COPY.continueTitle).toBe("Continue");
     expect(ONBOARDING_COPY.getStartedTitle).toBe("Get Started");

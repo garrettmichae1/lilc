@@ -24,7 +24,7 @@
   "icloudHint": "gmichaelw@icloud.com",
   "developmentTeam": "3W96U86P58",
   "appStoreNumericId": "6806824902",
-  "doNotClaim": ["GCC", "Clang as the runtime", "cloud compile", "Copilot", "C Manual", "Agent", "IAP", "subscription"],
+  "doNotClaim": ["GCC", "Clang as the runtime", "cloud compile", "Copilot", "C Manual", "Agent", "subscription", "Linux VM"],
   "screenshots": {
     "iphone69": "store/screenshots/iphone-6.9 (1320x2868)",
     "ipad13": "store/screenshots/ipad-13 (2064x2752)",

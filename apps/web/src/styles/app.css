@@ -1227,13 +1227,17 @@ textarea::placeholder {
   color: var(--accent);
 }
 
-.quiz-swipe-card {
-  min-height: 280px;
+.linux-course-teaser {
+  flex: none;
+  width: 100%;
+  box-sizing: border-box;
+}
   height: auto;
   overflow: visible;
 }
 
 .quiz-swipe-card .swipe-card-title {
+
   font-size: 22px;
   line-height: 1.2;
   overflow: visible;

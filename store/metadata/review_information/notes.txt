@@ -8,8 +8,9 @@ How to test:
 5. Open Settings (home screen). Confirm Light/Dark, the PicoC vs GCC note, and the Privacy / Terms / Support links.
 
 Notes for review:
-- No account. No sign-in. No in-app purchases. No subscription.
-- No network is required to write or run C.
+- No account. No sign-in. No subscription. C editor, First Hour, Challenges, and C quizzes are free.
+- Optional non-consumable IAP product ID lilc.linux.course ($2.99) unlocks the Linux study course on Learn. If the product is not in App Store Connect yet, Unlock explains that. Restore Purchases is in Settings → Linux Course.
+- No network is required to write or run C, or to read the bundled Linux course after unlock.
 - Agent-related code is compiled into the binary but hidden in this release. There is no Agent UI, no AI chat, and no Copilot.
 - Encryption: ITSAppUsesNonExemptEncryption is false (exempt).
 - Privacy: https://garrettmichae1.github.io/lilc/privacy.html

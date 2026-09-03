@@ -2,7 +2,7 @@
 
 **Learn C on iPhone.**
 
-lilC is a free student resource. You write C in a native editor, press Run, and PicoC interprets the program on this iPhone. There is no remote Linux VM, no SSH session, and no cloud compiler.
+lilC is a free student resource. You write C in a native editor, press Run, and PicoC interprets the program on this iPhone. There is no remote Linux VM, no SSH session, and no cloud compiler. C lessons stay free. The iPhone app can unlock an optional offline Linux course.
 
 This release does not include AI.
 

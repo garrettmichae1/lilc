@@ -8,7 +8,7 @@ enum OnboardingCopy {
     static let page1Line = "lilC runs your code locally"
     static let continueTitle = "Continue"
 
-    static let page2Headline = "Always free. Zero ads."
+    static let page2Headline = "C stays free. Zero ads."
     static let page2Line = "For students and developers."
     static let getStartedTitle = "Get Started"
 

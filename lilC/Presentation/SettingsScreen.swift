@@ -4,6 +4,7 @@ struct SettingsScreen: View {
     let workspace: LocalCWorkspace
     let appearance: AppearanceStore
     let agentSettings: AgentSettingsStore
+    let linuxCourse: LinuxCourseStore
     let back: () -> Void
 
     @State private var document: LegalDocument?
@@ -24,6 +25,7 @@ struct SettingsScreen: View {
                 appearanceSection
                 picoCSection
                 filesSection
+                linuxCourseSection
                 if AgentRuntimeConfig.surfacesVisibleInThisRelease {
                     agentSection
                 }
@@ -42,6 +44,7 @@ struct SettingsScreen: View {
             LegalDocumentView(document: item)
         }
         .task {
+            await linuxCourse.loadStore()
             guard AgentRuntimeConfig.surfacesVisibleInThisRelease else { return }
             githubConnected = AgentKeychain.githubToken() != nil
             await agentSettings.loadStore()
@@ -157,6 +160,42 @@ struct SettingsScreen: View {
             Text("Files")
         } footer: {
             Text("Removes every C file on this iPhone. A starter file is created.")
+        }
+    }
+
+    private var linuxCourseSection: some View {
+        Section {
+            LabeledContent("Status") {
+                Text(linuxCourse.isOwned ? "Owned" : "Not owned")
+                    .font(.body)
+                    .foregroundStyle(AppPalette.silver)
+            }
+            .font(.body)
+            .listRowBackground(AppPalette.card)
+            .accessibilityIdentifier("linux-course-status")
+
+            if !linuxCourse.isOwned {
+                Button(linuxCourse.isPurchasing ? "Working…" : "Unlock \(linuxCourse.priceText)") {
+                    AppHaptics.tap()
+                    Task { await linuxCourse.purchase() }
+                }
+                .font(.body)
+                .disabled(linuxCourse.isPurchasing)
+                .listRowBackground(AppPalette.card)
+                .accessibilityIdentifier("linux-course-unlock")
+            }
+
+            Button("Restore Purchases") {
+                AppHaptics.tap()
+                Task { await linuxCourse.restore() }
+            }
+            .font(.body)
+            .listRowBackground(AppPalette.card)
+            .accessibilityIdentifier("linux-course-restore")
+        } header: {
+            Text("Linux Course")
+        } footer: {
+            Text(linuxCourse.storeMessage ?? "A one-time \(linuxCourse.priceText) purchase. C lessons stay free. Study stays on this iPhone.")
         }
     }
 

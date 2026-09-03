@@ -4,8 +4,8 @@ Thanks for wanting to improve lilC. This is an on-device PicoC learner for iPhon
 
 ## Ground rules
 
-- **Do not enable Agent UI.** `AgentRuntimeConfig.surfacesVisibleInThisRelease` must stay `false`. Agent code stays in the tree for a later release; do not add an Agent tab, Settings Agent section, or IAP surfaces to the shipping UI.
-- **Do not reintroduce SSH, VNC, remote Linux VMs, or SwiftTerm.** Local C mode is the product.
+- **Do not enable Agent UI.** `AgentRuntimeConfig.surfacesVisibleInThisRelease` must stay `false`. Agent code stays in the tree for a later release; do not add an Agent tab, Settings Agent section, or Agent IAP surfaces to the shipping UI. The Linux course (`lilc.linux.course`) is a separate one-time unlock.
+- **Do not reintroduce SSH, VNC, remote Linux VMs, or SwiftTerm.** Local C mode is the product. The Linux course is offline reading and quizzes.
 - **Do not commit secrets.** No `.dev.vars`, API keys, Keychain dumps, or account files.
 - Forks of the *code* are fine. Do not publish an App Store clone named lilC. See `TRADEMARKS.md`.
 - Keep PicoC vendor sources readable; do not “clean” them into unreadability.

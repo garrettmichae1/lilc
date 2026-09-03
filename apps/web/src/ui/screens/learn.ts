@@ -46,6 +46,7 @@ export function renderLearn(
               lessonDeck("Lessons", firstHourLessons, progress, workspace, actions.openEditor),
               lessonDeck("Challenges", challengeLessons, progress, workspace, actions.openEditor),
               quizzes.length > 0 ? quizDeck(QUIZ_DECK_TITLE, quizzes, actions.openQuiz) : undefined,
+              linuxCourseTeaser(),
             ],
           }),
         ],
@@ -306,6 +307,30 @@ function quizDeck(
       el("div", { className: "section-label", text: title }),
       scroller,
       pips,
+    ],
+  });
+}
+
+function linuxCourseTeaser(): HTMLElement {
+  return el("div", {
+    className: "lesson-deck-wrap",
+    children: [
+      el("div", { className: "section-label", text: "Course" }),
+      el("div", {
+        className: "lesson-swipe-card linux-course-teaser",
+        attrs: {
+          role: "note",
+          "aria-label": "Linux course. Unix, the kernel, and the shell. Unlock it in the lilC iPhone app.",
+        },
+        children: [
+          el("div", { className: "lesson-kicker", text: "On iPhone" }),
+          el("div", { className: "swipe-card-title", text: "Linux" }),
+          el("div", {
+            className: "swipe-card-goal",
+            text: "Unix, the kernel, and the shell. Unlock the course in the lilC iPhone app. C lessons stay free here.",
+          }),
+        ],
+      }),
     ],
   });
 }

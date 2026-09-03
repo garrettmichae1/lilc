@@ -5,7 +5,7 @@ export const ONBOARDING_COPY = {
   page1Headline: "Write C. Press Run.",
   page1Line: "lilC runs your code locally",
   continueTitle: "Continue",
-  page2Headline: "Always free. Zero ads.",
+  page2Headline: "C stays free. Zero ads.",
   page2Line: "For students and developers.",
   getStartedTitle: "Get Started",
   skipTitle: "Skip",

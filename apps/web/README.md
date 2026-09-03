@@ -16,6 +16,7 @@ The iPhone app is unchanged. Legal pages stay at the repository root (`privacy.h
 - Light / Dark, PicoC vs GCC note, erase all files, Privacy / Terms
 - Files persist in this browser (IndexedDB, with localStorage backup)
 - No Agent, no C Manual, no IAP, no SSH/VM, no analytics
+- Learn shows a teaser for the iPhone Linux course. The paid course JSON is not shipped on the web.
 
 The runtime is **PicoC** (BSD 3-Clause), the same vendored interpreter as iOS, compiled to WASM. It is **not** GCC or Clang.
 

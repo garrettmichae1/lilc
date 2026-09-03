@@ -11,7 +11,7 @@ In-repo. Does not replace App Store Connect. Use this while uploading the first 
   - https://garrettmichae1.github.io/lilc/privacy.html
   - https://garrettmichae1.github.io/lilc/terms.html
 - Support: mailto:support@lilc.app
-- No account, no IAP in this release, Agent UI hidden
+- No account. C stays free. Optional Linux course IAP (`lilc.linux.course`) when shown. Agent UI hidden
 - PicoC is an interpreter, not GCC — keep that wording in the description
 
 ## Connect-only (cannot finish from git)
