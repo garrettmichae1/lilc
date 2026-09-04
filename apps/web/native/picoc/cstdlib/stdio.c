@@ -661,11 +661,19 @@ int StdioBaseScanf(struct ParseState *Parser, FILE *Stream, char *StrIn,
         int Result;
 
         if (Stream != NULL) {
-            LilCWaitForInput();
-            Result = fscanf(LilCInputFile(Stream), UseFormat, ScanfArg[0],
-                ScanfArg[1], ScanfArg[2], ScanfArg[3], ScanfArg[4],
-                ScanfArg[5], ScanfArg[6], ScanfArg[7], ScanfArg[8],
-                ScanfArg[9]);
+            FILE *input = LilCInputFile(Stream);
+            if (input != NULL && input == LilCStdinFile()) {
+                Result = LilCFscanfStdin(UseFormat, ScanfArg[0],
+                    ScanfArg[1], ScanfArg[2], ScanfArg[3], ScanfArg[4],
+                    ScanfArg[5], ScanfArg[6], ScanfArg[7], ScanfArg[8],
+                    ScanfArg[9]);
+            } else {
+                LilCWaitForInput();
+                Result = fscanf(input, UseFormat, ScanfArg[0],
+                    ScanfArg[1], ScanfArg[2], ScanfArg[3], ScanfArg[4],
+                    ScanfArg[5], ScanfArg[6], ScanfArg[7], ScanfArg[8],
+                    ScanfArg[9]);
+            }
         } else
             Result = sscanf(StrIn, UseFormat, ScanfArg[0], ScanfArg[1],
                 ScanfArg[2], ScanfArg[3], ScanfArg[4], ScanfArg[5],
@@ -766,8 +774,13 @@ void StdioFgetc(struct ParseState *Parser, struct Value *ReturnValue,
     struct Value **Param, int NumArgs)
 {
 #ifdef LILC_IOS_HOST
-    LilCWaitForInput();
-    ReturnValue->Val->Integer = fgetc(LilCInputFile(Param[0]->Val->Pointer));
+    FILE *input = LilCInputFile(Param[0]->Val->Pointer);
+    if (input != NULL && input == LilCStdinFile()) {
+        ReturnValue->Val->Integer = LilCReadChar();
+    } else {
+        LilCWaitForInput();
+        ReturnValue->Val->Integer = fgetc(input);
+    }
 #else
     ReturnValue->Val->Integer = fgetc(Param[0]->Val->Pointer);
 #endif
@@ -777,9 +790,15 @@ void StdioFgets(struct ParseState *Parser, struct Value *ReturnValue,
     struct Value **Param, int NumArgs)
 {
 #ifdef LILC_IOS_HOST
-    LilCWaitForInput();
-    ReturnValue->Val->Pointer = fgets(Param[0]->Val->Pointer,
-        Param[1]->Val->Integer, LilCInputFile(Param[2]->Val->Pointer));
+    FILE *input = LilCInputFile(Param[2]->Val->Pointer);
+    if (input != NULL && input == LilCStdinFile()) {
+        ReturnValue->Val->Pointer = LilCReadLine(Param[0]->Val->Pointer,
+            Param[1]->Val->Integer);
+    } else {
+        LilCWaitForInput();
+        ReturnValue->Val->Pointer = fgets(Param[0]->Val->Pointer,
+            Param[1]->Val->Integer, input);
+    }
 #else
     ReturnValue->Val->Pointer = fgets(Param[0]->Val->Pointer,
         Param[1]->Val->Integer, Param[2]->Val->Pointer);
@@ -1002,9 +1021,8 @@ void StdioGets(struct ParseState *Parser, struct Value *ReturnValue,
     struct Value **Param, int NumArgs)
 {
 #ifdef LILC_IOS_HOST
-    LilCWaitForInput();
-    ReturnValue->Val->Pointer = fgets(Param[0]->Val->Pointer,
-        GETS_MAXValue, LilCStdinFile());
+    ReturnValue->Val->Pointer = LilCReadLine(Param[0]->Val->Pointer,
+        GETS_MAXValue);
 #else
     ReturnValue->Val->Pointer = fgets(Param[0]->Val->Pointer,
         GETS_MAXValue, stdin);
@@ -1020,8 +1038,7 @@ void StdioGetchar(struct ParseState *Parser, struct Value *ReturnValue,
     struct Value **Param, int NumArgs)
 {
 #ifdef LILC_IOS_HOST
-    LilCWaitForInput();
-    ReturnValue->Val->Integer = fgetc(LilCStdinFile());
+    ReturnValue->Val->Integer = LilCReadChar();
 #else
     ReturnValue->Val->Integer = getchar();
 #endif

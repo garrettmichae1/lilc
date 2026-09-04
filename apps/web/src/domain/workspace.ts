@@ -41,7 +41,7 @@ import {
   setCurrentLesson,
 } from "./progress";
 import { runFirstHourSubset } from "./subset";
-import { appendNotYet, checkLessonWin, completeTheTaskMessage, replacePlaceholderMessage } from "./win";
+import { appendNotYet, checkLessonWin, completeTheTaskMessage, firstPlaceholderJump, replacePlaceholderMessage } from "./win";
 
 export interface LessonOutcome {
   token: number;
@@ -69,6 +69,7 @@ export class LocalCWorkspace {
   isRunning = false;
   isWaitingForInput = false;
   lastRunFailed = false;
+  lastRunNeedsFillIn = false;
   lastErrorJump: CErrorJump | undefined;
   stdinLine = "";
   engineNote = "";
@@ -333,6 +334,15 @@ export class LocalCWorkspace {
     const relative = lessonRelativePath(lesson);
     const existing = this.files.find((file) => file.relativePath === relative);
     if (existing) {
+      if (
+        lesson.source.includes("???") &&
+        !existing.code.includes("???") &&
+        existing.code === lesson.solution
+      ) {
+        existing.code = lesson.source;
+        existing.updatedAt = Date.now();
+        this.persistSoon();
+      }
       this.select(existing);
       this.output = `${lessonKicker(lesson)} — ${lesson.title}. Press RUN.`;
       this.notify();
@@ -586,6 +596,7 @@ export class LocalCWorkspace {
       this.isRunning = false;
       this.isWaitingForInput = false;
       this.lastRunFailed = true;
+      this.lastRunNeedsFillIn = false;
       this.lastErrorJump = undefined;
       const names = projectMains.map((file) => fileName(file)).join(", ");
       const raw = `Cannot run this project: it has more than one main() function (${names}). Keep one main() and turn the others into helper functions.\n`;
@@ -600,7 +611,8 @@ export class LocalCWorkspace {
       this.isRunning = false;
       this.isWaitingForInput = false;
       this.lastRunFailed = false;
-      this.lastErrorJump = undefined;
+      this.lastRunNeedsFillIn = true;
+      this.lastErrorJump = firstPlaceholderJump(runFile);
       const lesson = lessonForPath(runFile.relativePath);
       this.output = lesson ? completeTheTaskMessage(lesson) : replacePlaceholderMessage;
       this.lessonToken += 1;
@@ -630,6 +642,7 @@ export class LocalCWorkspace {
     this.isRunning = true;
     this.isWaitingForInput = false;
     this.lastRunFailed = false;
+    this.lastRunNeedsFillIn = false;
     this.lastErrorJump = undefined;
     this.touchCurrentFile();
     this.notify();
@@ -694,6 +707,7 @@ export class LocalCWorkspace {
     const formatted = displayOutput(result);
     this.output = finishConsoleOutput(this.output, formatted.text, formatted.failed);
     this.lastRunFailed = formatted.failed;
+    this.lastRunNeedsFillIn = false;
     if (formatted.failed) {
       const diagnostic = parseDiagnostic(result);
       this.lastErrorJump = diagnostic

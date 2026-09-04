@@ -1,15 +1,13 @@
 import { allLessons, lessonForPath, lessonKicker, lessonRelativePath } from "../../domain/curriculum";
 import { fileName } from "../../domain/files";
 import { formatC, indentSelection } from "../../domain/indent";
-import { isLessonComplete, loadProgress } from "../../domain/progress";
 import { encodeShareHash, playgroundURL, type SharePayload } from "../../domain/share";
 import { findMatches, offsetOfLine } from "../../domain/search";
 import { tokenizeC } from "../../domain/syntax";
 import type { LocalCWorkspace } from "../../domain/workspace";
-import { challengeMeter, hourMeter } from "../components/chrome";
 import { el, icons, svgIcon } from "../dom";
 
-const SYMBOLS = ["{", "}", "(", ")", "[", "]", ";", "=", "&", "*"] as const;
+const SYMBOLS = ["{", "}", "(", ")", ";", "*", "&"] as const;
 
 export const NICE_DELAY_MS = 2400;
 
@@ -179,26 +177,55 @@ export function renderEditor(
   };
 
   const paintHighlight = (): void => {
-    if (!syntaxColoring) {
+    const source = editor.value;
+    const matches = findVisible ? findMatches(source, findQuery) : [];
+    const overlayOn = syntaxColoring || matches.length > 0;
+    highlight.hidden = !overlayOn;
+    editor.classList.toggle("overlay-on", overlayOn);
+    if (!overlayOn) {
       highlight.replaceChildren();
       return;
     }
-    const source = editor.value;
-    const tokens = tokenizeC(source);
+    const tokens = syntaxColoring ? tokenizeC(source) : [];
     const frag = document.createDocumentFragment();
     let cursor = 0;
-    for (const token of tokens) {
-      if (token.start > cursor) {
-        frag.append(source.slice(cursor, token.start));
+    let tokenIndex = 0;
+    while (cursor < source.length) {
+      while (tokenIndex < tokens.length && (tokens[tokenIndex]?.end ?? 0) <= cursor) {
+        tokenIndex += 1;
       }
-      const span = document.createElement("span");
-      span.className = `tok-${token.kind}`;
-      span.textContent = source.slice(token.start, token.end);
-      frag.append(span);
-      cursor = token.end;
-    }
-    if (cursor < source.length) {
-      frag.append(source.slice(cursor));
+      const token = tokens[tokenIndex];
+      const inToken = token !== undefined && cursor >= token.start && cursor < token.end;
+      let matchIndex = -1;
+      for (let index = 0; index < matches.length; index += 1) {
+        const match = matches[index];
+        if (match && cursor >= match.start && cursor < match.start + match.length) {
+          matchIndex = index;
+          break;
+        }
+      }
+      const tokenEnd = inToken && token ? token.end : (token?.start ?? source.length);
+      const matchEnd =
+        matchIndex >= 0
+          ? (matches[matchIndex]?.start ?? 0) + (matches[matchIndex]?.length ?? 0)
+          : (matches.find((match) => match.start > cursor)?.start ?? source.length);
+      const end = Math.max(cursor + 1, Math.min(source.length, tokenEnd, matchEnd));
+      const className = [
+        inToken && token ? `tok-${token.kind}` : "",
+        matchIndex >= 0 ? (matchIndex === findIndex ? "find-hit-current" : "find-hit") : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const text = source.slice(cursor, end);
+      if (className.length > 0) {
+        const span = document.createElement("span");
+        span.className = className;
+        span.textContent = text;
+        frag.append(span);
+      } else {
+        frag.append(text);
+      }
+      cursor = end;
     }
     frag.append("\n");
     highlight.replaceChildren(frag);
@@ -228,7 +255,6 @@ export function renderEditor(
     editor.classList.toggle("find-open", findVisible);
     editor.classList.toggle("syntax-on", syntaxColoring);
     highlight.classList.toggle("find-open", findVisible);
-    highlight.hidden = !syntaxColoring;
     paintHighlight();
     syncHighlightScroll();
 
@@ -236,13 +262,19 @@ export function renderEditor(
     const matchLabel = matches.length === 0 ? "0/0" : `${Math.min(findIndex + 1, matches.length)}/${matches.length}`;
 
     topSlot.replaceChildren(topBar());
-    tabsSlot.replaceChildren(fileTabs());
-    nameSlot.replaceChildren(nameRow());
-    const rail = lessonRail();
-    if (rail) {
-      lessonSlot.replaceChildren(rail);
-    } else {
+    if (workspace.isRunning) {
+      tabsSlot.replaceChildren();
+      nameSlot.replaceChildren();
       lessonSlot.replaceChildren();
+    } else {
+      tabsSlot.replaceChildren(fileTabs());
+      nameSlot.replaceChildren(nameRow());
+      const rail = lessonRail();
+      if (rail) {
+        lessonSlot.replaceChildren(rail);
+      } else {
+        lessonSlot.replaceChildren();
+      }
     }
     paintFindBar(matchLabel);
     if (workspace.isRunning) {
@@ -251,6 +283,7 @@ export function renderEditor(
     } else {
       outputChromeExpanded = false;
     }
+    chrome.classList.toggle("editor-running", workspace.isRunning);
     chrome.classList.toggle(
       "output-chrome-expanded",
       outputChromeExpanded && outputExpanded,
@@ -448,36 +481,26 @@ export function renderEditor(
     if (!lesson) {
       return undefined;
     }
-    const progress = loadProgress();
-    const passed = isLessonComplete(lesson.id);
     return el("div", {
       className: "lesson-rail",
       children: [
         el("div", {
-          className: "lesson-rail-top",
+          className: "lesson-rail-copy",
           children: [
-            lesson.track === "challenge" ? challengeMeter(progress, lesson.id) : hourMeter(progress, lesson.id),
-            niceVisible
-              ? el("span", {
-                  className: "lesson-nice",
-                  attrs: { "aria-live": "polite" },
-                  text: "Nice.",
-                })
-              : passed
-                ? el("span", {
-                    className: "lesson-star",
-                    attrs: { "aria-label": "Lesson complete" },
-                    text: "★",
-                  })
-                : undefined,
+            el("div", {
+              className: "lesson-kicker",
+              text: lessonKicker(lesson),
+            }),
+            el("div", { className: "lesson-goal", text: lesson.goal }),
           ],
         }),
-        el("div", {
-          className: "lesson-kicker mono",
-          text: lessonKicker(lesson),
-        }),
-        el("div", { className: "lesson-title", text: lesson.title }),
-        el("div", { className: "lesson-goal", text: lesson.goal }),
+        niceVisible
+          ? el("span", {
+              className: "lesson-nice",
+              attrs: { "aria-live": "polite" },
+              text: "Nice.",
+            })
+          : undefined,
       ],
     });
   };
@@ -493,15 +516,23 @@ export function renderEditor(
       ? badge("WAITING FOR INPUT", "var(--amber)", true)
       : workspace.isRunning
         ? badge("RUNNING", "var(--accent)", false)
-        : failed
+        : workspace.lastRunNeedsFillIn
           ? workspace.lastErrorJump
             ? el("button", {
-                attrs: { type: "button", "aria-label": "Jump to error" },
+                attrs: { type: "button", "aria-label": "Jump to the blank" },
                 on: { click: jumpToError },
-                children: [badge("ERROR", "var(--error)", false)],
+                children: [badge("TODO", "var(--amber)", false)],
               })
-            : badge("ERROR", "var(--error)", false)
-          : undefined;
+            : badge("TODO", "var(--amber)", false)
+          : failed
+            ? workspace.lastErrorJump
+              ? el("button", {
+                  attrs: { type: "button", "aria-label": "Jump to error" },
+                  on: { click: jumpToError },
+                  children: [badge("ERROR", "var(--error)", false)],
+                })
+              : badge("ERROR", "var(--error)", false)
+            : undefined;
 
     const body = el("div", {
       className: workspace.lastErrorJump ? "output-body clickable" : "output-body",

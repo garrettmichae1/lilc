@@ -1,4 +1,5 @@
 import type { FirstHourLesson } from "./curriculum";
+import type { CErrorJump } from "./diagnostics";
 
 export function completeTheTaskMessage(lesson: FirstHourLesson): string {
   const kind = lesson.track === "challenge" ? "challenge" : "lesson";
@@ -6,6 +7,21 @@ export function completeTheTaskMessage(lesson: FirstHourLesson): string {
 }
 
 export const replacePlaceholderMessage = "Replace ??? with C code, then press RUN.\n";
+
+export function firstPlaceholderJump(file: { relativePath: string; code: string }): CErrorJump | undefined {
+  const index = file.code.indexOf("???");
+  if (index < 0) {
+    return undefined;
+  }
+  const before = file.code.slice(0, index);
+  const lines = before.split("\n");
+  const column = (lines[lines.length - 1]?.length ?? 0) + 1;
+  return {
+    fileID: file.relativePath,
+    line: lines.length,
+    column: Math.max(column, 1),
+  };
+}
 
 export function notYetMessage(lesson: FirstHourLesson): string {
   return `Not yet. The program must print ${lesson.printHint}.`;

@@ -224,6 +224,32 @@ describe("workspace", () => {
     expect(workspace.currentFile.code).toBe(variables?.source);
   });
 
+  it("resets a solved lesson back to the starter when it is reopened", () => {
+    resetProgressForTests();
+    const hello = firstLesson();
+    const workspace = new LocalCWorkspace();
+    workspace.files = [
+      { relativePath: lessonRelativePath(hello), code: hello.solution, updatedAt: 1 },
+    ];
+    workspace.selectedFileID = lessonRelativePath(hello);
+    workspace.openLesson(hello);
+    expect(workspace.currentFile.code).toBe(hello.source);
+  });
+
+  it("jumps to the first ??? when RUN hits a fill-in blank", async () => {
+    resetProgressForTests();
+    const hello = firstLesson();
+    const workspace = new LocalCWorkspace();
+    workspace.files = [{ relativePath: lessonRelativePath(hello), code: hello.source, updatedAt: 1 }];
+    workspace.selectedFileID = lessonRelativePath(hello);
+    await workspace.runCurrentFile();
+    expect(workspace.lastRunNeedsFillIn).toBe(true);
+    expect(workspace.lastRunFailed).toBe(false);
+    const jump = workspace.revealErrorJump();
+    expect(jump?.fileID).toBe(lessonRelativePath(hello));
+    expect(hello.source.split("\n")[(jump?.line ?? 1) - 1]).toContain("???");
+  });
+
   it("tells the user to complete a challenge instead of a syntax error", async () => {
     resetProgressForTests();
     const twoSum = lessonById("two-sum")!;
@@ -236,6 +262,8 @@ describe("workspace", () => {
     expect(workspace.output).toContain("Replace ??? with C code");
     expect(workspace.output).toContain("The program must print 0 1.");
     expect(workspace.output).not.toContain("SYNTAX ERROR");
+    expect(workspace.lastRunNeedsFillIn).toBe(true);
+    expect(workspace.lastErrorJump?.line).toBeGreaterThan(0);
     expect(workspace.lessonOutcome?.status).toBe("missed");
   });
 

@@ -50,6 +50,13 @@ FILE *LilCFopenProjectFile(const char *FileName, const char *Mode);
    fscanf/fgets/fgetc on the captured stdin so the UI reflects the wait. */
 void LilCWaitForInput(void);
 
+/* fscanf on the captured stdin stream. The web host drives one conversion
+   at a time and waits when MEMFS hits EOF so multi-field scanf matches
+   the iOS stdin pipe. Unused ScanfArg slots may be NULL. */
+int LilCFscanfStdin(const char *format,
+    void *a0, void *a1, void *a2, void *a3, void *a4,
+    void *a5, void *a6, void *a7, void *a8, void *a9);
+
 #ifdef __cplusplus
 }
 #endif

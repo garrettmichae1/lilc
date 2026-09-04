@@ -191,6 +191,66 @@ describe("web editor typing", () => {
     expect(chrome?.classList.contains("output-chrome-expanded")).toBe(false);
   });
 
+  it("hides file tabs and the lesson rail while a program is running", async () => {
+    resetProgressForTests();
+    const workspace = new LocalCWorkspace();
+    await workspace.load();
+    workspace.openLesson(firstLesson());
+    const screen = renderEditor(workspace, { back: () => undefined });
+    document.body.append(screen);
+    expect(screen.querySelector(".file-tab")).toBeInstanceOf(HTMLButtonElement);
+    expect(screen.querySelector(".lesson-rail")).toBeInstanceOf(HTMLElement);
+
+    workspace.isRunning = true;
+    swipe(screen.querySelector("[data-output-swipe]"), 240, 180);
+    expect(screen.querySelector(".file-tab")).toBeNull();
+    expect(screen.querySelector(".lesson-rail")).toBeNull();
+    expect(screen.querySelector(".name-row")).toBeNull();
+  });
+
+  it("shows a TODO badge that jumps to ???", async () => {
+    resetProgressForTests();
+    const workspace = new LocalCWorkspace();
+    await workspace.load();
+    workspace.openLesson(firstLesson());
+    const screen = renderEditor(workspace, { back: () => undefined });
+    document.body.append(screen);
+    await workspace.runCurrentFile();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const todo = screen.querySelector('[aria-label="Jump to the blank"]');
+    expect(todo).toBeInstanceOf(HTMLButtonElement);
+    expect(todo?.textContent).toContain("TODO");
+    (todo as HTMLButtonElement).click();
+    const textarea = screen.querySelector("textarea.editor");
+    expect(textarea).toBeInstanceOf(HTMLTextAreaElement);
+    expect((textarea as HTMLTextAreaElement).value.slice(
+      (textarea as HTMLTextAreaElement).selectionStart,
+      (textarea as HTMLTextAreaElement).selectionEnd,
+    )).toContain("???");
+  });
+
+  it("highlights find matches in the editor overlay", async () => {
+    const workspace = new LocalCWorkspace();
+    await workspace.load();
+    workspace.updateCurrentCode("int main(void) {\n    int n = 1;\n    return 0;\n}\n");
+    const screen = renderEditor(workspace, { back: () => undefined });
+    document.body.append(screen);
+    const find = screen.querySelector('[aria-label="Find"]');
+    expect(find).toBeInstanceOf(HTMLButtonElement);
+    (find as HTMLButtonElement).click();
+    const findInput = screen.querySelector('[aria-label="Find in file"]');
+    expect(findInput).toBeInstanceOf(HTMLInputElement);
+    if (!(findInput instanceof HTMLInputElement)) {
+      return;
+    }
+    findInput.value = "int";
+    findInput.dispatchEvent(new Event("input", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const hits = screen.querySelectorAll("[data-editor-highlight] .find-hit, [data-editor-highlight] .find-hit-current");
+    expect(hits.length).toBeGreaterThan(1);
+    expect(screen.querySelector("[data-editor-highlight] .find-hit-current")).toBeInstanceOf(HTMLElement);
+  });
+
   it("keeps stdin directly under compact output while running", async () => {
     const workspace = new LocalCWorkspace();
     await workspace.load();
