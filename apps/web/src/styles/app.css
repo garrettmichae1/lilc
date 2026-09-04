@@ -119,6 +119,17 @@ a:focus-visible {
   gap: 28px;
 }
 
+.home-stack {
+  padding: 32px 24px 48px;
+  gap: 36px;
+}
+
+.home-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .home-header {
   display: flex;
   align-items: center;

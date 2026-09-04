@@ -22,7 +22,7 @@ export function renderHome(
         className: "scroll",
         children: [
           el("div", {
-            className: "pad",
+            className: "pad home-stack",
             children: [
               el("div", {
                 className: "home-header",
@@ -72,6 +72,7 @@ function projects(
   actions: { openProject: (folder: LocalCFolder) => void; openFiles: () => void },
 ): HTMLElement {
   return el("div", {
+    className: "home-projects",
     children: [
       el("div", {
         className: "row-between",
