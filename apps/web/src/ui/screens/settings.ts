@@ -130,7 +130,6 @@ export function renderSettings(
                         el("span", { className: "muted", children: [svgIcon(icons.chevronRight, 14)] }),
                       ],
                     }),
-                    linkRow("Email Support", LegalURLs.support),
                   ]
                 : []),
             ],
@@ -167,7 +166,7 @@ function section(title: string, rows: HTMLElement[], footer?: string): HTMLEleme
 function linkRow(title: string, href: string): HTMLAnchorElement {
   const row = el("a", {
     className: "settings-row",
-    attrs: { href, target: href.startsWith("mailto:") ? undefined : "_blank", rel: "noopener noreferrer" },
+    attrs: { href, target: "_blank", rel: "noopener noreferrer" },
     children: [
       el("span", { text: title }),
       el("span", { className: "muted", children: [svgIcon(icons.chevronRight, 14)] }),

@@ -5,12 +5,11 @@ export const LegalURLs = {
   terms: "https://garrettmichae1.github.io/lilc/terms.html",
   teachers: "https://garrettmichae1.github.io/lilc/teachers.html",
   webPlayground: "https://garrettmichae1.github.io/lilc/web/",
-  support: "mailto:support@lilc.app?subject=lilC%20Support",
 } as const;
 
 export const APP_VERSION = "0.1.0 (web)";
 
-/** Teachers, licenses, and email stay compiled but hidden in this learning release. */
+/** Teachers and licenses stay compiled but hidden in this learning release. */
 export const EXTRA_LEGAL_ROWS_VISIBLE = false;
 
 export const PICO_C_EXPLANATION = `PicoC is an interpreter, not a compiler. It runs C in this browser. Standard C libraries and extras a desktop compiler provides will not work here.`;
