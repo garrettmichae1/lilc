@@ -20,7 +20,7 @@ import {
   type CQuiz,
 } from "../../domain/quizzes";
 import type { LocalCWorkspace } from "../../domain/workspace";
-import { mainTabBar, trackMeter } from "../components/chrome";
+import { mainTabBar } from "../components/chrome";
 import { el } from "../dom";
 
 export function renderLearn(
@@ -61,6 +61,50 @@ export function renderLearn(
   });
 }
 
+function deckHeader(title: string, done: number, total: number): HTMLElement {
+  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+  return el("div", {
+    className: "deck-header",
+    children: [
+      el("div", {
+        className: "row-between",
+        children: [
+          el("div", { className: "section-label", text: title }),
+          el("span", {
+            className: "hour-count mono",
+            attrs: { "aria-label": `${done} of ${total} complete` },
+            text: `${done}/${total}`,
+          }),
+        ],
+      }),
+      el("div", {
+        className: "deck-bar",
+        attrs: {
+          role: "progressbar",
+          "aria-label": title,
+          "aria-valuemin": "0",
+          "aria-valuemax": String(total),
+          "aria-valuenow": String(done),
+        },
+        children: [el("div", { className: "deck-bar-fill", attrs: { style: `width:${percent}%` } })],
+      }),
+    ],
+  });
+}
+
+function deckIndexLabel(index: number, total: number): HTMLElement {
+  return el("div", {
+    className: "deck-index mono",
+    attrs: { "aria-live": "polite" },
+    text: `${index} / ${total}`,
+  });
+}
+
+function setDeckIndex(label: HTMLElement, activeId: string, ids: readonly string[]): void {
+  const index = ids.indexOf(activeId);
+  label.textContent = `${Math.max(1, index + 1)} / ${ids.length}`;
+}
+
 function lessonDeck(
   title: string,
   lessons: FirstHourLesson[],
@@ -73,20 +117,8 @@ function lessonDeck(
     className: "lesson-deck",
     attrs: { role: "list", tabindex: "0", "aria-label": title },
   });
-  const pips = el("div", { className: "lesson-pips deck-pips" });
-
-  const paintPips = (activeId: string): void => {
-    pips.replaceChildren(
-      ...lessons.map((lesson) => {
-        const complete = progress.completedIds.includes(lesson.id);
-        const current = lesson.id === activeId;
-        return el("span", {
-          className: complete ? "pip done" : current ? "pip current" : "pip",
-          attrs: { title: lesson.title },
-        });
-      }),
-    );
-  };
+  const ids = lessons.map((lesson) => lesson.id);
+  const indexLabel = deckIndexLabel(Math.max(1, ids.indexOf(startId ?? "") + 1), lessons.length);
 
   for (const lesson of lessons) {
     const complete = isLessonComplete(lesson.id);
@@ -143,36 +175,29 @@ function lessonDeck(
   };
 
   scroller.addEventListener("scroll", () => {
-    paintPips(activeFromScroll());
+    setDeckIndex(indexLabel, activeFromScroll(), ids);
   });
 
-  paintPips(startId ?? "");
   queueMicrotask(() => {
     const target = scroller.querySelector<HTMLElement>(`[data-lesson-id="${startId ?? ""}"]`);
     target?.scrollIntoView({ inline: "start", block: "nearest" });
-    paintPips(startId ?? "");
+    setDeckIndex(indexLabel, startId ?? "", ids);
   });
 
+  const done = lessons.filter((lesson) => progress.completedIds.includes(lesson.id)).length;
   return el("div", {
     className: "lesson-deck-wrap",
     children: [
-      el("div", {
-        className: "row-between",
-        attrs: { style: "align-items:flex-end;margin-bottom:8px" },
-        children: [
-          el("div", { className: "section-label", attrs: { style: "margin:0" }, text: title }),
-          trackMeter(lessons, progress, startId, title),
-        ],
-      }),
+      deckHeader(title, done, lessons.length),
       progress.streak > 1 && title === "Lessons"
         ? el("div", {
             className: "muted",
-            attrs: { style: "font-size:13px;margin-bottom:8px" },
+            attrs: { style: "font-size:13px" },
             text: `${progress.streak}-day streak`,
           })
         : undefined,
       scroller,
-      pips,
+      indexLabel,
     ],
   });
 }
@@ -187,20 +212,8 @@ function quizDeck(
     className: "lesson-deck",
     attrs: { role: "list", tabindex: "0", "aria-label": title },
   });
-  const pips = el("div", { className: "lesson-pips deck-pips" });
-
-  const paintPips = (activeId: string): void => {
-    pips.replaceChildren(
-      ...items.map((quiz) => {
-        const taken = hasTakenQuiz(quiz.id);
-        const current = quiz.id === activeId;
-        return el("span", {
-          className: taken ? "pip done" : current ? "pip current" : "pip",
-          attrs: { title: quiz.title },
-        });
-      }),
-    );
-  };
+  const ids = items.map((quiz) => quiz.id);
+  const indexLabel = deckIndexLabel(Math.max(1, ids.indexOf(startId ?? "") + 1), items.length);
 
   for (const quiz of items) {
     const attempt = bestQuizAttempt(quiz.id);
@@ -291,23 +304,19 @@ function quizDeck(
   };
 
   scroller.addEventListener("scroll", () => {
-    paintPips(activeFromScroll());
+    setDeckIndex(indexLabel, activeFromScroll(), ids);
   });
 
-  paintPips(startId ?? "");
   queueMicrotask(() => {
     const target = scroller.querySelector<HTMLElement>(`[data-quiz-id="${startId ?? ""}"]`);
     target?.scrollIntoView({ inline: "start", block: "nearest" });
-    paintPips(startId ?? "");
+    setDeckIndex(indexLabel, startId ?? "", ids);
   });
 
+  const done = items.filter((quiz) => hasTakenQuiz(quiz.id)).length;
   return el("div", {
     className: "lesson-deck-wrap",
-    children: [
-      el("div", { className: "section-label", text: title }),
-      scroller,
-      pips,
-    ],
+    children: [deckHeader(title, done, items.length), scroller, indexLabel],
   });
 }
 

@@ -182,6 +182,36 @@ a:focus-visible {
   gap: 8px;
 }
 
+.deck-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deck-header .section-label {
+  margin: 0;
+}
+
+.deck-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.deck-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.deck-index {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--silver);
+}
+
 .lesson-deck-wrap {
   display: flex;
   flex-direction: column;
