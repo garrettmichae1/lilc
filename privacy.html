@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>Privacy Policy — lilC</title>
+  <title>Privacy Policy — Edsger</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="wrap">
     <header>
-      <a class="mark" href="index.html">lilC</a>
+      <a class="mark" href="index.html">Edsger</a>
       <nav>
         <a href="web/">Web</a>
         <a href="privacy.html">Privacy</a>
@@ -19,45 +19,55 @@
     </header>
 
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated: August 29, 2026</p>
+    <p class="updated">Last updated: October 4, 2026</p>
 
-    <p>lilC (“we”, “the app”) is a local C programming environment for iPhone, with a matching copy in the web browser. You write C in an editor and run it with PicoC, a small interpreter. This page is the public copy of the policy also summarized in Settings.</p>
+    <p>Edsger (formerly lilC; “we”, “the app”) is a programming environment for iPhone and iPad, with a matching C copy in the web browser. You write C, Python, JavaScript or Lua in an editor and run it on your device. The app includes on-device AI and optional cloud AI features described below. This page is the public copy of the policy also summarized in Settings.</p>
 
     <h2>1. Data we collect</h2>
-    <p>lilC does not require an account and does not collect your name, email, contacts, location, photos, or advertising identifiers. We do not use analytics, crash reporters, or advertising SDKs. These pages do not set cookies or load third-party scripts.</p>
+    <p>Edsger does not require an account and does not collect your name, email, contacts, location or advertising identifiers. We do not use analytics, crash reporters, or advertising SDKs. Your code, chats and photos stay on your device unless you choose an optional cloud feature (Dijkstra, BYOK or GitHub), in which case only the data described in section 4 is sent for that request. These pages do not set cookies or load third-party scripts.</p>
 
     <h2>2. Data stored on your device</h2>
-    <p>On iPhone, C source files you create are stored in the app’s Documents folder. Theme preference (Light or Dark) is stored in UserDefaults. In the browser copy, files and theme stay in this browser (IndexedDB / localStorage). We do not receive those files.</p>
+    <p>On iPhone, source files you create are stored in the app’s Documents folder. Theme, editor, and agent preferences are stored in UserDefaults. Agent conversation history and EDSGER teaching chats are stored on the iPhone. In the browser copy, files and theme stay in this browser (IndexedDB / localStorage). With local models, we do not receive those files or conversations. If you choose BYOK cloud models on iPhone, the sharing described below applies.</p>
 
     <h2>3. How we use data</h2>
-    <p>Local files are used only to let you edit, run, and share C programs. Theme preference is used only to style the app.</p>
+    <p>Local files are used to let you edit, run, share, and ask the on-device agent to work on programs. EDSGER chat history is used to continue your local learning conversations. Preferences are used to control the app’s appearance and agent mode.</p>
 
     <h2>4. Sharing</h2>
-    <p>We do not sell or rent personal data. This version of lilC runs C on-device with PicoC. It does not send your code to a cloud AI. A future version may add an optional agent; that would require a later update, an in-app consent switch, and an updated privacy policy.</p>
+    <p>We do not sell or rent personal data. Edsger runs C on-device with PicoC and runs its optional AI agent and EDSGER tutor on-device with a bundled model. Local models do not send your code, questions, or conversations to a cloud AI. On iPhone you may optionally bring an OpenAI or Anthropic (Claude) API key in Settings → BYOK. Before loading or testing a model, you must explicitly allow sharing with that provider. When you select it for Chat or Agent IDE, your prompts, photos you attach in Chat, relevant conversation context, imported document passages, project code, and tool results are sent directly from your device to your chosen provider. Your personal API key authenticates those requests with that provider. Edsger’s servers do not receive your BYOK key, prompts or responses. The chosen AI provider processes requests under its policies. Provider retention and abuse-monitoring policies still apply; local-only privacy does not apply to these cloud requests.</p>
+
+    <p>Provider policies: <a href="https://openai.com/policies/privacy-policy/">OpenAI</a>, <a href="https://www.anthropic.com/legal/privacy">Anthropic</a>. We do not sell or rent your data to these providers.</p>
+
+    <p>Dijkstra Super Fast (Edsger Pro, optional): Dijkstra runs only after you turn on “Allow sharing with Dijkstra.” For each request, your prompt, photos you attach in Chat, relevant conversation context, imported document passages, project code and tool results are sent over HTTPS to Edsger’s service on Cloudflare, which forwards them to DeepSeek’s API to generate the reply. DeepSeek processes them under the <a href="https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html">DeepSeek privacy policy</a> and may store data on servers outside your country, including in the People’s Republic of China. Edsger’s service does not store prompts, photos, code or replies. To check your membership and allowance, the app sends your Apple-signed subscription transaction; the service confirms it with Apple and keeps a usage record per subscription (an anonymous Apple transaction ID, billing period, amounts used and request IDs). It does not receive your name, email or Apple Account. Usage records are kept while the subscription is active and for up to 13 months afterward for billing disputes, then deleted. Code and math still run on your device.</p>
+
+    <p>Chat note (Edsger Pro, optional): anything you write in the Chat note, such as reply preferences or facts about yourself, is saved only on your device. It is included with each Chat request you send to Dijkstra or to a model you connected with your own API key, and it is handled the same way as the rest of that request. It is never sent with on-device AI or IDE agent requests. Clear the note anytime to stop sending it.</p>
+
+    <p>Photos in Chat (Edsger Pro, optional): you choose each photo with Apple’s photo picker, so the app never gets access to your photo library. Before anything is sent, the photo is resized and re-encoded on your device, which removes location and camera details. It is saved with your conversation on this device and deleted when you delete that chat. When you send it, the photo goes with that Chat request to Dijkstra or to the model you connected with your own API key, and up to the three most recent photos in a conversation are included with follow-up questions. Edsger’s service does not store photos. On-device AI cannot read photos.</p>
+
+    <p>GitHub (Edsger Pro, optional): if you connect a GitHub account in Home → Git, you sign in on GitHub’s own website and authorize Edsger there. Only the files you select, the repository name, its private or public setting, and your commit message are sent directly from your device to GitHub when you tap Push. Edsger’s servers do not receive your GitHub access, files or account details. Nothing is sent to GitHub until you push, and files on GitHub are never deleted by the app. Repositories you push to are stored by GitHub under <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub’s privacy statement</a>.</p>
 
     <h2>5. Tracking</h2>
-    <p>lilC does not track you across apps or websites. We do not use the App Tracking Transparency prompt because we do not track.</p>
+    <p>Edsger does not track you across apps or websites. We do not use the App Tracking Transparency prompt because we do not track.</p>
 
     <h2>6. Children</h2>
-    <p>lilC is a general-audience coding tool. It is not directed at children under 13. We do not knowingly collect personal information from children.</p>
+    <p>Edsger is a general-audience coding tool. It is not directed at children under 13. We do not knowingly collect personal information from children.</p>
 
     <h2>7. Your choices</h2>
-    <p>You can delete an individual file from Home → Delete. You can erase all local files from Settings. Uninstalling lilC removes its local data from this device.</p>
+    <p>You can delete an individual file from Home → Delete and erase local files from Settings. You can turn off Agent Mode in Settings. You can delete EDSGER conversations from its chat history. You can turn off “Allow sharing with Dijkstra” in Settings → Membership at any time; new requests then use on-device AI. In BYOK settings you can withdraw provider sharing consent or remove a saved API key. Withdrawal stops new AI requests; it cannot recall data already sent. Removing the key does not revoke it at the provider or erase data already processed there. Revoke keys or request deletion with the provider if needed. In Git you can disconnect GitHub at any time, even without an active membership; this deletes the access token from this device. To revoke Edsger’s access on GitHub itself, use “Manage access on GitHub” or GitHub Settings → Applications. Repositories you pushed stay on GitHub until you delete them there. Uninstalling Edsger removes its local files, agent history, and EDSGER chats from this device. iOS Keychain entries may survive uninstallation; remove your BYOK keys before uninstalling or revoke them with the provider.</p>
 
     <h2>8. Security</h2>
-    <p>Programs run in a constrained interpreter. <code>system()</code> is disabled. Do not paste secrets you would not keep on your phone.</p>
+    <p>Programs run in a constrained interpreter. <code>system()</code> is disabled. BYOK keys are stored in the iOS Keychain, accessible only while the device is unlocked, without iCloud synchronization or migration to another device. Keys are not saved in preferences or chat history. The GitHub access token is stored the same way and is sent only to GitHub’s API; your GitHub password never passes through the app. Cloud connections use HTTPS, fixed provider destinations and disabled redirects. Do not put API keys or other secrets in prompts, source files, or documents sent to AI. Provider account identifiers and API credentials are processed directly by the selected provider.</p>
 
     <h2>9. Purchases</h2>
-    <p>C lessons stay free. The iPhone app may offer a one-time (non-subscription) unlock for an offline Linux study course. Apple processes that purchase. This version of lilC does not sell a subscription.</p>
+    <p>The editor, language runtimes and on-device AI are free. Edsger Pro and Edsger Pro Plus are optional monthly subscriptions sold through Apple; Apple processes payment and we never receive your payment details. BYOK API usage is billed separately by the provider; consumer ChatGPT or Claude subscriptions do not include API billing. Edsger does not sell API credits or collect provider payments through this feature.</p>
 
     <h2>10. Contact</h2>
-    <p>The project is at <a href="https://github.com/garrettmichae1/lilc">github.com/garrettmichae1/lilc</a>.</p>
+    <p>Questions or privacy requests: <a href="mailto:garrettiswoodside@gmail.com">garrettiswoodside@gmail.com</a>. The project is at <a href="https://github.com/garrettmichae1/lilc">github.com/garrettmichae1/lilc</a>.</p>
 
     <h2>11. Changes</h2>
     <p>If this policy changes, we will update the date above and the in-app copy.</p>
 
     <footer>
-      <p><a href="index.html">lilC</a> · <a href="terms.html">Terms of Use</a></p>
+      <p><a href="index.html">Edsger</a> · <a href="terms.html">Terms of Use</a></p>
     </footer>
   </div>
 </body>
